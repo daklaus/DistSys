@@ -1,3 +1,13 @@
+# Binary Folders #
+build/
+bin/
+
+# Eclipse Project Files #
+.project
+.classpath
+.settings/
+
+# Binary Files #
 *.class
 
 # Package Files #
