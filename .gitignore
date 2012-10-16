@@ -6,6 +6,7 @@ bin/
 .project
 .classpath
 .settings/
+.externalToolBuilders/
 
 # Binary Files #
 *.class
