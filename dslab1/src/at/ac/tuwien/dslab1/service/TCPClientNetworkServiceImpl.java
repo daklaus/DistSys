@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
-	private InetAddress server;
 	private Socket socket;
 	private BufferedReader in;
 	private PrintWriter out;
@@ -22,25 +19,34 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	 */
 	public TCPClientNetworkServiceImpl(String server, Integer serverPort)
 			throws IOException {
-		this.server = null;
 		this.socket = null;
 
-		setServer(server);
-		setServerPort(serverPort);
+		if (server == null || serverPort == null || serverPort <= 0)
+			throw new IllegalArgumentException(
+					"Either server and/or server port are not properly set");
+
+		Socket socket = new Socket(server, serverPort);
+
+		setSocket(socket);
 	}
 
-	private void setServer(String host) throws UnknownHostException {
-		if (host == null)
-			return;
-
-		this.server = InetAddress.getByName(host);
+	/**
+	 * 
+	 * @param socket
+	 *            a !connected! socket
+	 * @throws IOException
+	 */
+	public TCPClientNetworkServiceImpl(Socket socket) throws IOException {
+		setSocket(socket);
 	}
 
-	private void setServerPort(Integer othersTCPPort) throws IOException {
-		if (othersTCPPort == null || this.server == null)
-			return;
+	private void setSocket(Socket socket) throws IOException {
+		if (socket == null || !socket.isConnected())
+			throw new IllegalArgumentException(
+					"The socket is null or not connected");
 
-		this.socket = new Socket(server, othersTCPPort);
+		this.socket = socket;
+
 		this.in = new BufferedReader(new InputStreamReader(
 				socket.getInputStream()));
 		this.out = new PrintWriter(socket.getOutputStream(), true);
