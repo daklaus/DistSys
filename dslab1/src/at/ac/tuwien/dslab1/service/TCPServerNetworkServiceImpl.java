@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class NetworkServiceImpl implements NetworkService {
+public class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
 	private InetAddress host;
 	private Socket tcpSocket;
 	// private ServerSocket tcpListenSocket;
@@ -30,7 +30,7 @@ public class NetworkServiceImpl implements NetworkService {
 	 * @param ownUDPPort
 	 * @throws IOException
 	 */
-	public NetworkServiceImpl(String host, Integer othersTCPPort,
+	public TCPServerNetworkServiceImpl(String host, Integer othersTCPPort,
 	/* Integer ownTCPPort, */Integer othersUDPPort, Integer ownUDPPort)
 			throws IOException {
 		this.host = null;
@@ -53,7 +53,7 @@ public class NetworkServiceImpl implements NetworkService {
 	 * @param ownUDPPort
 	 * @throws IOException
 	 */
-	public NetworkServiceImpl(String host, Integer othersTCPPort,
+	public TCPServerNetworkServiceImpl(String host, Integer othersTCPPort,
 			Integer ownUDPPort) throws IOException {
 		this(host, othersTCPPort, /* null, */null, ownUDPPort);
 	}
@@ -97,7 +97,6 @@ public class NetworkServiceImpl implements NetworkService {
 		this.udpListenSocket = new DatagramSocket(ownUDPPort);
 	}
 
-	@Override
 	public void tcpSend(String messange) {
 		if (tcpOut == null)
 			throw new IllegalStateException("Output writer not initialized");
@@ -105,7 +104,6 @@ public class NetworkServiceImpl implements NetworkService {
 		tcpOut.println(messange);
 	}
 
-	@Override
 	public String tcpReceive() throws IOException {
 		if (tcpIn == null)
 			throw new IllegalStateException("Input reader not initialized");
@@ -113,7 +111,6 @@ public class NetworkServiceImpl implements NetworkService {
 		return tcpIn.readLine();
 	}
 
-	@Override
 	public void udpSend(String message) throws IOException {
 		if (udpSocket == null || othersUDPPort == null || this.host == null)
 			throw new IllegalStateException("UDP socket not initialized");
@@ -124,7 +121,6 @@ public class NetworkServiceImpl implements NetworkService {
 		udpSocket.send(packet);
 	}
 
-	@Override
 	public String udpReceive() throws IOException {
 		if (udpListenSocket == null)
 			throw new IllegalStateException(
@@ -169,6 +165,12 @@ public class NetworkServiceImpl implements NetworkService {
 			udpSocket.close();
 		if (udpListenSocket != null)
 			udpListenSocket.close();
+	}
+
+	@Override
+	public TCPClientNetworkService accept() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

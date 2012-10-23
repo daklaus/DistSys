@@ -8,21 +8,20 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab1.service.NetworkService;
-import at.ac.tuwien.dslab1.service.NetworkServiceImpl;
+import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
+import at.ac.tuwien.dslab1.service.TCPClientNetworkServiceImpl;
+import at.ac.tuwien.dslab1.service.UDPServerNetworkService;
+import at.ac.tuwien.dslab1.service.UDPServerNetworkServiceImpl;
 
 /**
  * @author klaus
  * 
  */
 public class AuctionClientServiceImpl implements AuctionClientService {
-	private NetworkService _ns;
+	private TCPClientNetworkService ns;
 	private NotificationListener listener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
-	private String server;
-	private Integer serverPort;
-	private Integer udpPort;
 	private String userName;
 
 	// Private constructor prevents instantiation from other classes
@@ -35,26 +34,6 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 
 	public static AuctionClientService getInstance() {
 		return AuctionClientServiceHolder.INSTANCE;
-	}
-
-	/**
-	 * Gets and if necessary initializes the network service
-	 * 
-	 * @return the network service
-	 * @throws IOException
-	 */
-	synchronized private NetworkService getNetwortService() throws IOException {
-		if (_ns != null)
-			return _ns;
-		if (server == null || server.isEmpty() || serverPort == null
-				|| serverPort == 0 || udpPort == null || udpPort == 0)
-			throw new IllegalStateException(
-					"Cannot initialize NetworkService because one or more of "
-							+ "the values 'server', 'serverPort' or 'udpPort' are not yet set");
-
-		_ns = new NetworkServiceImpl(server, serverPort, udpPort);
-
-		return _ns;
 	}
 
 	@Override
@@ -70,26 +49,31 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 
 	@Override
 	public String submitCommand(String command) throws IOException {
-		NetworkService ns = getNetwortService();
+		if (!isConnected())
+			throw new IllegalStateException("Service not connected!");
 
 		// Send the command to the server
-		ns.tcpSend(command);
+		ns.send(command);
 
 		// Return the reply from the server
-		return ns.tcpReceive();
+		return ns.receive();
 	}
 
 	@Override
-	public void setNetworkParameter(String server, Integer serverPort,
-			Integer udpPort) {
-		if (server == null || server.isEmpty() || serverPort == null
-				|| serverPort == 0 || udpPort == null || udpPort == 0)
-			throw new IllegalArgumentException(
-					"One or more of the values 'server', 'serverPort' or "
-							+ "'udpPort' are not set properly");
-		this.server = server;
-		this.serverPort = serverPort;
-		this.udpPort = udpPort;
+	public void connect(String server, Integer serverPort, Integer udpPort)
+			throws IOException {
+
+		if (ns == null) {
+			if (server == null || server.isEmpty() || serverPort == null
+					|| serverPort <= 0 || udpPort == null || udpPort <= 0)
+				throw new IllegalArgumentException(
+						"The server or the server port are not set properly");
+
+			ns = new TCPClientNetworkServiceImpl(server, serverPort);
+		}
+
+		// Start listening for notifications
+		startNotification(udpPort);
 	}
 
 	@Override
@@ -106,17 +90,29 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	public void close() throws IOException {
 		if (notificationThread != null)
 			notificationThread.close();
-		if (_ns != null)
-			_ns.close();
+		if (ns != null)
+			ns.close();
 	}
 
 	@Override
-	public void startNotification() {
+	public Boolean isConnected() {
+		return ns != null;
+	};
+
+	/**
+	 * Start receiving notifications from the server
+	 * 
+	 * @throws IOException
+	 */
+	private void startNotification(Integer udpPort) throws IOException {
 		if (notificationThread != null && notificationThread.isAlive())
 			return;
+		if (udpPort == null || udpPort <= 0)
+			throw new IllegalArgumentException(
+					"The UDP port is not set properly");
 
 		// Start notification thread
-		notificationThread = new NotificationThread();
+		notificationThread = new NotificationThread(udpPort);
 		notificationThread.setName("Notification thread");
 		notificationThread.setUncaughtExceptionHandler(notificationExHandler);
 		notificationThread.start();
@@ -124,18 +120,31 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 
 	private class NotificationThread extends Thread {
 		private volatile Boolean stop;
+		private UDPServerNetworkService ns;
+
+		public NotificationThread(Integer udpPort) throws IOException {
+			if (udpPort == null || udpPort <= 0)
+				throw new IllegalArgumentException(
+						"The UDP port is not set properly");
+
+			ns = new UDPServerNetworkServiceImpl(udpPort);
+		}
+
+		public Boolean isConnected() {
+			return ns != null;
+		}
 
 		@Override
 		public void run() {
-			NetworkService ns = null;
 			String command = null;
 			stop = false;
 
-			try {
-				ns = getNetwortService();
+			if (!isConnected())
+				throw new IllegalStateException("Service not connected!");
 
+			try {
 				while (!stop) {
-					command = ns.udpReceive();
+					command = ns.receive();
 
 					parseNotificationCommand(command);
 				}
@@ -144,11 +153,15 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 				// http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
 				// under "What if a thread doesn't respond to Thread.interrupt?"
 
-				// So the socket is closed when the NetworkService is closed and
+				// So the socket is closed when the ClientNetworkService is
+				// closed and
 				// in that special case no error should be propagated.
-				if (!(stop && e.getClass() == SocketException.class))
-					this.getUncaughtExceptionHandler().uncaughtException(this,
-							e);
+				if (!(stop && e.getClass() == SocketException.class)) {
+					UncaughtExceptionHandler eh = this
+							.getUncaughtExceptionHandler();
+					if (eh != null)
+						eh.uncaughtException(this, e);
+				}
 			}
 		}
 
@@ -199,9 +212,10 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 			}
 		}
 
-		public void close() {
+		public void close() throws IOException {
 			this.stop = true;
 			this.interrupt();
+			ns.close();
 		}
 
 	}

@@ -47,8 +47,16 @@ public class Client {
 		acs = ServiceFactory.getAuctionClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
-		acs.setNetworkParameter(host, tcpPort, udpPort);
-		acs.startNotification();
+		try {
+			acs.connect(host, tcpPort, udpPort);
+		} catch (IOException e) {
+			System.err.println("Error while connecting:");
+			e.printStackTrace();
+
+			close();
+			System.exit(0);
+		}
+
 	}
 
 	private static void usage() {

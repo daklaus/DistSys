@@ -15,11 +15,14 @@ public interface AuctionClientService {
 	/**
 	 * Sets the notification handlers of the service
 	 * 
-	 * @param listener the listener for notifications
-	 * @param exHandler the handler for exceptions
+	 * @param listener
+	 *            the listener for notifications
+	 * @param exHandler
+	 *            the handler for exceptions
 	 */
-	public void setNotificationListener(NotificationListener listener, UncaughtExceptionHandler exHandler);
-	
+	void setNotificationListener(NotificationListener listener,
+			UncaughtExceptionHandler exHandler);
+
 	/**
 	 * 
 	 */
@@ -32,7 +35,7 @@ public interface AuctionClientService {
 	 * @return the reply from the server
 	 * @throws IOException
 	 */
-	public String submitCommand(String command) throws IOException;
+	String submitCommand(String command) throws IOException;
 
 	/**
 	 * Sets the server, server port and own UDP port for the networking. This
@@ -45,33 +48,36 @@ public interface AuctionClientService {
 	 * @param udpPort
 	 *            the UDP port on which to listen for notifications from the
 	 *            server
+	 * @throws IOException
 	 */
-	public void setNetworkParameter(String server, Integer serverPort,
-			Integer udpPort);
+	void connect(String server, Integer serverPort, Integer udpPort)
+			throws IOException;
+
+	/**
+	 * True if and only if the service is connected
+	 * 
+	 * @return
+	 */
+	Boolean isConnected();
 
 	/**
 	 * Free all acquired resources
 	 * 
 	 * @throws IOException
 	 */
-	public void close() throws IOException;
-
-	/**
-	 * Start recieving notifications from the server
-	 */
-	public void startNotification();
+	void close() throws IOException;
 
 	/**
 	 * Sets the user name
 	 * 
 	 * @param userName
 	 */
-	public void setUserName(String userName);
+	void setUserName(String userName);
 
 	/**
 	 * Gets the user name if logged in
 	 * 
 	 * @return the user name if logged in; null otherwise
 	 */
-	public String getUserName();
+	String getUserName();
 }
