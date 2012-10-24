@@ -1,4 +1,4 @@
 DistSys
 =======
 
-Distributed Systems UE, TU Wien
+Distributed Systems UE WS2012, TU Wien
