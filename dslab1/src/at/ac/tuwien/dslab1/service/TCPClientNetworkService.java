@@ -8,5 +8,6 @@ package at.ac.tuwien.dslab1.service;
  * 
  */
 public interface TCPClientNetworkService extends ClientNetworkService {
+	public static final char terminationChar = '\0';
 
 }

@@ -19,9 +19,12 @@ import at.ac.tuwien.dslab1.service.UDPServerNetworkServiceImpl;
  */
 public class AuctionClientServiceImpl implements AuctionClientService {
 	private TCPClientNetworkService ns;
-	private NotificationListener listener;
+	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
+	private ReplyListener replyListener;
+	private ReplyThread replyThread;
+	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 
 	// Private constructor prevents instantiation from other classes
@@ -40,23 +43,31 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	public void setNotificationListener(NotificationListener listener,
 			UncaughtExceptionHandler exHandler) {
 		if (listener == null)
-			throw new IllegalArgumentException("listener is null");
+			throw new IllegalArgumentException("notificationListener is null");
 		if (exHandler == null)
 			throw new IllegalArgumentException("exHandler is null");
-		this.listener = listener;
+		this.notificationListener = listener;
 		this.notificationExHandler = exHandler;
 	}
 
 	@Override
-	public String submitCommand(String command) throws IOException {
+	public void setReplyListener(ReplyListener listener,
+			UncaughtExceptionHandler exHandler) {
+		if (listener == null)
+			throw new IllegalArgumentException("notificationListener is null");
+		if (exHandler == null)
+			throw new IllegalArgumentException("exHandler is null");
+		this.replyListener = listener;
+		this.replyExHandler = exHandler;
+	}
+
+	@Override
+	public void submitCommand(String command) throws IOException {
 		if (!isConnected())
 			throw new IllegalStateException("Service not connected!");
 
 		// Send the command to the server
 		ns.send(command);
-
-		// Return the reply from the server
-		return ns.receive();
 	}
 
 	@Override
@@ -74,30 +85,10 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 
 		// Start listening for notifications
 		startNotification(udpPort);
-	}
 
-	@Override
-	public void setUserName(String userName) {
-		this.userName = userName;
+		// Start listening for replies
+		startReplying();
 	}
-
-	@Override
-	public String getUserName() {
-		return this.userName;
-	}
-
-	@Override
-	public void close() throws IOException {
-		if (notificationThread != null)
-			notificationThread.close();
-		if (ns != null)
-			ns.close();
-	}
-
-	@Override
-	public Boolean isConnected() {
-		return ns != null;
-	};
 
 	/**
 	 * Start receiving notifications from the server
@@ -117,6 +108,49 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 		notificationThread.setUncaughtExceptionHandler(notificationExHandler);
 		notificationThread.start();
 	}
+
+	/**
+	 * Start receiving replies from the server
+	 * 
+	 * @throws IOException
+	 */
+	private void startReplying() throws IOException {
+		if (replyThread != null && replyThread.isAlive())
+			return;
+		if (!isConnected())
+			throw new IllegalStateException("Service not connected!");
+
+		// Start reply thread
+		replyThread = new ReplyThread(ns);
+		replyThread.setName("Reply thread");
+		replyThread.setUncaughtExceptionHandler(replyExHandler);
+		replyThread.start();
+	}
+
+	@Override
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	@Override
+	public String getUserName() {
+		return this.userName;
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (notificationThread != null)
+			notificationThread.close();
+		if (replyThread != null)
+			replyThread.close();
+		if (ns != null)
+			ns.close();
+	}
+
+	@Override
+	public Boolean isConnected() {
+		return ns != null;
+	};
 
 	private class NotificationThread extends Thread {
 		private volatile Boolean stop;
@@ -154,8 +188,8 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 				// under "What if a thread doesn't respond to Thread.interrupt?"
 
 				// So the socket is closed when the ClientNetworkService is
-				// closed and
-				// in that special case no error should be propagated.
+				// closed and in that special case no error should be
+				// propagated.
 				if (!(stop && e.getClass() == SocketException.class)) {
 					UncaughtExceptionHandler eh = this
 							.getUncaughtExceptionHandler();
@@ -166,15 +200,16 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 		}
 
 		/**
-		 * Parse command and execute the methods of the notification listener
+		 * Parse command and execute the methods of the notification
+		 * notificationListener
 		 * 
 		 * @param command
 		 */
 		private void parseNotificationCommand(String command) {
 
-			if (listener == null)
+			if (notificationListener == null)
 				throw new IllegalStateException(
-						"Cannot notify because the listener is not yet set");
+						"Cannot notify because the notificationListener is not yet set");
 
 			// Commands:
 			// !new-bid <description>
@@ -196,7 +231,7 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 					return;
 				String description = sc.skip("\\s*").nextLine();
 
-				listener.newBid(description);
+				notificationListener.newBid(description);
 			} else if (tmp.equalsIgnoreCase("!auction-ended")) {
 				if (!sc.hasNext())
 					return;
@@ -208,7 +243,7 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 					return;
 				String description = sc.skip("\\s*").nextLine();
 
-				listener.auctionEnded(winner, amount, description);
+				notificationListener.auctionEnded(winner, amount, description);
 			}
 		}
 
@@ -216,6 +251,64 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 			this.stop = true;
 			this.interrupt();
 			ns.close();
+		}
+
+	}
+
+	private class ReplyThread extends Thread {
+		private volatile Boolean stop;
+		private TCPClientNetworkService ns;
+
+		public ReplyThread(TCPClientNetworkService ns) throws IOException {
+			if (ns == null)
+				throw new IllegalArgumentException(
+						"The TCPClientNetworkService is null");
+
+			this.ns = ns;
+		}
+
+		public Boolean isConnected() {
+			return ns != null;
+		}
+
+		@Override
+		public void run() {
+			String reply = null;
+			stop = false;
+
+			if (!isConnected())
+				throw new IllegalStateException("Service not connected!");
+
+			try {
+				while (!stop) {
+					reply = ns.receive();
+
+					if (replyListener == null)
+						throw new IllegalStateException(
+								"Cannot display reply because the replyListener is not set");
+
+					replyListener.displayReply(reply);
+				}
+			} catch (IOException e) {
+				// The if-clause down here is because of what is described in
+				// http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
+				// under "What if a thread doesn't respond to Thread.interrupt?"
+
+				// So the socket is closed when the ClientNetworkService is
+				// closed and in that special case no error should be
+				// propagated.
+				if (!(stop && e.getClass() == SocketException.class)) {
+					UncaughtExceptionHandler eh = this
+							.getUncaughtExceptionHandler();
+					if (eh != null)
+						eh.uncaughtException(this, e);
+				}
+			}
+		}
+
+		public void close() throws IOException {
+			this.stop = true;
+			this.interrupt();
 		}
 
 	}

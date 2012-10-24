@@ -24,6 +24,17 @@ public interface AuctionClientService {
 			UncaughtExceptionHandler exHandler);
 
 	/**
+	 * Sets the reply handlers of the service
+	 * 
+	 * @param listener
+	 *            the listener for notifications
+	 * @param exHandler
+	 *            the handler for exceptions
+	 */
+	void setReplyListener(ReplyListener listener,
+			UncaughtExceptionHandler exHandler);
+
+	/**
 	 * 
 	 */
 
@@ -32,10 +43,9 @@ public interface AuctionClientService {
 	 * 
 	 * @param command
 	 *            the full command to submit
-	 * @return the reply from the server
 	 * @throws IOException
 	 */
-	String submitCommand(String command) throws IOException;
+	void submitCommand(String command) throws IOException;
 
 	/**
 	 * Sets the server, server port and own UDP port for the networking. This

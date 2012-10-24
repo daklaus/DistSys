@@ -4,7 +4,6 @@
 package at.ac.tuwien.dslab1.presentation.client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab1.service.client.AuctionClientService;
@@ -47,6 +46,7 @@ public class Client {
 		acs = ServiceFactory.getAuctionClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
+		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
 		try {
 			acs.connect(host, tcpPort, udpPort);
 		} catch (IOException e) {
@@ -68,13 +68,10 @@ public class Client {
 				+ "notifications from the auction server).");
 
 		close();
-		System.exit(0);
 	}
 
 	private static void readInput() {
 		Scanner sc = new Scanner(System.in);
-		PrintWriter pw = new PrintWriter(System.out, true);
-		String out = null;
 		String cmd;
 		Boolean end;
 
@@ -87,9 +84,7 @@ public class Client {
 			if (!end) {
 				try {
 					if (!cmd.trim().isEmpty()) {
-						out = acs.submitCommand(cmd);
-
-						pw.println(out);
+						acs.submitCommand(cmd);
 					}
 
 					System.out.print(getPrompt());
@@ -102,7 +97,7 @@ public class Client {
 		}
 	}
 
-	private static void close() {
+	synchronized static void close() {
 		if (acs != null) {
 			try {
 				acs.close();

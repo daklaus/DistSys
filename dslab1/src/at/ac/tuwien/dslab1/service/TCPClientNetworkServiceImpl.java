@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	private Socket socket;
-	private BufferedReader in;
+	private Scanner in;
 	private PrintWriter out;
 
 	/**
@@ -47,8 +50,8 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 
 		this.socket = socket;
 
-		this.in = new BufferedReader(new InputStreamReader(
-				socket.getInputStream()));
+		this.in = new Scanner(new BufferedReader(new InputStreamReader(
+				socket.getInputStream()))).useDelimiter(terminationChar + "+");
 		this.out = new PrintWriter(socket.getOutputStream(), true);
 	}
 
@@ -57,7 +60,8 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 		if (out == null)
 			throw new IllegalStateException("Output writer not initialized");
 
-		out.println(messange);
+		out.print(messange + terminationChar);
+		out.flush();
 	}
 
 	@Override
@@ -65,17 +69,21 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 		if (in == null)
 			throw new IllegalStateException("Input reader not initialized");
 
-		return in.readLine();
+		try {
+			return in.next();
+		} catch (NoSuchElementException e) {
+			throw new SocketException("Socket closed");
+		}
 	}
 
 	@Override
 	public void close() throws IOException {
+		if (socket != null)
+			socket.close();
 		if (in != null)
 			in.close();
 		if (out != null)
 			out.close();
-		if (socket != null)
-			socket.close();
 	}
 
 }
