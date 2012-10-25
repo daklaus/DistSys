@@ -22,12 +22,11 @@ public class User {
 	 * @param client
 	 * @param notifications
 	 */
-	public User(Boolean loggedIn, String name, Client client,
-			BlockingQueue<String> notifications) {
+	public User(Boolean loggedIn, String name, Client client) {
 		this.loggedIn = loggedIn;
 		this.name = name;
 		this.client = client;
-		this.notifications = notifications;
+		this.notifications = new LinkedBlockingQueue<String>();
 	}
 
 	/**
@@ -35,14 +34,14 @@ public class User {
 	 * @param client
 	 */
 	public User(String name, Client client) {
-		this(true, name, client, new LinkedBlockingQueue<String>());
+		this(false, name, client);
 	}
 
 	/**
 	 * @param name
 	 */
 	public User(String name) {
-		this(true, name, null, new LinkedBlockingQueue<String>());
+		this(name, null);
 	}
 
 	public Boolean getLoggedIn() {

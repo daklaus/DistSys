@@ -15,5 +15,5 @@ public interface ReplyListener {
 	 * @param reply
 	 *            the reply from the server
 	 */
-	public void displayReply(String reply);
+	void displayReply(String reply);
 }

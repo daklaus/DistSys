@@ -15,7 +15,7 @@ public interface NotificationListener {
 	 * @param description
 	 *            the description of the auction
 	 */
-	public void newBid(String description);
+	void newBid(String description);
 
 	/**
 	 * Notify the user about the end of an auction.
@@ -27,5 +27,5 @@ public interface NotificationListener {
 	 * @param description
 	 *            the auction's description
 	 */
-	public void auctionEnded(String winner, double amount, String description);
+	void auctionEnded(String winner, double amount, String description);
 }

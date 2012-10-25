@@ -15,6 +15,7 @@ import at.ac.tuwien.dslab1.service.client.ServiceFactory;
  */
 public class Client {
 	private static AuctionClientService acs;
+	private static Integer udpPort;
 
 	/**
 	 * @param args
@@ -41,7 +42,7 @@ public class Client {
 		sc = new Scanner(args[2]);
 		if (!sc.hasNextInt())
 			usage();
-		Integer udpPort = sc.nextInt();
+		udpPort = sc.nextInt();
 
 		acs = ServiceFactory.getAuctionClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
@@ -146,6 +147,8 @@ public class Client {
 				return ret;
 			if (acs != null)
 				acs.setUserName(sc.next());
+
+			command = command + " " + udpPort;
 		} else if (tmp.equalsIgnoreCase("!logout")) {
 			if (acs != null)
 				acs.setUserName(null);

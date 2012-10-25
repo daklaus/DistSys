@@ -3,11 +3,12 @@
  */
 package at.ac.tuwien.dslab1.domain;
 
-import java.security.InvalidParameterException;
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.NavigableSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author klaus
@@ -17,7 +18,7 @@ public class Auction {
 	private Integer id;
 	private String description;
 	private User owner;
-	private NavigableSet<Bid> bids;
+	private SortedSet<Bid> bids;
 	private Integer duration;
 	private Date start;
 
@@ -33,14 +34,14 @@ public class Auction {
 		this.owner = owner;
 		this.duration = duration;
 		this.start = new Date();
+		this.bids = Collections.synchronizedSortedSet(new TreeSet<Bid>());
 	}
 
-	public NavigableSet<Bid> getBids() {
-		return this.bids;
-	}
+	public void addBid(Bid bid) {
+		if (bid == null)
+			throw new IllegalArgumentException("Bid is null");
 
-	public void setBids(NavigableSet<Bid> bids) {
-		this.bids = bids;
+		this.bids.add(bid);
 	}
 
 	public Integer getId() {
@@ -84,12 +85,11 @@ public class Auction {
 
 		return cal.getTime();
 	}
-	
-	public Boolean isExpired()
-	{	
+
+	public Boolean isExpired() {
 		Date now = new Date();
 		Date end = getEndDate();
-		
+
 		return now.after(end);
 	}
 

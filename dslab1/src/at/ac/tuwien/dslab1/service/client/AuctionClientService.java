@@ -35,10 +35,6 @@ public interface AuctionClientService {
 			UncaughtExceptionHandler exHandler);
 
 	/**
-	 * 
-	 */
-
-	/**
 	 * Submit a command to the auction server
 	 * 
 	 * @param command
@@ -64,9 +60,9 @@ public interface AuctionClientService {
 			throws IOException;
 
 	/**
-	 * True if and only if the service is connected
+	 * Determines whether the service is connected or not
 	 * 
-	 * @return
+	 * @return true if and only if the service is connected
 	 */
 	Boolean isConnected();
 
