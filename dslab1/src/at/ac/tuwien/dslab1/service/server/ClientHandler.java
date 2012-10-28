@@ -16,6 +16,7 @@ class ClientHandler implements Runnable {
 	private TCPClientNetworkService ns;
 	private AuctionService as;
 	private User user;
+	private NotificationThread notificationThread;
 
 	public ClientHandler(TCPClientNetworkService ns) throws IOException {
 		if (ns == null)
@@ -82,8 +83,9 @@ class ClientHandler implements Runnable {
 	 * @param command
 	 * @return the reply to send to the client or null if the connection should
 	 *         be closed
+	 * @throws IOException
 	 */
-	private String executeCommand(String command) {
+	private String executeCommand(String command) throws IOException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
 		if (ns == null)
@@ -134,8 +136,10 @@ class ClientHandler implements Runnable {
 				return "You are already logged in on another client, you first have to log out!";
 			}
 			user.setLoggedIn(true);
+			user.setClient(c);
 
-			// TODO Start notification thread
+			// Start notification thread
+			startNotification(user);
 
 			return "Successfully logged in as " + userName + "!";
 
@@ -147,7 +151,9 @@ class ClientHandler implements Runnable {
 			String userName = user.getName();
 			user = null;
 
-			// TODO Stop notification thread
+			// Stop notification thread
+			if (notificationThread != null)
+				notificationThread.close();
 
 			return "Successfully logged out as " + userName + "!";
 
@@ -217,10 +223,32 @@ class ClientHandler implements Runnable {
 		if (user != null)
 			as.logout(user);
 
-		// TODO Close notification thread
+		// Close notification thread
+		if (notificationThread != null)
+			notificationThread.close();
 
 		if (ns != null)
 			ns.close();
+	}
+
+	/**
+	 * Start receiving notifications from the server
+	 * 
+	 * @throws IOException
+	 */
+	private void startNotification(User user) throws IOException {
+		if (notificationThread != null && notificationThread.isAlive())
+			return;
+		if (user == null)
+			throw new IllegalArgumentException("The user is null");
+
+		// Start notification thread
+		notificationThread = new NotificationThread(user);
+		notificationThread.setName("Notification thread for user "
+				+ user.getName());
+		notificationThread.setUncaughtExceptionHandler(Thread.currentThread()
+				.getUncaughtExceptionHandler());
+		notificationThread.start();
 	}
 
 }

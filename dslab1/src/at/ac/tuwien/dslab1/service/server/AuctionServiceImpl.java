@@ -1,9 +1,12 @@
 package at.ac.tuwien.dslab1.service.server;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import at.ac.tuwien.dslab1.domain.Auction;
@@ -14,6 +17,7 @@ import at.ac.tuwien.dslab1.domain.User;
 public class AuctionServiceImpl implements AuctionService {
 	private Map<String, User> users;
 	private SortedMap<Integer, Auction> auctions;
+	private Timer timer;
 	private volatile Integer idCounter;
 
 	// Private constructor prevents instantiation from other classes
@@ -21,6 +25,7 @@ public class AuctionServiceImpl implements AuctionService {
 		users = Collections.synchronizedMap(new LinkedHashMap<String, User>());
 		auctions = Collections
 				.synchronizedSortedMap(new TreeMap<Integer, Auction>());
+		timer = new Timer("Timer thread");
 		idCounter = 1;
 	}
 
@@ -35,15 +40,19 @@ public class AuctionServiceImpl implements AuctionService {
 	@Override
 	public synchronized Auction create(User owner, String description,
 			Integer duration) {
-		// TODO Start timer for auction
 
 		Auction a = new Auction(idCounter++, description, owner, duration);
 		auctions.put(a.getId(), a);
+		// Start timer for auction
+		timer.schedule(new AuctionEndTask(a), a.getEndDate());
 		return a;
 	}
 
 	@Override
 	public synchronized String list() {
+		if (auctions.isEmpty())
+			return "There are currently no auctions running!";
+
 		StringBuilder sb = new StringBuilder();
 		for (Auction a : auctions.values()) {
 			sb.append(a.toString());
@@ -55,14 +64,21 @@ public class AuctionServiceImpl implements AuctionService {
 
 	@Override
 	public synchronized Auction bid(User user, Integer auctionId, double amount) {
-		// TODO Notify overbid
 
 		Auction a = auctions.get(auctionId);
 
 		if (a == null)
 			return null;
 
+		User prevHighestBidder = a.getHighestBidder();
+
 		a.addBid(new Bid(amount, user));
+
+		// Notify overbid
+		if (prevHighestBidder != null && !prevHighestBidder.equals(user)
+				&& !prevHighestBidder.equals(a.getHighestBidder())) {
+			prevHighestBidder.addNotification("!new-bid " + a.getDescription());
+		}
 
 		return a;
 	}
@@ -84,6 +100,45 @@ public class AuctionServiceImpl implements AuctionService {
 	public synchronized void logout(User user) {
 		user.setClient(null);
 		user.setLoggedIn(false);
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.timer.cancel();
+	}
+
+	private class AuctionEndTask extends TimerTask {
+		Auction a;
+
+		public AuctionEndTask(Auction a) {
+			super();
+			this.a = a;
+		}
+
+		@Override
+		public void run() {
+			final User owner = a.getOwner();
+			final User winner = a.getHighestBidder();
+			final Bid bid = a.getHighestBid();
+
+			final String notification = "!auction-ended "
+					+ (winner != null ? winner.toString() : "none")
+					+ " "
+					+ (bid != null ? String.format("%.2f", bid.getAmount())
+							: "0.00") + " " + a.getDescription();
+
+			// Notify owner
+			if (owner != null)
+				owner.addNotification(notification);
+
+			// Notify winner
+			if (winner != null && !winner.equals(owner))
+				winner.addNotification(notification);
+
+			synchronized (auctions) {
+				auctions.remove(a.getId());
+			}
+		}
 	}
 
 }

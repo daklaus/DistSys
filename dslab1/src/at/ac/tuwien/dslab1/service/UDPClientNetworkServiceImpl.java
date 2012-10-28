@@ -18,7 +18,7 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	 * @param serverPort
 	 * @throws IOException
 	 */
-	public UDPClientNetworkServiceImpl(String server, Integer serverPort)
+	public UDPClientNetworkServiceImpl(InetAddress server, Integer serverPort)
 			throws IOException {
 		this.server = null;
 		this.socket = null;
@@ -27,18 +27,29 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 		setServerPort(serverPort);
 	}
 
-	private void setServer(String host) throws UnknownHostException {
-		if (host == null)
-			return;
-
-		this.server = InetAddress.getByName(host);
+	/**
+	 * 
+	 * @param server
+	 * @param serverPort
+	 * @throws IOException
+	 */
+	public UDPClientNetworkServiceImpl(String server, Integer serverPort)
+			throws IOException {
+		this(InetAddress.getByName(server), serverPort);
 	}
 
-	private void setServerPort(Integer othersUDPPort) throws SocketException {
-		if (othersUDPPort == null)
+	private void setServer(InetAddress server) {
+		if (server == null)
 			return;
 
-		this.serverPort = othersUDPPort;
+		this.server = server;
+	}
+
+	private void setServerPort(Integer serverPort) throws SocketException {
+		if (serverPort == null)
+			return;
+
+		this.serverPort = serverPort;
 		this.socket = new DatagramSocket();
 	}
 

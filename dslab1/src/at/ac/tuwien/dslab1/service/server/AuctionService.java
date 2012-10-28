@@ -3,6 +3,8 @@
  */
 package at.ac.tuwien.dslab1.service.server;
 
+import java.io.IOException;
+
 import at.ac.tuwien.dslab1.domain.Auction;
 import at.ac.tuwien.dslab1.domain.Bid;
 import at.ac.tuwien.dslab1.domain.Client;
@@ -67,4 +69,11 @@ public interface AuctionService {
 	 *            the user who should be logged out
 	 */
 	public void logout(User user);
+
+	/**
+	 * Free all acquired resources
+	 * 
+	 * @throws IOException
+	 */
+	void close() throws IOException;
 }

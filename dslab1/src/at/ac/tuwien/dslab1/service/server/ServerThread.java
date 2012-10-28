@@ -76,6 +76,7 @@ class ServerThread extends Thread {
 		stop = true;
 		if (pool != null)
 			shutdownAndAwaitTermination(pool);
+		ServiceFactory.getAuctionService().close();
 		this.interrupt();
 		if (ns != null)
 			ns.close();

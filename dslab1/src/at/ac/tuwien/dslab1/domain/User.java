@@ -68,8 +68,11 @@ public class User {
 		return this.notifications;
 	}
 
-	public void setNotifications(BlockingQueue<String> notifications) {
-		this.notifications = notifications;
+	public void addNotification(String notification) {
+		if (notification == null)
+			throw new IllegalArgumentException("notification is null");
+
+		this.notifications.offer(notification);
 	}
 
 	@Override
