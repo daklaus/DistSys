@@ -3,12 +3,14 @@
  */
 package at.ac.tuwien.dslab1.domain;
 
+import java.net.InetAddress;
+
 /**
  * @author klaus
  * 
  */
 public class Client {
-	private String ip;
+	private InetAddress ip;
 	private Integer tcpPort;
 	private Integer udpPort;
 
@@ -17,34 +19,22 @@ public class Client {
 	 * @param tcpPort
 	 * @param udpPort
 	 */
-	public Client(String ip, Integer tcpPort, Integer udpPort) {
+	public Client(InetAddress ip, Integer tcpPort, Integer udpPort) {
 		this.ip = ip;
 		this.tcpPort = tcpPort;
 		this.udpPort = udpPort;
 	}
 
-	public String getIp() {
+	public InetAddress getIp() {
 		return this.ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 
 	public Integer getTcpPort() {
 		return this.tcpPort;
 	}
 
-	public void setTcpPort(Integer tcpPort) {
-		this.tcpPort = tcpPort;
-	}
-
 	public Integer getUdpPort() {
 		return this.udpPort;
-	}
-
-	public void setUdpPort(Integer udpPort) {
-		this.udpPort = udpPort;
 	}
 
 	@Override

@@ -2,15 +2,11 @@ package at.ac.tuwien.dslab1.service.server;
 
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.TreeMap;
-
-import at.ac.tuwien.dslab1.domain.Auction;
-import at.ac.tuwien.dslab1.domain.User;
-import at.ac.tuwien.dslab1.service.server.AuctionServiceImpl.AuctionServerServiceHolder;
 
 public class AuctionServerServiceImpl implements AuctionServerService {
+
+	private ServerThread serverThread;
+	private UncaughtExceptionHandler serverExHandler;
 
 	// Private constructor prevents instantiation from other classes
 	private AuctionServerServiceImpl() {
@@ -25,21 +21,34 @@ public class AuctionServerServiceImpl implements AuctionServerService {
 	}
 
 	@Override
-	public void start(Integer tcpPort) {
-		// TODO Auto-generated method stub
+	public void start(Integer tcpPort) throws IOException {
+		if (serverThread != null && serverThread.isAlive())
+			return;
+		if (tcpPort == null || tcpPort <= 0)
+			throw new IllegalArgumentException(
+					"The TCP port is not set properly");
 
+		// Start server thread
+		serverThread = new ServerThread(tcpPort);
+		serverThread.setName("Server thread");
+		serverThread.setUncaughtExceptionHandler(serverExHandler);
+		serverThread.start();
 	}
 
 	@Override
 	public void setExceptionHandler(UncaughtExceptionHandler exHandler) {
-		// TODO Auto-generated method stub
+		if (exHandler == null)
+			throw new IllegalArgumentException("exHandler is null");
+		this.serverExHandler = exHandler;
 
+		if (serverThread != null)
+			serverThread.setUncaughtExceptionHandler(exHandler);
 	}
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
+		if (serverThread != null)
+			serverThread.close();
 	}
 
 }

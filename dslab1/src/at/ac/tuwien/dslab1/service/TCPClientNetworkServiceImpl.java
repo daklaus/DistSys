@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.NoSuchElementException;
@@ -74,6 +75,34 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 		} catch (NoSuchElementException e) {
 			throw new SocketException("Socket closed");
 		}
+	}
+
+	@Override
+	public InetAddress getLocalAddress() {
+		if (socket == null)
+			return null;
+		return socket.getLocalAddress();
+	}
+
+	@Override
+	public InetAddress getAddress() {
+		if (socket == null)
+			return null;
+		return socket.getInetAddress();
+	}
+
+	@Override
+	public Integer getLocalPort() {
+		if (socket == null)
+			return null;
+		return socket.getLocalPort();
+	}
+
+	@Override
+	public Integer getPort() {
+		if (socket == null)
+			return null;
+		return socket.getPort();
 	}
 
 	@Override

@@ -38,10 +38,15 @@ class NotificationThread extends Thread {
 			throw new IllegalStateException("Service not connected!");
 
 		try {
-			while (!stop) {
-				command = ns.receive();
+			try {
+				while (!stop) {
+					command = ns.receive();
 
-				parseNotificationCommand(command);
+					parseCommand(command);
+				}
+			} finally {
+				if (ns != null)
+					ns.close();
 			}
 		} catch (IOException e) {
 			// The if-clause down here is because of what is described in
@@ -66,7 +71,7 @@ class NotificationThread extends Thread {
 	 * 
 	 * @param command
 	 */
-	private void parseNotificationCommand(String command) {
+	private void parseCommand(String command) {
 
 		// Commands:
 		// !new-bid <description>
@@ -107,7 +112,8 @@ class NotificationThread extends Thread {
 	public void close() throws IOException {
 		stop = true;
 		this.interrupt();
-		ns.close();
+		if (ns != null)
+			ns.close();
 	}
 
 }

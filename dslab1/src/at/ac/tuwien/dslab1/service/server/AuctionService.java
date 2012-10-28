@@ -4,6 +4,7 @@
 package at.ac.tuwien.dslab1.service.server;
 
 import at.ac.tuwien.dslab1.domain.Auction;
+import at.ac.tuwien.dslab1.domain.Bid;
 import at.ac.tuwien.dslab1.domain.Client;
 import at.ac.tuwien.dslab1.domain.User;
 
@@ -44,9 +45,9 @@ public interface AuctionService {
 	 *            the id of the auction
 	 * @param amount
 	 *            the amount to bid
-	 * @return the created Bid object if the bid was successful; null otherwise
+	 * @return the auction of this bid if the auction exists; null otherwise
 	 */
-	public void bid(User user, Integer auctionId, double amount);
+	public Auction bid(User user, Integer auctionId, double amount);
 
 	/**
 	 * Logs the user in and binds it to the client

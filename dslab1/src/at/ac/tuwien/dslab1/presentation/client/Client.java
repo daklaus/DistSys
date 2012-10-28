@@ -21,9 +21,12 @@ public class Client {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		initialize(args);
-		readInput();
-		close();
+		try {
+			initialize(args);
+			readInput();
+		} finally {
+			close();
+		}
 	}
 
 	private static void initialize(String[] args) {
@@ -61,14 +64,19 @@ public class Client {
 	}
 
 	private static void usage() {
-		System.err.println("usage: java Client tcpPort server udpPort\n");
+		System.err.println("usage: java Client server tcpPort udpPort\n");
 		System.err.println("\thost: host name or IP of the auction server\n"
 				+ "\ttcpPort: TCP connection port on which the auction "
 				+ "server is listening for incoming connections\n"
 				+ "\tudpPort: this port will be used for handling UDP "
-				+ "notifications from the auction server).");
+				+ "notifications from the auction server");
 
 		close();
+		System.exit(0);
+	}
+
+	private enum ParseResult {
+		End, Login
 	}
 
 	private static void readInput() {
@@ -81,7 +89,18 @@ public class Client {
 		while (!end && sc.hasNextLine()) {
 
 			cmd = sc.nextLine();
-			end = parseCommand(cmd);
+			ParseResult r = parseCommand(cmd);
+			if (r != null) {
+				switch (r) {
+				case End:
+					end = true;
+					break;
+				case Login:
+					cmd = cmd + " " + udpPort;
+					break;
+				}
+			}
+
 			if (!end) {
 				try {
 					if (!cmd.trim().isEmpty()) {
@@ -121,7 +140,12 @@ public class Client {
 	 * @param command
 	 * @return true if the client should end; false otherwise
 	 */
-	private static Boolean parseCommand(String command) {
+	private static ParseResult parseCommand(String command) {
+		if (command == null)
+			throw new IllegalArgumentException("The command is null");
+		if (acs == null)
+			throw new IllegalStateException("The AuctionClientService is null");
+
 		// Commands:
 		// !login <username>
 		// !logout
@@ -131,7 +155,6 @@ public class Client {
 		// !end
 
 		String cmdRegex = "![a-zA-Z-]+";
-		Boolean ret = false;
 		String tmp;
 
 		Scanner sc = new Scanner(command);
@@ -139,24 +162,24 @@ public class Client {
 		sc.skip("\\s*");
 
 		if (!sc.hasNext(cmdRegex))
-			return ret;
+			return null;
 
 		tmp = sc.next(cmdRegex);
 		if (tmp.equalsIgnoreCase("!login")) {
 			if (!sc.hasNext())
-				return ret;
-			if (acs != null)
-				acs.setUserName(sc.next());
+				return null;
 
-			command = command + " " + udpPort;
+			acs.setUserName(sc.next());
+
+			return ParseResult.Login;
 		} else if (tmp.equalsIgnoreCase("!logout")) {
-			if (acs != null)
-				acs.setUserName(null);
+
+			acs.setUserName(null);
 		} else if (tmp.equalsIgnoreCase("!end")) {
-			ret = true;
+			return ParseResult.End;
 		}
 
-		return ret;
+		return null;
 	}
 
 }

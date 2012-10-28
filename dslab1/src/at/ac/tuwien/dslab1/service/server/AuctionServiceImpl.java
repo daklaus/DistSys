@@ -33,14 +33,17 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public Auction create(User owner, String description, Integer duration) {
+	public synchronized Auction create(User owner, String description,
+			Integer duration) {
+		// TODO Start timer for auction
+
 		Auction a = new Auction(idCounter++, description, owner, duration);
 		auctions.put(a.getId(), a);
 		return a;
 	}
 
 	@Override
-	public String list() {
+	public synchronized String list() {
 		StringBuilder sb = new StringBuilder();
 		for (Auction a : auctions.values()) {
 			sb.append(a.toString());
@@ -51,16 +54,21 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public void bid(User user, Integer auctionId, double amount) {
+	public synchronized Auction bid(User user, Integer auctionId, double amount) {
+		// TODO Notify overbid
+
 		Auction a = auctions.get(auctionId);
+
+		if (a == null)
+			return null;
+
 		a.addBid(new Bid(amount, user));
+
+		return a;
 	}
 
 	@Override
-	public User login(String userName, Client client) {
-		// TODO Checks (already logged in, ...)
-		// TODO Maybe notifications
-
+	public synchronized User login(String userName, Client client) {
 		User u;
 		if (users.containsKey(userName)) {
 			u = users.get(userName);
@@ -73,10 +81,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public void logout(User user) {
-		// TODO Checks (already logged out, ...)
-		// TODO Maybe notifications
-
+	public synchronized void logout(User user) {
 		user.setClient(null);
 		user.setLoggedIn(false);
 	}

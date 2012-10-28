@@ -3,13 +3,11 @@
  */
 package at.ac.tuwien.dslab1.domain;
 
-import java.text.Format;
-
 /**
  * @author klaus
  * 
  */
-public class Bid {
+public class Bid implements Comparable<Bid> {
 	private double amount;
 	private User user;
 
@@ -65,5 +63,10 @@ public class Bid {
 	@Override
 	public String toString() {
 		return String.format("%.2f", this.amount);
+	}
+
+	@Override
+	public int compareTo(Bid o) {
+		return Double.compare(this.getAmount(), o.getAmount());
 	}
 }

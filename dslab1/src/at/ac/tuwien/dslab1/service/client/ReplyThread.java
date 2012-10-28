@@ -35,10 +35,15 @@ class ReplyThread extends Thread {
 			throw new IllegalStateException("Service not connected!");
 
 		try {
-			while (!stop) {
-				reply = ns.receive();
+			try {
+				while (!stop) {
+					reply = ns.receive();
 
-				listener.displayReply(reply);
+					listener.displayReply(reply);
+				}
+			} finally {
+				if (ns != null)
+					ns.close();
 			}
 		} catch (IOException e) {
 			// The if-clause down here is because of what is described in
@@ -60,7 +65,8 @@ class ReplyThread extends Thread {
 	public void close() throws IOException {
 		stop = true;
 		this.interrupt();
-		ns.close();
+		if (ns != null)
+			ns.close();
 	}
 
 }

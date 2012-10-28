@@ -86,6 +86,15 @@ public class Auction {
 		return cal.getTime();
 	}
 
+	public String getEndDateFormatted() {
+		if (getEndDate() == null)
+			return null;
+
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+				DateFormat.LONG);
+		return df.format(this.getEndDate());
+	}
+
 	public Boolean isExpired() {
 		Date now = new Date();
 		Date end = getEndDate();
@@ -120,15 +129,13 @@ public class Auction {
 
 	@Override
 	public String toString() {
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT,
-				DateFormat.LONG);
 
 		return (this.id != null ? this.id + ". " : "")
 				+ (this.description != null ? "'" + this.description + "' "
 						: "")
 				+ (this.owner != null ? this.owner + " " : "")
-				+ (this.getEndDate() != null ? df.format(this.getEndDate())
-						+ " " : "")
+				+ (this.getEndDateFormatted() != null ? this
+						.getEndDateFormatted() + " " : "")
 				+ (this.getHighestBid() != null ? this.getHighestBid() + " "
 						: "0.00 ")
 				+ (this.getHighestBidder() != null ? this.getHighestBidder()
