@@ -2,13 +2,13 @@ package at.ac.tuwien.dslab1.service.server;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkService;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkServiceImpl;
 
@@ -24,7 +24,8 @@ class ServerThread extends Thread {
 					"The TCP port is not set properly");
 
 		ns = new TCPServerNetworkServiceImpl(tcpPort);
-		clientHandlerList = new LinkedList<ClientHandler>();
+		clientHandlerList = Collections
+				.synchronizedList(new LinkedList<ClientHandler>());
 	}
 
 	public Boolean isConnected() {
@@ -90,9 +91,12 @@ class ServerThread extends Thread {
 			if (!pool.awaitTermination(5, TimeUnit.SECONDS)) {
 				// Cancel currently executing tasks
 				pool.shutdownNow();
+
 				// Close the clients connections so they can really terminate
-				for (ClientHandler clientHandler : clientHandlerList) {
-					clientHandler.close();
+				synchronized (clientHandlerList) {
+					for (ClientHandler clientHandler : clientHandlerList) {
+						clientHandler.close();
+					}
 				}
 				// Wait a while for tasks to respond to being cancelled
 				// if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {

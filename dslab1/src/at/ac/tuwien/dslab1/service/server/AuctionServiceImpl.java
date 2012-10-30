@@ -38,32 +38,36 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public synchronized Auction create(User owner, String description,
-			Integer duration) {
+	public Auction create(User owner, String description, Integer duration) {
 
 		Auction a = new Auction(idCounter++, description, owner, duration);
 		auctions.put(a.getId(), a);
+
 		// Start timer for auction
-		timer.schedule(new AuctionEndTask(a), a.getEndDate());
+		synchronized (timer) {
+			timer.schedule(new AuctionEndTask(a), a.getEndDate());
+		}
 		return a;
 	}
 
 	@Override
-	public synchronized String list() {
+	public String list() {
 		if (auctions.isEmpty())
 			return "There are currently no auctions running!";
 
 		StringBuilder sb = new StringBuilder();
-		for (Auction a : auctions.values()) {
-			sb.append(a.toString());
-			sb.append("\n");
+		synchronized (auctions) {
+			for (Auction a : auctions.values()) {
+				sb.append(a.toString());
+				sb.append("\n");
+			}
 		}
 
 		return sb.toString();
 	}
 
 	@Override
-	public synchronized Auction bid(User user, Integer auctionId, double amount) {
+	public Auction bid(User user, Integer auctionId, double amount) {
 
 		Auction a = auctions.get(auctionId);
 
@@ -84,7 +88,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public synchronized User login(String userName, Client client) {
+	public User login(String userName, Client client) {
 		User u;
 		if (users.containsKey(userName)) {
 			u = users.get(userName);
@@ -97,7 +101,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public synchronized void logout(User user) {
+	public void logout(User user) {
 		user.setClient(null);
 		user.setLoggedIn(false);
 	}
@@ -135,9 +139,7 @@ public class AuctionServiceImpl implements AuctionService {
 			if (winner != null && !winner.equals(owner))
 				winner.addNotification(notification);
 
-			synchronized (auctions) {
-				auctions.remove(a.getId());
-			}
+			auctions.remove(a.getId());
 		}
 	}
 

@@ -9,7 +9,7 @@ class ClientThreadFactory implements ThreadFactory {
 
 	public ClientThreadFactory(UncaughtExceptionHandler eh) {
 		if (eh == null)
-			throw new IllegalArgumentException("ExHandler must not be null");
+			throw new IllegalArgumentException("eh must not be null");
 
 		this.eh = eh;
 		tCount = 1;
