@@ -40,14 +40,14 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 
 	private void setServer(InetAddress server) {
 		if (server == null)
-			return;
+			throw new IllegalArgumentException("server is null");
 
 		this.server = server;
 	}
 
 	private void setServerPort(Integer serverPort) throws SocketException {
 		if (serverPort == null)
-			return;
+			throw new IllegalArgumentException("server is null");
 
 		this.serverPort = serverPort;
 		this.socket = new DatagramSocket();

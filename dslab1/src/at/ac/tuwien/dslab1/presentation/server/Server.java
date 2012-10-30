@@ -51,7 +51,7 @@ public class Server {
 			e.printStackTrace();
 
 			close();
-			System.exit(0);
+			System.exit(1);
 		}
 
 	}

@@ -20,6 +20,13 @@ public class Client {
 	 * @param udpPort
 	 */
 	public Client(InetAddress ip, Integer tcpPort, Integer udpPort) {
+		if (ip == null)
+			throw new IllegalArgumentException("ip is null");
+		if (tcpPort == null)
+			throw new IllegalArgumentException("tcpPort is null");
+		if (udpPort == null)
+			throw new IllegalArgumentException("udpPort is null");
+
 		this.ip = ip;
 		this.tcpPort = tcpPort;
 		this.udpPort = udpPort;

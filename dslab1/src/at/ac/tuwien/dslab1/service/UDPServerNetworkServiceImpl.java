@@ -21,7 +21,7 @@ public class UDPServerNetworkServiceImpl implements UDPServerNetworkService {
 
 	private void setPort(Integer port) throws SocketException {
 		if (port == null)
-			return;
+			throw new IllegalArgumentException("port is null");
 
 		this.socket = new DatagramSocket(port);
 	}

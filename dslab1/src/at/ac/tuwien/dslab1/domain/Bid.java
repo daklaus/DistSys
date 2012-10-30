@@ -16,6 +16,9 @@ public class Bid implements Comparable<Bid> {
 	 * @param user
 	 */
 	public Bid(double amount, User user) {
+		if (user == null)
+			throw new IllegalArgumentException("user is null");
+
 		this.amount = amount;
 		this.user = user;
 	}

@@ -23,6 +23,13 @@ public class User {
 	 * @param notifications
 	 */
 	public User(Boolean loggedIn, String name, Client client) {
+		if (loggedIn == null)
+			throw new IllegalArgumentException("loggedIn is null");
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
+		if (client == null)
+			throw new IllegalArgumentException("client is null");
+
 		this.loggedIn = loggedIn;
 		this.name = name;
 		this.client = client;
@@ -35,13 +42,6 @@ public class User {
 	 */
 	public User(String name, Client client) {
 		this(false, name, client);
-	}
-
-	/**
-	 * @param name
-	 */
-	public User(String name) {
-		this(name, null);
 	}
 
 	public Boolean getLoggedIn() {

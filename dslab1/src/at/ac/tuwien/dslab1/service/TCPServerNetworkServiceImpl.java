@@ -20,7 +20,7 @@ public class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
 
 	private void setPort(Integer port) throws IOException {
 		if (port == null)
-			return;
+			throw new IllegalArgumentException("port is null");
 
 		this.socket = new ServerSocket(port);
 	}
