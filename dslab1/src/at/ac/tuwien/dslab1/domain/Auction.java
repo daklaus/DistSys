@@ -15,12 +15,12 @@ import java.util.TreeSet;
  * 
  */
 public class Auction {
-	private Integer id;
-	private String description;
-	private User owner;
-	private SortedSet<Bid> bids;
-	private Integer duration;
-	private Date start;
+	private final Integer id;
+	private final String description;
+	private final User owner;
+	private final SortedSet<Bid> bids;
+	private final Integer duration;
+	private final Date start;
 
 	/**
 	 * @param id
@@ -41,7 +41,9 @@ public class Auction {
 		if (bid == null)
 			throw new IllegalArgumentException("Bid is null");
 
-		this.bids.add(bid);
+		synchronized (this.bids) {
+			this.bids.add(bid);
+		}
 	}
 
 	public Integer getId() {

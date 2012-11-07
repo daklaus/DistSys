@@ -6,7 +6,6 @@ package at.ac.tuwien.dslab1.service.server;
 import java.io.IOException;
 
 import at.ac.tuwien.dslab1.domain.Auction;
-import at.ac.tuwien.dslab1.domain.Bid;
 import at.ac.tuwien.dslab1.domain.Client;
 import at.ac.tuwien.dslab1.domain.User;
 

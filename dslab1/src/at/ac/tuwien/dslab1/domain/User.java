@@ -12,9 +12,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class User {
 	private Boolean loggedIn;
-	private String name;
+	private final String name;
 	private Client client;
-	private BlockingQueue<String> notifications;
+	private final BlockingQueue<String> notifications;
 
 	/**
 	 * @param loggedIn
@@ -45,11 +45,15 @@ public class User {
 	}
 
 	public Boolean getLoggedIn() {
-		return this.loggedIn;
+		synchronized (this.loggedIn) {
+			return this.loggedIn;
+		}
 	}
 
 	public void setLoggedIn(Boolean loggedIn) {
-		this.loggedIn = loggedIn;
+		synchronized (this.loggedIn) {
+			this.loggedIn = loggedIn;
+		}
 	}
 
 	public String getName() {
@@ -57,11 +61,15 @@ public class User {
 	}
 
 	public Client getClient() {
-		return this.client;
+		synchronized (this.client) {
+			return this.client;
+		}
 	}
 
 	public void setClient(Client client) {
-		this.client = client;
+		synchronized (this.client) {
+			this.client = client;
+		}
 	}
 
 	public BlockingQueue<String> getNotifications() {

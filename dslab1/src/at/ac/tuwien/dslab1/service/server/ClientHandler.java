@@ -207,8 +207,7 @@ class ClientHandler implements Runnable {
 			return "You unsuccessfully bid with "
 					+ String.format("%.2f", amount) + " on '"
 					+ a.getDescription() + "'. Current highest bid is "
-					+ String.format("%.2f", a.getHighestBid().getAmount())
-					+ ".";
+					+ String.format("%.2f", b.getAmount()) + ".";
 
 		} else if (tmp.equalsIgnoreCase("!end")) {
 

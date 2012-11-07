@@ -10,9 +10,9 @@ import java.net.InetAddress;
  * 
  */
 public class Client {
-	private InetAddress ip;
-	private Integer tcpPort;
-	private Integer udpPort;
+	private final InetAddress ip;
+	private final Integer tcpPort;
+	private final Integer udpPort;
 
 	/**
 	 * @param ip

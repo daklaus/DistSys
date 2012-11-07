@@ -8,8 +8,8 @@ package at.ac.tuwien.dslab1.domain;
  * 
  */
 public class Bid implements Comparable<Bid> {
-	private double amount;
-	private User user;
+	private final double amount;
+	private final User user;
 
 	/**
 	 * @param amount
