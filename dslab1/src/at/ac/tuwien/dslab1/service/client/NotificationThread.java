@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.Scanner;
 
+import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.UDPServerNetworkService;
 import at.ac.tuwien.dslab1.service.UDPServerNetworkServiceImpl;
 
@@ -21,7 +22,7 @@ class NotificationThread extends Thread {
 			throw new IllegalArgumentException(
 					"The NotificationListener is null");
 
-		ns = new UDPServerNetworkServiceImpl(udpPort);
+		ns = NetworkServiceFactory.newUDPServerNetworkService(udpPort);
 		this.listener = listener;
 	}
 

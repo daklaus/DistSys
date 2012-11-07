@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkService;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkServiceImpl;
 
@@ -23,7 +24,7 @@ class ServerThread extends Thread {
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
 
-		ns = new TCPServerNetworkServiceImpl(tcpPort);
+		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
 		clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}

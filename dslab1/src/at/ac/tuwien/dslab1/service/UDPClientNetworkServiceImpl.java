@@ -10,32 +10,32 @@ import java.net.UnknownHostException;
 public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	private InetAddress server;
 	private DatagramSocket socket;
-	private Integer serverPort;
+	private Integer port;
 
 	/**
 	 * 
 	 * @param server
-	 * @param serverPort
+	 * @param port
 	 * @throws IOException
 	 */
-	public UDPClientNetworkServiceImpl(InetAddress server, Integer serverPort)
+	public UDPClientNetworkServiceImpl(InetAddress server, Integer port)
 			throws IOException {
 		this.server = null;
 		this.socket = null;
 
 		setServer(server);
-		setServerPort(serverPort);
+		setServerPort(port);
 	}
 
 	/**
 	 * 
 	 * @param server
-	 * @param serverPort
+	 * @param port
 	 * @throws IOException
 	 */
-	public UDPClientNetworkServiceImpl(String server, Integer serverPort)
+	public UDPClientNetworkServiceImpl(String server, Integer port)
 			throws IOException {
-		this(InetAddress.getByName(server), serverPort);
+		this(InetAddress.getByName(server), port);
 	}
 
 	private void setServer(InetAddress server) {
@@ -49,18 +49,18 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 		if (serverPort == null)
 			throw new IllegalArgumentException("server is null");
 
-		this.serverPort = serverPort;
+		this.port = serverPort;
 		this.socket = new DatagramSocket();
 	}
 
 	@Override
 	public void send(String message) throws IOException {
-		if (socket == null || serverPort == null || this.server == null)
+		if (socket == null || port == null || this.server == null)
 			throw new IllegalStateException("UDP socket not initialized");
 
 		byte[] buf = message.getBytes();
 		DatagramPacket packet = new DatagramPacket(buf, buf.length, server,
-				serverPort);
+				port);
 		socket.send(packet);
 	}
 

@@ -6,6 +6,7 @@ import java.util.concurrent.BlockingQueue;
 
 import at.ac.tuwien.dslab1.domain.Client;
 import at.ac.tuwien.dslab1.domain.User;
+import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.UDPClientNetworkService;
 import at.ac.tuwien.dslab1.service.UDPClientNetworkServiceImpl;
 
@@ -22,7 +23,8 @@ class NotificationThread extends Thread {
 		if (c == null)
 			throw new IllegalStateException("The user's client is null");
 
-		ns = new UDPClientNetworkServiceImpl(c.getIp(), c.getUdpPort());
+		ns = NetworkServiceFactory.newUDPClientNetworkService(c.getIp(),
+				c.getUdpPort());
 		this.notifications = user.getNotifications();
 	}
 

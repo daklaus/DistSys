@@ -6,6 +6,7 @@ package at.ac.tuwien.dslab1.service.client;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
 import at.ac.tuwien.dslab1.service.TCPClientNetworkServiceImpl;
 
@@ -76,7 +77,8 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 				throw new IllegalArgumentException(
 						"The server or the server port are not set properly");
 
-			ns = new TCPClientNetworkServiceImpl(server, serverPort);
+			ns = NetworkServiceFactory.newTCPClientNetworkService(server,
+					serverPort);
 		}
 
 		// Start listening for notifications
