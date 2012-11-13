@@ -6,9 +6,9 @@ import java.net.SocketException;
 import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
 
 class ReplyThread extends Thread {
-	private volatile Boolean stop;
-	private TCPClientNetworkService ns;
-	private ReplyListener listener;
+	private volatile boolean stop;
+	private final TCPClientNetworkService ns;
+	private final ReplyListener listener;
 
 	public ReplyThread(TCPClientNetworkService ns, ReplyListener listener)
 			throws IOException {
@@ -22,7 +22,7 @@ class ReplyThread extends Thread {
 		this.listener = listener;
 	}
 
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 

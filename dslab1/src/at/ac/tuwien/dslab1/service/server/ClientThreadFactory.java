@@ -4,8 +4,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ThreadFactory;
 
 class ClientThreadFactory implements ThreadFactory {
-	private Integer tCount;
-	private UncaughtExceptionHandler eh;
+	private int tCount;
+	private final UncaughtExceptionHandler eh;
 
 	public ClientThreadFactory(UncaughtExceptionHandler eh) {
 		if (eh == null)

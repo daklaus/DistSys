@@ -14,13 +14,13 @@ import at.ac.tuwien.dslab1.service.TCPServerNetworkService;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkServiceImpl;
 
 class ServerThread extends Thread {
-	private volatile Boolean stop;
-	private TCPServerNetworkService ns;
-	private ExecutorService pool;
-	private List<ClientHandler> clientHandlerList;
+	private volatile boolean stop;
+	private final TCPServerNetworkService ns;
+    private final List<ClientHandler> clientHandlerList;
+    private ExecutorService pool;
 
-	public ServerThread(Integer tcpPort) throws IOException {
-		if (tcpPort == null || tcpPort <= 0)
+	public ServerThread(int tcpPort) throws IOException {
+		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
 
@@ -29,7 +29,7 @@ class ServerThread extends Thread {
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}
 
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 

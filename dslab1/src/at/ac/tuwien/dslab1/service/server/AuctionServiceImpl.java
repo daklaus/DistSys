@@ -15,10 +15,10 @@ import at.ac.tuwien.dslab1.domain.Client;
 import at.ac.tuwien.dslab1.domain.User;
 
 public class AuctionServiceImpl implements AuctionService {
-	private Map<String, User> users;
-	private SortedMap<Integer, Auction> auctions;
-	private Timer timer;
-	private volatile Integer idCounter;
+	private final Map<String, User> users;
+	private final SortedMap<Integer, Auction> auctions;
+	private final Timer timer;
+	private volatile int idCounter;
 
 	// Private constructor prevents instantiation from other classes
 	private AuctionServiceImpl() {
@@ -38,7 +38,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public Auction create(User owner, String description, Integer duration) {
+	public Auction create(User owner, String description, int duration) {
 
 		Auction a = new Auction(idCounter++, description, owner, duration);
 		auctions.put(a.getId(), a);
@@ -67,7 +67,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public Auction bid(User user, Integer auctionId, double amount) {
+	public Auction bid(User user, int auctionId, double amount) {
 
 		Auction a = auctions.get(auctionId);
 

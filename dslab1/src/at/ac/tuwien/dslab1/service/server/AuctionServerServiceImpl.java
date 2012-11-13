@@ -21,10 +21,10 @@ public class AuctionServerServiceImpl implements AuctionServerService {
 	}
 
 	@Override
-	public void start(Integer tcpPort) throws IOException {
+	public void start(int tcpPort) throws IOException {
 		if (serverThread != null && serverThread.isAlive())
 			return;
-		if (tcpPort == null || tcpPort <= 0)
+		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
 

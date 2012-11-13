@@ -15,11 +15,11 @@ import java.util.TreeSet;
  * 
  */
 public class Auction {
-	private final Integer id;
+	private final int id;
 	private final String description;
 	private final User owner;
 	private final SortedSet<Bid> bids;
-	private final Integer duration;
+	private final int duration;
 	private final Date start;
 
 	/**
@@ -28,7 +28,7 @@ public class Auction {
 	 * @param owner
 	 * @param duration
 	 */
-	public Auction(Integer id, String description, User owner, Integer duration) {
+	public Auction(int id, String description, User owner, int duration) {
 		this.id = id;
 		this.description = description;
 		this.owner = owner;
@@ -46,7 +46,7 @@ public class Auction {
 		}
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -58,7 +58,7 @@ public class Auction {
 		return this.owner;
 	}
 
-	public Integer getDuration() {
+	public int getDuration() {
 		return this.duration;
 	}
 
@@ -78,8 +78,6 @@ public class Auction {
 	public Date getEndDate() {
 		if (start == null)
 			return null;
-		if (duration == null)
-			return null;
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(start);
@@ -97,7 +95,7 @@ public class Auction {
 		return df.format(this.getEndDate());
 	}
 
-	public Boolean isExpired() {
+	public boolean isExpired() {
 		Date now = new Date();
 		Date end = getEndDate();
 
@@ -108,7 +106,7 @@ public class Auction {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+		result = prime * result + this.id;
 		return result;
 	}
 
@@ -121,10 +119,7 @@ public class Auction {
 		if (getClass() != obj.getClass())
 			return false;
 		Auction other = (Auction) obj;
-		if (this.id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!this.id.equals(other.id))
+		if (this.id != other.id)
 			return false;
 		return true;
 	}
@@ -132,7 +127,7 @@ public class Auction {
 	@Override
 	public String toString() {
 
-		return (this.id != null ? this.id + ". " : "")
+		return (this.id + ". ")
 				+ (this.description != null ? "'" + this.description + "' "
 						: "")
 				+ (this.owner != null ? this.owner + " " : "")

@@ -8,7 +8,6 @@ import java.lang.Thread.UncaughtExceptionHandler;
 
 import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
-import at.ac.tuwien.dslab1.service.TCPClientNetworkServiceImpl;
 
 /**
  * @author klaus
@@ -68,12 +67,12 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	}
 
 	@Override
-	public void connect(String server, Integer serverPort, Integer udpPort)
+	public void connect(String server, int serverPort, int udpPort)
 			throws IOException {
 
 		if (ns == null) {
-			if (server == null || server.isEmpty() || serverPort == null
-					|| serverPort <= 0 || udpPort == null || udpPort <= 0)
+			if (server == null || server.isEmpty()
+					|| serverPort <= 0 || udpPort <= 0)
 				throw new IllegalArgumentException(
 						"The server or the server port are not set properly");
 
@@ -93,10 +92,10 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	 * 
 	 * @throws IOException
 	 */
-	private void startNotification(Integer udpPort) throws IOException {
+	private void startNotification(int udpPort) throws IOException {
 		if (notificationThread != null && notificationThread.isAlive())
 			return;
-		if (udpPort == null || udpPort <= 0)
+		if (udpPort <= 0)
 			throw new IllegalArgumentException(
 					"The UDP port is not set properly");
 
@@ -147,7 +146,7 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	}
 
 	@Override
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 

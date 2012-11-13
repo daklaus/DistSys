@@ -12,27 +12,27 @@ public abstract class NetworkServiceFactory {
 	}
 
 	public static TCPClientNetworkService newTCPClientNetworkService(
-			String server, Integer port) throws IOException {
+			String server, int port) throws IOException {
 		return new TCPClientNetworkServiceImpl(server, port);
 	}
 
 	public static TCPServerNetworkService newTCPServerNetworkService(
-			Integer port) throws IOException {
+			int port) throws IOException {
 		return new TCPServerNetworkServiceImpl(port);
 	}
 
 	public static UDPClientNetworkService newUDPClientNetworkService(
-			String server, Integer port) throws IOException {
+			String server, int port) throws IOException {
 		return new UDPClientNetworkServiceImpl(server, port);
 	}
 
 	public static UDPClientNetworkService newUDPClientNetworkService(
-			InetAddress server, Integer port) throws IOException {
+			InetAddress server, int port) throws IOException {
 		return new UDPClientNetworkServiceImpl(server, port);
 	}
 
 	public static UDPServerNetworkService newUDPServerNetworkService(
-			Integer port) throws IOException {
+			int port) throws IOException {
 		return new UDPServerNetworkServiceImpl(port);
 	}
 }

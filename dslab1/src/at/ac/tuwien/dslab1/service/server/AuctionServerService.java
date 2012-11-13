@@ -19,7 +19,7 @@ public interface AuctionServerService {
 	 *            the TCP port the server should listen on
 	 * @throws IOException
 	 */
-	void start(Integer tcpPort) throws IOException;
+	void start(int tcpPort) throws IOException;
 
 	/**
 	 * Sets the exception handler for uncaught exceptions of invoked threads

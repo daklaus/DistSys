@@ -11,9 +11,9 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
-	private Socket socket;
-	private Scanner in;
-	private PrintWriter out;
+	private final Socket socket;
+	private final Scanner in;
+	private final PrintWriter out;
 
 	/**
 	 * 
@@ -21,18 +21,18 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	 * @param serverPort
 	 * @throws IOException
 	 */
-	public TCPClientNetworkServiceImpl(String server, Integer serverPort)
+	public TCPClientNetworkServiceImpl(String server, int serverPort)
 			throws IOException {
-		this.socket = null;
-
-		if (server == null || serverPort == null || serverPort <= 0)
-			throw new IllegalArgumentException(
-					"Either server and/or server port are not properly set");
-
-		Socket socket = new Socket(server, serverPort);
-
-		setSocket(socket);
+        this(createSocket(server, serverPort));
 	}
+
+    private static Socket createSocket(String server, int serverPort) throws IOException{
+        if (server == null || serverPort <= 0)
+            throw new IllegalArgumentException(
+                    "Either server and/or server port are not properly set");
+
+        return new Socket(server, serverPort);
+    }
 
 	/**
 	 * 
@@ -41,10 +41,6 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	 * @throws IOException
 	 */
 	public TCPClientNetworkServiceImpl(Socket socket) throws IOException {
-		setSocket(socket);
-	}
-
-	private void setSocket(Socket socket) throws IOException {
 		if (socket == null || !socket.isConnected())
 			throw new IllegalArgumentException(
 					"The socket is null or not connected");
@@ -57,11 +53,11 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	}
 
 	@Override
-	public void send(String messange) {
+	public void send(String massage) {
 		if (out == null)
 			throw new IllegalStateException("Output writer not initialized");
 
-		out.print(messange + terminationChar);
+		out.print(massage + terminationChar);
 		out.flush();
 	}
 
@@ -79,29 +75,21 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 
 	@Override
 	public InetAddress getLocalAddress() {
-		if (socket == null)
-			return null;
 		return socket.getLocalAddress();
 	}
 
 	@Override
 	public InetAddress getAddress() {
-		if (socket == null)
-			return null;
 		return socket.getInetAddress();
 	}
 
 	@Override
-	public Integer getLocalPort() {
-		if (socket == null)
-			return null;
+	public int getLocalPort() {
 		return socket.getLocalPort();
 	}
 
 	@Override
-	public Integer getPort() {
-		if (socket == null)
-			return null;
+	public int getPort() {
 		return socket.getPort();
 	}
 

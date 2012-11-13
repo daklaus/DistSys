@@ -26,7 +26,7 @@ public interface AuctionService {
 	 *            how long the auction runs from now (in seconds)
 	 * @return the auction which has been created if successfull; null otherwise
 	 */
-	public Auction create(User owner, String description, Integer duration);
+	public Auction create(User owner, String description, int duration);
 
 	/**
 	 * Lists all auctions in one string. Each auction in one line in the form:<br>
@@ -48,7 +48,7 @@ public interface AuctionService {
 	 *            the amount to bid
 	 * @return the auction of this bid if the auction exists; null otherwise
 	 */
-	public Auction bid(User user, Integer auctionId, double amount);
+	public Auction bid(User user, int auctionId, double amount);
 
 	/**
 	 * Logs the user in and binds it to the client

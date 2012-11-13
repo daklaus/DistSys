@@ -12,9 +12,9 @@ import at.ac.tuwien.dslab1.domain.User;
 import at.ac.tuwien.dslab1.service.TCPClientNetworkService;
 
 class ClientHandler implements Runnable {
-	private volatile Boolean stop;
-	private TCPClientNetworkService ns;
-	private AuctionService as;
+	private volatile boolean stop;
+	private final TCPClientNetworkService ns;
+	private final AuctionService as;
 	private User user;
 	private NotificationThread notificationThread;
 
@@ -28,7 +28,7 @@ class ClientHandler implements Runnable {
 		user = null;
 	}
 
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 
@@ -125,7 +125,7 @@ class ClientHandler implements Runnable {
 			String userName = sc.next();
 			if (!sc.hasNextInt())
 				return invalidCommand;
-			Integer udpPort = sc.nextInt();
+			int udpPort = sc.nextInt();
 
 			Client c = new Client(ns.getAddress(), ns.getPort(), udpPort);
 
@@ -167,7 +167,7 @@ class ClientHandler implements Runnable {
 
 			if (!sc.hasNextInt())
 				return invalidCommand;
-			Integer duration = sc.nextInt();
+			int duration = sc.nextInt();
 			if (!sc.hasNext())
 				return invalidCommand;
 			String description = sc.skip("\\s*").nextLine().trim();
@@ -188,7 +188,7 @@ class ClientHandler implements Runnable {
 
 			if (!sc.hasNextInt())
 				return invalidCommand;
-			Integer auctionId = sc.nextInt();
+			int auctionId = sc.nextInt();
 			if (!sc.hasNextDouble())
 				return invalidCommand;
 			double amount = sc.nextDouble();
