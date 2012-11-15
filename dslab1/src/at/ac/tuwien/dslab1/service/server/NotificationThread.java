@@ -11,9 +11,9 @@ import at.ac.tuwien.dslab1.service.UDPClientNetworkService;
 import at.ac.tuwien.dslab1.service.UDPClientNetworkServiceImpl;
 
 class NotificationThread extends Thread {
-	private volatile Boolean stop;
-	private UDPClientNetworkService ns;
-	private BlockingQueue<String> notifications;
+	private volatile boolean stop;
+	private final UDPClientNetworkService ns;
+	private final BlockingQueue<String> notifications;
 
 	public NotificationThread(User user) throws IOException {
 		if (user == null)
@@ -28,7 +28,7 @@ class NotificationThread extends Thread {
 		this.notifications = user.getNotifications();
 	}
 
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 

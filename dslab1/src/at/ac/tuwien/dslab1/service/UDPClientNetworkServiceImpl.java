@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
-	private InetAddress server;
-	private DatagramSocket socket;
-	private Integer port;
+	private final InetAddress server;
+	private final DatagramSocket socket;
+	private final int port;
 
 	/**
 	 * 
@@ -18,13 +16,14 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	 * @param port
 	 * @throws IOException
 	 */
-	public UDPClientNetworkServiceImpl(InetAddress server, Integer port)
+	public UDPClientNetworkServiceImpl(InetAddress server, int port)
 			throws IOException {
-		this.server = null;
-		this.socket = null;
+        if (server == null)
+            throw new IllegalArgumentException("server is null");
 
-		setServer(server);
-		setServerPort(port);
+        this.server = server;
+		this.port = port;
+        this.socket = new DatagramSocket();
 	}
 
 	/**
@@ -33,29 +32,14 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	 * @param port
 	 * @throws IOException
 	 */
-	public UDPClientNetworkServiceImpl(String server, Integer port)
+	public UDPClientNetworkServiceImpl(String server, int port)
 			throws IOException {
 		this(InetAddress.getByName(server), port);
 	}
 
-	private void setServer(InetAddress server) {
-		if (server == null)
-			throw new IllegalArgumentException("server is null");
-
-		this.server = server;
-	}
-
-	private void setServerPort(Integer serverPort) throws SocketException {
-		if (serverPort == null)
-			throw new IllegalArgumentException("server is null");
-
-		this.port = serverPort;
-		this.socket = new DatagramSocket();
-	}
-
 	@Override
 	public void send(String message) throws IOException {
-		if (socket == null || port == null || this.server == null)
+		if (socket == null || this.server == null)
 			throw new IllegalStateException("UDP socket not initialized");
 
 		byte[] buf = message.getBytes();

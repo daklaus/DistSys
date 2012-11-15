@@ -9,13 +9,13 @@ import at.ac.tuwien.dslab1.service.UDPServerNetworkService;
 import at.ac.tuwien.dslab1.service.UDPServerNetworkServiceImpl;
 
 class NotificationThread extends Thread {
-	private volatile Boolean stop;
-	private UDPServerNetworkService ns;
-	private NotificationListener listener;
+	private volatile boolean stop;
+	private final UDPServerNetworkService ns;
+	private final NotificationListener listener;
 
-	public NotificationThread(Integer udpPort, NotificationListener listener)
+	public NotificationThread(int udpPort, NotificationListener listener)
 			throws IOException {
-		if (udpPort == null || udpPort <= 0)
+		if (udpPort <= 0)
 			throw new IllegalArgumentException(
 					"The UDP port is not set properly");
 		if (listener == null)
@@ -26,7 +26,7 @@ class NotificationThread extends Thread {
 		this.listener = listener;
 	}
 
-	public Boolean isConnected() {
+	public boolean isConnected() {
 		return ns != null;
 	}
 

@@ -11,7 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 
  */
 public class User {
-	private Boolean loggedIn;
+	private volatile boolean loggedIn;
 	private final String name;
 	private Client client;
 	private final BlockingQueue<String> notifications;
@@ -20,11 +20,8 @@ public class User {
 	 * @param loggedIn
 	 * @param name
 	 * @param client
-	 * @param notifications
 	 */
-	public User(Boolean loggedIn, String name, Client client) {
-		if (loggedIn == null)
-			throw new IllegalArgumentException("loggedIn is null");
+	public User(boolean loggedIn, String name, Client client) {
 		if (name == null)
 			throw new IllegalArgumentException("name is null");
 		if (client == null)
@@ -44,16 +41,12 @@ public class User {
 		this(false, name, client);
 	}
 
-	public Boolean getLoggedIn() {
-		synchronized (this.loggedIn) {
+	public boolean getLoggedIn() {
 			return this.loggedIn;
-		}
 	}
 
-	public void setLoggedIn(Boolean loggedIn) {
-		synchronized (this.loggedIn) {
+	public void setLoggedIn(boolean loggedIn) {
 			this.loggedIn = loggedIn;
-		}
 	}
 
 	public String getName() {

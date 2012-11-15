@@ -56,7 +56,7 @@ public interface AuctionClientService {
 	 *            server
 	 * @throws IOException
 	 */
-	void connect(String server, Integer serverPort, Integer udpPort)
+	void connect(String server, int serverPort, int udpPort)
 			throws IOException;
 
 	/**
@@ -64,7 +64,7 @@ public interface AuctionClientService {
 	 * 
 	 * @return true if and only if the service is connected
 	 */
-	Boolean isConnected();
+	boolean isConnected();
 
 	/**
 	 * Free all acquired resources

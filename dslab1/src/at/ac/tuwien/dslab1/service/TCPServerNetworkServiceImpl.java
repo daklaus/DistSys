@@ -5,25 +5,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
-	private ServerSocket socket;
+	private final ServerSocket socket;
 
 	/**
 	 * 
 	 * @param port
 	 * @throws IOException
 	 */
-	public TCPServerNetworkServiceImpl(Integer port) throws IOException {
-		this.socket = null;
-
-		setPort(port);
-	}
-
-	private void setPort(Integer port) throws IOException {
-		if (port == null)
-			throw new IllegalArgumentException("port is null");
-
-		this.socket = new ServerSocket(port);
-	}
+	public TCPServerNetworkServiceImpl(int port) throws IOException {
+        if (port <= 0) {
+            throw new IllegalArgumentException("Port must be a positive number");
+        }
+        this.socket = new ServerSocket(port);
+    }
 
 	@Override
 	public TCPClientNetworkService accept() throws IOException {

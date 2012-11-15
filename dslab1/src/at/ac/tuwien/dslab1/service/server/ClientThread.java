@@ -4,7 +4,7 @@ import java.io.IOException;
 
 class ClientThread extends Thread {
 
-	private ClientHandler clientHandler;
+	private final ClientHandler clientHandler;
 
 	public ClientThread(ClientHandler clientHandler) {
 		if (clientHandler == null)

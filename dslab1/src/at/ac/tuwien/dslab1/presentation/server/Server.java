@@ -39,7 +39,7 @@ public class Server {
 		sc = new Scanner(args[0]);
 		if (!sc.hasNextInt())
 			usage();
-		Integer tcpPort = sc.nextInt();
+		int tcpPort = sc.nextInt();
 
 		ass = ServiceFactory.getAuctionServerService();
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());

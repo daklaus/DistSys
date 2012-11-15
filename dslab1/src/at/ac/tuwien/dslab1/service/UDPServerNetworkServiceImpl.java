@@ -3,30 +3,20 @@ package at.ac.tuwien.dslab1.service;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketException;
 
 public class UDPServerNetworkServiceImpl implements UDPServerNetworkService {
-	private DatagramSocket socket;
+	private final DatagramSocket socket;
 
 	/**
 	 * 
 	 * @param port
 	 * @throws IOException
 	 */
-	public UDPServerNetworkServiceImpl(Integer port) throws IOException {
-		this.socket = null;
+	public UDPServerNetworkServiceImpl(int port) throws IOException {
+        this.socket = new DatagramSocket(port);
+    }
 
-		setPort(port);
-	}
-
-	private void setPort(Integer port) throws SocketException {
-		if (port == null)
-			throw new IllegalArgumentException("port is null");
-
-		this.socket = new DatagramSocket(port);
-	}
-
-	@Override
+    @Override
 	public void send(String message) throws IOException {
 		if (socket == null)
 			throw new IllegalStateException("UDP socket not initialized");

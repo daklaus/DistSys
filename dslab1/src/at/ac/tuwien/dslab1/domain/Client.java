@@ -11,21 +11,17 @@ import java.net.InetAddress;
  */
 public class Client {
 	private final InetAddress ip;
-	private final Integer tcpPort;
-	private final Integer udpPort;
+	private final int tcpPort;
+	private final int udpPort;
 
 	/**
 	 * @param ip
 	 * @param tcpPort
 	 * @param udpPort
 	 */
-	public Client(InetAddress ip, Integer tcpPort, Integer udpPort) {
+	public Client(InetAddress ip, int tcpPort, int udpPort) {
 		if (ip == null)
 			throw new IllegalArgumentException("ip is null");
-		if (tcpPort == null)
-			throw new IllegalArgumentException("tcpPort is null");
-		if (udpPort == null)
-			throw new IllegalArgumentException("udpPort is null");
 
 		this.ip = ip;
 		this.tcpPort = tcpPort;
@@ -36,11 +32,11 @@ public class Client {
 		return this.ip;
 	}
 
-	public Integer getTcpPort() {
+	public int getTcpPort() {
 		return this.tcpPort;
 	}
 
-	public Integer getUdpPort() {
+	public int getUdpPort() {
 		return this.udpPort;
 	}
 
@@ -49,8 +45,7 @@ public class Client {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.ip == null) ? 0 : this.ip.hashCode());
-		result = prime * result
-				+ ((this.tcpPort == null) ? 0 : this.tcpPort.hashCode());
+		result = prime * result + this.tcpPort;
 		return result;
 	}
 
@@ -68,10 +63,7 @@ public class Client {
 				return false;
 		} else if (!this.ip.equals(other.ip))
 			return false;
-		if (this.tcpPort == null) {
-			if (other.tcpPort != null)
-				return false;
-		} else if (!this.tcpPort.equals(other.tcpPort))
+		if (this.tcpPort != other.tcpPort)
 			return false;
 		return true;
 	}

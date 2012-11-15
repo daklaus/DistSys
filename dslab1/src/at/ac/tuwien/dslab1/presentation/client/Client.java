@@ -15,7 +15,7 @@ import at.ac.tuwien.dslab1.service.client.ServiceFactory;
  */
 public class Client {
 	private static AuctionClientService acs;
-	private static Integer udpPort;
+	private static int udpPort;
 
 	/**
 	 * @param args
@@ -40,7 +40,7 @@ public class Client {
 		sc = new Scanner(args[1]);
 		if (!sc.hasNextInt())
 			usage();
-		Integer tcpPort = sc.nextInt();
+		int tcpPort = sc.nextInt();
 
 		sc = new Scanner(args[2]);
 		if (!sc.hasNextInt())
@@ -82,7 +82,7 @@ public class Client {
 	private static void readInput() {
 		Scanner sc = new Scanner(System.in);
 		String cmd;
-		Boolean end;
+		boolean end;
 
 		System.out.print(getPrompt());
 		end = false;

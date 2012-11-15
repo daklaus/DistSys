@@ -31,12 +31,12 @@ public interface TCPClientNetworkService extends ClientNetworkService {
 	 * 
 	 * @return the local port
 	 */
-	Integer getLocalPort();
+	int getLocalPort();
 
 	/**
 	 * Get the server port to which the network service is bound
 	 * 
 	 * @return the server port
 	 */
-	Integer getPort();
+	int getPort();
 }

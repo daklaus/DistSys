@@ -8,6 +8,10 @@ bin/
 .settings/
 .externalToolBuilders/
 
+#Intellij Project Files #
+.idea/
+*.iml
+
 # Binary Files #
 *.class
 
