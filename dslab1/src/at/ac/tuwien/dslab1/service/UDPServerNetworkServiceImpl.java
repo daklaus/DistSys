@@ -13,10 +13,10 @@ public class UDPServerNetworkServiceImpl implements UDPServerNetworkService {
 	 * @throws IOException
 	 */
 	public UDPServerNetworkServiceImpl(int port) throws IOException {
-        this.socket = new DatagramSocket(port);
-    }
+		this.socket = new DatagramSocket(port);
+	}
 
-    @Override
+	@Override
 	public void send(String message) throws IOException {
 		if (socket == null)
 			throw new IllegalStateException("UDP socket not initialized");

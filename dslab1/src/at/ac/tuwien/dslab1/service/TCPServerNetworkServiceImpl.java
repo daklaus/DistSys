@@ -13,11 +13,11 @@ public class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
 	 * @throws IOException
 	 */
 	public TCPServerNetworkServiceImpl(int port) throws IOException {
-        if (port <= 0) {
-            throw new IllegalArgumentException("Port must be a positive number");
-        }
-        this.socket = new ServerSocket(port);
-    }
+		if (port <= 0)
+			throw new IllegalArgumentException("Port must be a positive number");
+
+		this.socket = new ServerSocket(port);
+	}
 
 	@Override
 	public TCPClientNetworkService accept() throws IOException {

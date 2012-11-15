@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.UDPServerNetworkService;
-import at.ac.tuwien.dslab1.service.UDPServerNetworkServiceImpl;
 
 class NotificationThread extends Thread {
 	private volatile boolean stop;

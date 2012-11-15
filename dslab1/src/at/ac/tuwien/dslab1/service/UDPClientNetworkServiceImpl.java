@@ -18,12 +18,12 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	 */
 	public UDPClientNetworkServiceImpl(InetAddress server, int port)
 			throws IOException {
-        if (server == null)
-            throw new IllegalArgumentException("server is null");
+		if (server == null)
+			throw new IllegalArgumentException("server is null");
 
-        this.server = server;
+		this.server = server;
 		this.port = port;
-        this.socket = new DatagramSocket();
+		this.socket = new DatagramSocket();
 	}
 
 	/**

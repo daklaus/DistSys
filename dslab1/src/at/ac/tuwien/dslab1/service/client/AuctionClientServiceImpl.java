@@ -71,8 +71,8 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 			throws IOException {
 
 		if (ns == null) {
-			if (server == null || server.isEmpty()
-					|| serverPort <= 0 || udpPort <= 0)
+			if (server == null || server.isEmpty() || serverPort <= 0
+					|| udpPort <= 0)
 				throw new IllegalArgumentException(
 						"The server or the server port are not set properly");
 

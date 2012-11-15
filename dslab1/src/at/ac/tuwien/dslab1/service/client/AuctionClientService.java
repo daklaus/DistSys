@@ -56,8 +56,7 @@ public interface AuctionClientService {
 	 *            server
 	 * @throws IOException
 	 */
-	void connect(String server, int serverPort, int udpPort)
-			throws IOException;
+	void connect(String server, int serverPort, int udpPort) throws IOException;
 
 	/**
 	 * Determines whether the service is connected or not

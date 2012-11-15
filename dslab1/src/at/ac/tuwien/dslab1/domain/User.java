@@ -42,11 +42,11 @@ public class User {
 	}
 
 	public boolean getLoggedIn() {
-			return this.loggedIn;
+		return this.loggedIn;
 	}
 
 	public void setLoggedIn(boolean loggedIn) {
-			this.loggedIn = loggedIn;
+		this.loggedIn = loggedIn;
 	}
 
 	public String getName() {

@@ -23,16 +23,17 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	 */
 	public TCPClientNetworkServiceImpl(String server, int serverPort)
 			throws IOException {
-        this(createSocket(server, serverPort));
+		this(createSocket(server, serverPort));
 	}
 
-    private static Socket createSocket(String server, int serverPort) throws IOException{
-        if (server == null || serverPort <= 0)
-            throw new IllegalArgumentException(
-                    "Either server and/or server port are not properly set");
+	private static Socket createSocket(String server, int serverPort)
+			throws IOException {
+		if (server == null || serverPort <= 0)
+			throw new IllegalArgumentException(
+					"Either server and/or server port are not properly set");
 
-        return new Socket(server, serverPort);
-    }
+		return new Socket(server, serverPort);
+	}
 
 	/**
 	 * 
@@ -53,11 +54,11 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	}
 
 	@Override
-	public void send(String massage) {
+	public void send(String message) {
 		if (out == null)
 			throw new IllegalStateException("Output writer not initialized");
 
-		out.print(massage + terminationChar);
+		out.print(message + terminationChar);
 		out.flush();
 	}
 

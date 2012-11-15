@@ -8,7 +8,6 @@ import at.ac.tuwien.dslab1.domain.Client;
 import at.ac.tuwien.dslab1.domain.User;
 import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.UDPClientNetworkService;
-import at.ac.tuwien.dslab1.service.UDPClientNetworkServiceImpl;
 
 class NotificationThread extends Thread {
 	private volatile boolean stop;

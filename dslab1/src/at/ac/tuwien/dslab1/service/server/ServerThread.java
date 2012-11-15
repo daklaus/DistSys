@@ -11,13 +11,12 @@ import java.util.concurrent.TimeUnit;
 
 import at.ac.tuwien.dslab1.service.NetworkServiceFactory;
 import at.ac.tuwien.dslab1.service.TCPServerNetworkService;
-import at.ac.tuwien.dslab1.service.TCPServerNetworkServiceImpl;
 
 class ServerThread extends Thread {
 	private volatile boolean stop;
 	private final TCPServerNetworkService ns;
-    private final List<ClientHandler> clientHandlerList;
-    private ExecutorService pool;
+	private final List<ClientHandler> clientHandlerList;
+	private ExecutorService pool;
 
 	public ServerThread(int tcpPort) throws IOException {
 		if (tcpPort <= 0)
