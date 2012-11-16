@@ -13,7 +13,7 @@ import at.ac.tuwien.dslab2.service.biddingClient.ServiceFactory;
  * @author klaus
  * 
  */
-public class Client {
+public class BiddingClient {
 	private static AuctionClientService acs;
 	private static int udpPort;
 
@@ -64,7 +64,7 @@ public class Client {
 	}
 
 	private static void usage() {
-		System.err.println("usage: java Client server tcpPort udpPort\n");
+		System.err.println("usage: java BiddingClient server tcpPort udpPort\n");
 		System.err.println("\thost: host name or IP of the auction server\n"
 				+ "\ttcpPort: TCP connection port on which the auction "
 				+ "server is listening for incoming connections\n"

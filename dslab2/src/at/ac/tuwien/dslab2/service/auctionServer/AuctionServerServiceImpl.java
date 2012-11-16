@@ -30,7 +30,7 @@ public class AuctionServerServiceImpl implements AuctionServerService {
 
 		// Start server thread
 		serverThread = new ServerThread(tcpPort);
-		serverThread.setName("Server thread");
+		serverThread.setName("AuctionServer thread");
 		serverThread.setUncaughtExceptionHandler(serverExHandler);
 		serverThread.start();
 	}

@@ -11,7 +11,7 @@ public class NotificationExHandlerImpl implements UncaughtExceptionHandler {
 		e.printStackTrace();
 		System.err.println("\nStopped waiting notifications!");
 
-		Client.close();
+		BiddingClient.close();
 		System.exit(1);
 	}
 

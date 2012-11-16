@@ -49,7 +49,7 @@ public class RMIServerServiceImpl implements RMIServerService {
 			if (this.toBeStubbed != null)
 				UnicastRemoteObject.unexportObject(this.toBeStubbed, false);
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to close Server", e);
+			throw new RuntimeException("Unable to close AuctionServer", e);
 		}
 	}
 }

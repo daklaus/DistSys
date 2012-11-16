@@ -7,7 +7,7 @@ public class ReplyListenerImpl implements ReplyListener {
 	@Override
 	public void displayReply(String reply) {
 		System.out.println("\n" + reply);
-		System.out.print(Client.getPrompt());
+		System.out.print(BiddingClient.getPrompt());
 	}
 
 }

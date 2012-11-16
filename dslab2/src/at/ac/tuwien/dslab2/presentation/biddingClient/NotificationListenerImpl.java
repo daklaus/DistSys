@@ -9,7 +9,7 @@ public class NotificationListenerImpl implements NotificationListener {
 	@Override
 	public void newBid(String description) {
 		System.out.println("\nYou have been overbid on '" + description + "'");
-		System.out.print(Client.getPrompt());
+		System.out.print(BiddingClient.getPrompt());
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class NotificationListenerImpl implements NotificationListener {
 		}
 
 		System.out.println("won with " + String.format("%.2f", amount) + "!");
-		System.out.print(Client.getPrompt());
+		System.out.print(BiddingClient.getPrompt());
 	}
 
 }

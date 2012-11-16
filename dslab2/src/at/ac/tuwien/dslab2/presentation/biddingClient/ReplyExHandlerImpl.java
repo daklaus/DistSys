@@ -11,7 +11,7 @@ public class ReplyExHandlerImpl implements UncaughtExceptionHandler {
 		e.printStackTrace();
 		System.err.println("\nStopped waiting for replies!");
 
-		Client.close();
+		BiddingClient.close();
 		System.exit(1);
 	}
 

@@ -10,7 +10,7 @@ public class ServerExceptionHandlerImpl implements UncaughtExceptionHandler {
 		e.printStackTrace();
 		System.err.println("\nGoing to shut down the server!");
 
-		Server.close();
+		AuctionServer.close();
 		System.exit(1);
 	}
 

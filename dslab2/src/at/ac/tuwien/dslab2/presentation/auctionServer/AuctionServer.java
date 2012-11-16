@@ -15,7 +15,7 @@ import at.ac.tuwien.dslab2.service.auctionServer.ServiceFactory;
  * @author klaus
  * 
  */
-public class Server {
+public class AuctionServer {
 	private static AuctionServerService ass;
 
 	/**
@@ -57,7 +57,7 @@ public class Server {
 	}
 
 	private static void usage() {
-		System.err.println("usage: java Server tcpPort\n");
+		System.err.println("usage: java AuctionServer tcpPort\n");
 		System.err.println("\thost: host name or IP of the auction server\n"
 				+ "\ttcpPort: TCP connection port on which the "
 				+ "auction server will receive incoming messages "

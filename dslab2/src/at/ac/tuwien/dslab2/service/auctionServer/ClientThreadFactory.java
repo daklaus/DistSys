@@ -23,7 +23,7 @@ class ClientThreadFactory implements ThreadFactory {
 
 		// ClientThread ct = new ClientThread((ClientHandler) run);
 		Thread ct = new Thread(run);
-		ct.setName("Client thread Nr." + tCount++);
+		ct.setName("BiddingClient thread Nr." + tCount++);
 		ct.setUncaughtExceptionHandler(eh);
 		return ct;
 	}
