@@ -6,11 +6,11 @@
 
 	<!-- You need to update these properties!-->
 	<!-- Server's full class name (including the package) -->
-	<property name="server.name" value="at.ac.tuwien.dslab2.presentation.server.Server" />
+	<property name="server.name" value="at.ac.tuwien.dslab2.presentation.auctionServer.Server" />
 	<!-- Server's host -->
 	<property name="server.host" value="localhost" />
 	<!-- Client's full class name (including the package) -->
-	<property name="client.name" value="at.ac.tuwien.dslab2.presentation.client.Client" />
+	<property name="client.name" value="at.ac.tuwien.dslab2.presentation.biddingClient.Client" />
 	<!-- Server's TCP port -->
 	<property name="server.port" value="12890" />
 	<!-- 1st Client's UDP port -->

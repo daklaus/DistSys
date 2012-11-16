@@ -1,4 +1,4 @@
-package at.ac.tuwien.dslab2.service.client;
+package at.ac.tuwien.dslab2.service.biddingClient;
 
 import java.io.IOException;
 import java.net.SocketException;

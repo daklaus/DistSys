@@ -1,7 +1,7 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.service.client;
+package at.ac.tuwien.dslab2.service.biddingClient;
 
 /**
  * @author klaus

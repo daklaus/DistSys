@@ -1,4 +1,4 @@
-package at.ac.tuwien.dslab2.presentation.client;
+package at.ac.tuwien.dslab2.presentation.biddingClient;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 

@@ -1,4 +1,4 @@
-package at.ac.tuwien.dslab2.presentation.server;
+package at.ac.tuwien.dslab2.presentation.auctionServer;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 

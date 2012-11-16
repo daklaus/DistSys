@@ -1,15 +1,15 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.presentation.server;
+package at.ac.tuwien.dslab2.presentation.auctionServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.server.AuctionServerService;
-import at.ac.tuwien.dslab2.service.server.ServiceFactory;
+import at.ac.tuwien.dslab2.service.auctionServer.AuctionServerService;
+import at.ac.tuwien.dslab2.service.auctionServer.ServiceFactory;
 
 /**
  * @author klaus

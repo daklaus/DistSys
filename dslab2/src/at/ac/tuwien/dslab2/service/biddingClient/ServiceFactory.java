@@ -1,4 +1,4 @@
-package at.ac.tuwien.dslab2.service.client;
+package at.ac.tuwien.dslab2.service.biddingClient;
 
 public abstract class ServiceFactory {
 

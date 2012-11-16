@@ -1,13 +1,13 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.presentation.client;
+package at.ac.tuwien.dslab2.presentation.biddingClient;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.client.AuctionClientService;
-import at.ac.tuwien.dslab2.service.client.ServiceFactory;
+import at.ac.tuwien.dslab2.service.biddingClient.AuctionClientService;
+import at.ac.tuwien.dslab2.service.biddingClient.ServiceFactory;
 
 /**
  * @author klaus

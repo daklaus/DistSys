@@ -1,7 +1,7 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.service.server;
+package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
 

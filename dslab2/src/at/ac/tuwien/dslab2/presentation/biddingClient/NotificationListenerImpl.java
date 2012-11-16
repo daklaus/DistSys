@@ -1,8 +1,8 @@
-package at.ac.tuwien.dslab2.presentation.client;
+package at.ac.tuwien.dslab2.presentation.biddingClient;
 
-import at.ac.tuwien.dslab2.service.client.AuctionClientService;
-import at.ac.tuwien.dslab2.service.client.NotificationListener;
-import at.ac.tuwien.dslab2.service.client.ServiceFactory;
+import at.ac.tuwien.dslab2.service.biddingClient.AuctionClientService;
+import at.ac.tuwien.dslab2.service.biddingClient.NotificationListener;
+import at.ac.tuwien.dslab2.service.biddingClient.ServiceFactory;
 
 public class NotificationListenerImpl implements NotificationListener {
 

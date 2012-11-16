@@ -1,6 +1,6 @@
-package at.ac.tuwien.dslab2.presentation.client;
+package at.ac.tuwien.dslab2.presentation.biddingClient;
 
-import at.ac.tuwien.dslab2.service.client.ReplyListener;
+import at.ac.tuwien.dslab2.service.biddingClient.ReplyListener;
 
 public class ReplyListenerImpl implements ReplyListener {
 
