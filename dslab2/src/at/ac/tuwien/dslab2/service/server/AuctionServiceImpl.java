@@ -16,15 +16,15 @@ import at.ac.tuwien.dslab2.domain.User;
 
 public class AuctionServiceImpl implements AuctionService {
 	private final Map<String, User> users;
-	private final SortedMap<Integer, Auction> auctions;
+	private final SortedMap<Long, Auction> auctions;
 	private final Timer timer;
-	private volatile int idCounter;
+	private volatile long idCounter;
 
 	// Private constructor prevents instantiation from other classes
 	private AuctionServiceImpl() {
 		users = Collections.synchronizedMap(new LinkedHashMap<String, User>());
 		auctions = Collections
-				.synchronizedSortedMap(new TreeMap<Integer, Auction>());
+				.synchronizedSortedMap(new TreeMap<Long, Auction>());
 		timer = new Timer("Timer thread");
 		idCounter = 1;
 	}

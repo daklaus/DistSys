@@ -15,7 +15,7 @@ import java.util.TreeSet;
  * 
  */
 public class Auction {
-	private final int id;
+	private final long id;
 	private final String description;
 	private final User owner;
 	private final SortedSet<Bid> bids;
@@ -28,7 +28,7 @@ public class Auction {
 	 * @param owner
 	 * @param duration
 	 */
-	public Auction(int id, String description, User owner, int duration) {
+	public Auction(long id, String description, User owner, int duration) {
 		this.id = id;
 		this.description = description;
 		this.owner = owner;
@@ -44,7 +44,7 @@ public class Auction {
 		this.bids.add(bid);
 	}
 
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -104,7 +104,7 @@ public class Auction {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + this.id;
+		result = prime * result + (int) (this.id ^ (this.id >>> 32));
 		return result;
 	}
 
