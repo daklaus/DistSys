@@ -41,9 +41,7 @@ public class Auction {
 		if (bid == null)
 			throw new IllegalArgumentException("Bid is null");
 
-		synchronized (this.bids) {
-			this.bids.add(bid);
-		}
+		this.bids.add(bid);
 	}
 
 	public int getId() {

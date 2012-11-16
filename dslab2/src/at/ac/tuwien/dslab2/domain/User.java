@@ -54,15 +54,11 @@ public class User {
 	}
 
 	public Client getClient() {
-		synchronized (this.client) {
-			return this.client;
-		}
+		return this.client;
 	}
 
 	public void setClient(Client client) {
-		synchronized (this.client) {
-			this.client = client;
-		}
+		this.client = client;
 	}
 
 	public BlockingQueue<String> getNotifications() {

@@ -121,31 +121,43 @@ public class Range<T> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (this == obj)
 			return true;
-		}
-		if (obj.getClass() != Range.class) {
+		if (obj == null)
 			return false;
-		}
-		Range range = (Range) obj;
-		return min == range.min && max == range.max;
+		if (getClass() != obj.getClass())
+			return false;
+		Range other = (Range) obj;
+		if (this.max == null) {
+			if (other.max != null)
+				return false;
+		} else if (!this.max.equals(other.max))
+			return false;
+		if (this.min == null) {
+			if (other.min != null)
+				return false;
+		} else if (!this.min.equals(other.min))
+			return false;
+		return true;
 	}
 
+	@Override
 	public int hashCode() {
-		int hashCode = 17;
-		hashCode = 37 * hashCode + getClass().hashCode();
-		hashCode = 37 * hashCode + min.hashCode();
-		hashCode = 37 * hashCode + max.hashCode();
-		return hashCode;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((this.max == null) ? 0 : this.max.hashCode());
+		result = prime * result
+				+ ((this.min == null) ? 0 : this.min.hashCode());
+		return result;
 	}
 
 	/**
 	 * <p>
 	 * Gets the range as a <code>String</code>.
 	 * </p>
-	 * <p/>
 	 * <p>
-	 * The format of the String is 'Range[<i>min</i>,<i>max</i>]'.
+	 * The format of the String is 'Range[<i>min</i>, <i>max</i>]'.
 	 * </p>
 	 * 
 	 * @return the <code>String</code> representation of this range
@@ -154,7 +166,7 @@ public class Range<T> {
 		StringBuffer buf = new StringBuffer(32);
 		buf.append("Range[");
 		buf.append(this.min);
-		buf.append(',');
+		buf.append(", ");
 		buf.append(this.max);
 		buf.append(']');
 		return buf.toString();
