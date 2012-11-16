@@ -81,7 +81,7 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 		}
 
 		// Start listening for notifications
-		startNotification(udpPort);
+		// startNotification(udpPort); <- disabled for dslab2
 
 		// Start listening for replies
 		startReplying();

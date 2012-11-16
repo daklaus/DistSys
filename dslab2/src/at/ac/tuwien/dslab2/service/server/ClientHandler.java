@@ -139,7 +139,7 @@ class ClientHandler implements Runnable {
 			user.setClient(c);
 
 			// Start notification thread
-			startNotification(user);
+			// startNotification(user); <- disabled for dslab2
 
 			return "Successfully logged in as " + userName + "!";
 
