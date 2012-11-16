@@ -66,4 +66,24 @@ public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 			socket.close();
 	}
 
+	@Override
+	public InetAddress getLocalAddress() {
+		return socket.getLocalAddress();
+	}
+
+	@Override
+	public InetAddress getAddress() {
+		return socket.getInetAddress();
+	}
+
+	@Override
+	public int getLocalPort() {
+		return socket.getLocalPort();
+	}
+
+	@Override
+	public int getPort() {
+		return socket.getPort();
+	}
+
 }

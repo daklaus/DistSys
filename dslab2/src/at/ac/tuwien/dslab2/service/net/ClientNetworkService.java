@@ -5,6 +5,7 @@ package at.ac.tuwien.dslab2.service.net;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
 
 /**
  * @author klaus
@@ -29,4 +30,31 @@ interface ClientNetworkService extends Closeable {
 	 */
 	String receive() throws IOException;
 
+	/**
+	 * Get the local IP address to which the network service is bound
+	 * 
+	 * @return the local IP address
+	 */
+	InetAddress getLocalAddress();
+
+	/**
+	 * Get the server IP address to which the network service is bound
+	 * 
+	 * @return the server IP address
+	 */
+	InetAddress getAddress();
+
+	/**
+	 * Get the local port to which the network service is bound
+	 * 
+	 * @return the local port
+	 */
+	int getLocalPort();
+
+	/**
+	 * Get the server port to which the network service is bound
+	 * 
+	 * @return the server port
+	 */
+	int getPort();
 }
