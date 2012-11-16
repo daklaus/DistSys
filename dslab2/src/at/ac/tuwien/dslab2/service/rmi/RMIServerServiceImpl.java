@@ -6,10 +6,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class RMIServerServiceImpl implements RMIServerService {
+class RMIServerServiceImpl implements RMIServerService {
 	private final Registry registry;
 	private String bindingName;
 	private Remote stub;
+
 	/*
 	 * This reference is basically just for holding a strong reference so that
 	 * the Garbage Collector won't erase it. (see:
@@ -19,25 +20,25 @@ public class RMIServerServiceImpl implements RMIServerService {
 	 */
 	private Remote toBeStubbed;
 
-	public RMIServerServiceImpl(int port) {
+	public RMIServerServiceImpl(int port) throws RemoteException {
 		try {
 			this.registry = LocateRegistry.createRegistry(port);
 		} catch (RemoteException e) {
-			throw new RuntimeException("Unable to create registry with port "
+			throw new RemoteException("Unable to create registry with port "
 					+ port, e);
 		}
 	}
 
 	@Override
-	public void bind(String name, Remote remote) {
+	public void bind(String name, Remote remote) throws RemoteException {
 		try {
 			this.toBeStubbed = remote;
 			this.stub = UnicastRemoteObject.exportObject(this.toBeStubbed, 0);
 			this.bindingName = name;
 			this.registry.rebind(name, this.stub);
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to bind object with name "
-					+ name, e);
+			throw new RemoteException(
+					"Unable to bind object with name " + name, e);
 		}
 	}
 
@@ -49,7 +50,9 @@ public class RMIServerServiceImpl implements RMIServerService {
 			if (this.toBeStubbed != null)
 				UnicastRemoteObject.unexportObject(this.toBeStubbed, false);
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to close AuctionServer", e);
+			// Maybe we should ignore the error to proceed with closing the
+			// service
+			throw new RuntimeException("Unable to close the RMI service", e);
 		}
 	}
 }

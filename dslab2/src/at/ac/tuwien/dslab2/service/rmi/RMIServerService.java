@@ -2,6 +2,7 @@ package at.ac.tuwien.dslab2.service.rmi;
 
 import java.io.Closeable;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 public interface RMIServerService extends Closeable {
 
@@ -13,6 +14,7 @@ public interface RMIServerService extends Closeable {
 	 *            the binding name
 	 * @param remote
 	 *            the Remote interface
+	 * @throws RemoteException
 	 */
-	void bind(String name, Remote remote);
+	void bind(String name, Remote remote) throws RemoteException;
 }

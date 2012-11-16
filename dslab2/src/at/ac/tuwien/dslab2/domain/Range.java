@@ -80,7 +80,7 @@ public class Range<T> {
 	 * Tests whether the specified range occurs entirely within this range using
 	 * Comparators <code>compareTo</code>.
 	 * </p>
-	 * <p/>
+	 * 
 	 * <p>
 	 * <code>null</code> is handled and returns <code>false</code>.
 	 * </p>
@@ -102,7 +102,7 @@ public class Range<T> {
 	 * Tests whether the specified range overlaps with this range using
 	 * Comparators <code>compareTo</code>.
 	 * </p>
-	 * <p/>
+	 * 
 	 * <p>
 	 * <code>null</code> is handled and returns <code>false</code>.
 	 * </p>
@@ -127,7 +127,7 @@ public class Range<T> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Range other = (Range) obj;
+		Range<?> other = (Range<?>) obj;
 		if (this.max == null) {
 			if (other.max != null)
 				return false;
@@ -163,7 +163,7 @@ public class Range<T> {
 	 * @return the <code>String</code> representation of this range
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer(32);
+		StringBuffer buf = new StringBuffer(33);
 		buf.append("Range[");
 		buf.append(this.min);
 		buf.append(", ");
