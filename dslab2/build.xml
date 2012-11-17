@@ -7,28 +7,30 @@
 	<!-- You need to update these properties!-->
 	<!-- Server's full class name (including the package) -->
 	<property name="server.name" value="at.ac.tuwien.dslab2.presentation.auctionServer.AuctionServer" />
-	<!-- Auction Server's host -->
-	<property name="server.host" value="localhost" />
 	<!-- Bidding Client's full class name (including the package) -->
 	<property name="client.name" value="at.ac.tuwien.dslab2.presentation.biddingClient.BiddingClient" />
-	<!-- UDP port of 1st Bidding Client -->
-	<property name="client1.port" value="12891" />
-	<!-- UDP port of 2nd Bidding Client -->
-	<property name="client2.port" value="12892" />
-	<!-- UDP port of 3rd Bidding Client -->
-	<property name="client3.port" value="12893" />
 	<!-- Management Client's full class name (including the package) -->
 	<property name="mgmtclient.name" value="at.ac.tuwien.dslab2.presentation.managementClient.ManagementClient" />
 	<!-- Analytics Server's full class name (including the package) -->
 	<property name="analytics.name" value="at.ac.tuwien.dslab2.presentation.analyticsServer.AnalyticsServer" />
 	<!-- Billing Server's full class name (including the package) -->
 	<property name="billing.name" value="at.ac.tuwien.dslab2.presentation.billingServer.BillingServer" />
+	<!-- Load Test's full class name (including the package) -->
+	<property name="loadtest.name" value="at.ac.tuwien.dslab2.presentation.loadTest.LoadTest" />
+	<!-- Auction Server's host -->
+	<property name="server.host" value="localhost" />
+	<!-- TCP port -->
+	<property name="server.port" value="12890" />
+	<!-- UDP port of 1st Bidding Client -->
+	<property name="client1.port" value="12891" />
+	<!-- UDP port of 2nd Bidding Client -->
+	<property name="client2.port" value="12892" />
+	<!-- UDP port of 3rd Bidding Client -->
+	<property name="client3.port" value="12893" />
 	<!-- RMI Binding Name of the Analytics Server -->
 	<property name="analytics.bindingName" value="AnalyticsServerRef" />
 	<!-- RMI Binding Name of the Billing Server -->
 	<property name="billing.bindingName" value="BillingServerRef" />
-	<!-- TCP port -->
-	<property name="server.port" value="12890" />
 
 	<path id="project.classpath">
 		<pathelement location="${build.dir}" />
@@ -110,7 +112,7 @@
 	</target>
 
 	<target name="run-loadtest" depends="compile" description="Run Load Test.">
-		<java classname="${client.name}" fork="true" classpathref="project.classpath">
+		<java classname="${loadtest.name}" fork="true" classpathref="project.classpath">
 			<arg value="${server.host}" />
 			<arg value="${server.port}" />
 			<arg value="${analytics.bindingName}" />

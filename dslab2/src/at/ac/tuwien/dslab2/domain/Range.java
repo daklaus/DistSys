@@ -11,7 +11,7 @@ public class Range<T> {
 	 * <p>
 	 * Constructs a new <code>Range</code> with the specified minimum and
 	 * maximum values (both inclusive) using the <code>Comparator</code> for
-	 * comparison .
+	 * comparison.
 	 * </p>
 	 * 
 	 * <p>
