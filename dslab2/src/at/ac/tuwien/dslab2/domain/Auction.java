@@ -5,10 +5,9 @@ package at.ac.tuwien.dslab2.domain;
 
 import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author klaus
@@ -34,7 +33,8 @@ public class Auction {
 		this.owner = owner;
 		this.duration = duration;
 		this.start = new Date();
-		this.bids = Collections.synchronizedSortedSet(new TreeSet<Bid>());
+		// this.bids = Collections.synchronizedSortedSet(new TreeSet<Bid>());
+		this.bids = new ConcurrentSkipListSet<Bid>(); // Better scalability
 	}
 
 	public void addBid(Bid bid) {

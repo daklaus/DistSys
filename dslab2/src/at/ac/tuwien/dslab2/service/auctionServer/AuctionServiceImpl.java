@@ -1,13 +1,12 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import at.ac.tuwien.dslab2.domain.Auction;
 import at.ac.tuwien.dslab2.domain.Bid;
@@ -15,18 +14,23 @@ import at.ac.tuwien.dslab2.domain.Client;
 import at.ac.tuwien.dslab2.domain.User;
 
 public class AuctionServiceImpl implements AuctionService {
-	private final Map<String, User> users;
+	private final ConcurrentMap<String, User> users;
 	private final SortedMap<Long, Auction> auctions;
 	private final Timer timer;
 	private volatile long idCounter;
 
 	// Private constructor prevents instantiation from other classes
 	private AuctionServiceImpl() {
-		users = Collections.synchronizedMap(new LinkedHashMap<String, User>());
-		auctions = Collections
-				.synchronizedSortedMap(new TreeMap<Long, Auction>());
-		timer = new Timer("Timer thread");
-		idCounter = 1;
+		// users = Collections.synchronizedMap(new LinkedHashMap<String,
+		// User>());
+		// Better scalability
+		this.users = new ConcurrentHashMap<String, User>();
+		// auctions = Collections.synchronizedSortedMap(new TreeMap<Long,
+		// Auction>());
+		// Better scalability
+		this.auctions = new ConcurrentSkipListMap<Long, Auction>();
+		this.timer = new Timer("Timer thread");
+		this.idCounter = 1;
 	}
 
 	private static class AuctionServiceHolder {
@@ -56,12 +60,13 @@ public class AuctionServiceImpl implements AuctionService {
 			return "There are currently no auctions running!";
 
 		StringBuilder sb = new StringBuilder();
-		synchronized (auctions) {
-			for (Auction a : auctions.values()) {
-				sb.append(a.toString());
-				sb.append("\n");
-			}
+		// No more use for sync with ConcurrentSkipListMap
+		// synchronized (auctions) {
+		for (Auction a : auctions.values()) {
+			sb.append(a.toString());
+			sb.append("\n");
 		}
+		// }
 
 		return sb.toString();
 	}
@@ -89,21 +94,18 @@ public class AuctionServiceImpl implements AuctionService {
 
 	@Override
 	public User login(String userName, Client client) {
-		User u;
-		if (users.containsKey(userName)) {
-			u = users.get(userName);
-		} else {
-			u = new User(userName, client);
-			users.put(userName, u);
-		}
-
-		return u;
+		return users.putIfAbsent(userName, new User(userName, client));
 	}
 
 	@Override
 	public void logout(User user) {
-		user.setClient(null);
-		user.setLoggedIn(false);
+		if (user == null)
+			throw new IllegalArgumentException("user is null");
+
+		synchronized (user) {
+			user.setClient(null);
+			user.setLoggedIn(false);
+		}
 	}
 
 	@Override

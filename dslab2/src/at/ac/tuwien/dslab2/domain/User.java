@@ -41,7 +41,7 @@ public class User {
 		this(false, name, client);
 	}
 
-	public boolean getLoggedIn() {
+	public boolean isLoggedIn() {
 		return this.loggedIn;
 	}
 

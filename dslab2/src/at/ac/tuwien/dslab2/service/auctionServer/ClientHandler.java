@@ -131,11 +131,13 @@ class ClientHandler implements Runnable {
 
 			user = as.login(userName, c);
 
-			if (user.getLoggedIn()) {
-				user = null;
-				return "You are already logged in on another client, you first have to log out!";
+			synchronized (user) {
+				if (user.isLoggedIn()) {
+					user = null;
+					return "You are already logged in on another client, you first have to log out!";
+				}
+				user.setLoggedIn(true);
 			}
-			user.setLoggedIn(true);
 			user.setClient(c);
 
 			// Start notification thread
