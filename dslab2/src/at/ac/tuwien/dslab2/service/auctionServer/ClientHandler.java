@@ -186,9 +186,9 @@ class ClientHandler implements Runnable {
 			if (user == null)
 				return "You have to log in first!";
 
-			if (!sc.hasNextInt())
+			if (!sc.hasNextLong())
 				return invalidCommand;
-			int auctionId = sc.nextInt();
+			long auctionId = sc.nextLong();
 			if (!sc.hasNextDouble())
 				return invalidCommand;
 			double amount = sc.nextDouble();

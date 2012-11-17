@@ -48,7 +48,7 @@ public interface AuctionService {
 	 *            the amount to bid
 	 * @return the auction of this bid if the auction exists; null otherwise
 	 */
-	public Auction bid(User user, int auctionId, double amount);
+	public Auction bid(User user, long auctionId, double amount);
 
 	/**
 	 * Logs the user in and binds it to the client

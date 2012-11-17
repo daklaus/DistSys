@@ -67,7 +67,7 @@ public class AuctionServiceImpl implements AuctionService {
 	}
 
 	@Override
-	public Auction bid(User user, int auctionId, double amount) {
+	public Auction bid(User user, long auctionId, double amount) {
 
 		Auction a = auctions.get(auctionId);
 
