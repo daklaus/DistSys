@@ -2,7 +2,7 @@ package at.ac.tuwien.dslab2.domain;
 
 import java.util.Comparator;
 
-class Interval<T> {
+class Interval<T> implements Comparable<Interval<T>> {
 	protected final T min;
 	protected final T max;
 	protected final Comparator<T> comparator;
@@ -110,6 +110,11 @@ class Interval<T> {
 
 		return interval.contains(this.min) || interval.contains(this.max)
 				|| contains(interval.getMin());
+	}
+
+	@Override
+	public int compareTo(Interval<T> o) {
+		return this.comparator.compare(this.min, o.min);
 	}
 
 	@Override
