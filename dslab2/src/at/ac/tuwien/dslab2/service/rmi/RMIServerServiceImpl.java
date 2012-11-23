@@ -21,12 +21,19 @@ class RMIServerServiceImpl implements RMIServerService {
 	private Remote toBeStubbed;
 
 	public RMIServerServiceImpl(int port) throws RemoteException {
+		Registry r = null;
 		try {
-			this.registry = LocateRegistry.createRegistry(port);
+			r = LocateRegistry.createRegistry(port);
 		} catch (RemoteException e) {
-			throw new RemoteException("Unable to create registry with port "
-					+ port, e);
+			// Try to get the registry if it couldn't be created at that port
+			try {
+				r = LocateRegistry.getRegistry("localhost", port);
+			} catch (RemoteException e2) {
+				throw new RemoteException(
+						"Unable to create registry with port " + port, e);
+			}
 		}
+		this.registry = r;
 	}
 
 	@Override
