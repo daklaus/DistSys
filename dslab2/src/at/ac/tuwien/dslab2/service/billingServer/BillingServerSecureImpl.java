@@ -5,6 +5,8 @@ package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import at.ac.tuwien.dslab2.domain.Bill;
 import at.ac.tuwien.dslab2.domain.PriceSteps;
@@ -14,9 +16,11 @@ import at.ac.tuwien.dslab2.domain.PriceSteps;
  * 
  */
 public class BillingServerSecureImpl implements BillingServerSecure {
+	private final Map<String, Bill> bills;
 
 	// Private constructor prevents instantiation from other classes
 	private BillingServerSecureImpl() {
+		bills = new ConcurrentHashMap<String, Bill>();
 	}
 
 	private static class BillingServerSecureHolder {

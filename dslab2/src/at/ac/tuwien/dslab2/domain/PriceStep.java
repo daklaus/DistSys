@@ -1,8 +1,12 @@
 package at.ac.tuwien.dslab2.domain;
 
-import java.util.Comparator;
-
 public class PriceStep extends Interval<Double> {
+	/**
+	 * The size in characters to which each value will be padded within the
+	 * toString method
+	 */
+	public static final int PADDING_SIZE = 20;
+
 	private final double fixedPrice;
 	private final double variablePricePercent;
 
@@ -26,40 +30,15 @@ public class PriceStep extends Interval<Double> {
 		return this.variablePricePercent;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		long temp;
-		temp = Double.doubleToLongBits(this.fixedPrice);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(this.variablePricePercent);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+	public String intervalToString() {
+		return super.toString();
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PriceStep other = (PriceStep) obj;
-		if (Double.doubleToLongBits(this.fixedPrice) != Double
-				.doubleToLongBits(other.fixedPrice))
-			return false;
-		if (Double.doubleToLongBits(this.variablePricePercent) != Double
-				.doubleToLongBits(other.variablePricePercent))
-			return false;
-		return true;
+	public String toString() {
+		final String nbrFormat = "%-" + PADDING_SIZE + ".2f";
+		return String.format(nbrFormat + nbrFormat + nbrFormat + nbrFormat,
+				this.min, this.max, this.fixedPrice, this.variablePricePercent);
 	}
 
-	private static final class DoubleComparator implements Comparator<Double> {
-		@Override
-		public int compare(Double o1, Double o2) {
-			return Double.compare(o1, o2);
-		}
-	}
 }
