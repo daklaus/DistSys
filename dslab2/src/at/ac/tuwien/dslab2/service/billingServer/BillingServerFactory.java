@@ -14,7 +14,7 @@ public abstract class BillingServerFactory {
 		return new BillingServerImpl();
 	}
 
-	static BillingServerSecure newBillingServerSecure() {
-		return new BillingServerSecureImpl();
+	static BillingServerSecure getBillingServerSecure() {
+		return BillingServerSecureImpl.getInstance();
 	}
 }

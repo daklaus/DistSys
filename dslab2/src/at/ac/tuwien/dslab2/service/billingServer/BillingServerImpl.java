@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BillingServerImpl implements BillingServer {
 	private final String USERPROPERTIES_FILE = "user.properties";
 	private final Map<String, String> users;
+	private final BillingServerSecure bss;
 
 	public BillingServerImpl() throws IOException {
 
@@ -42,6 +43,9 @@ public class BillingServerImpl implements BillingServer {
 		for (Entry<Object, Object> entry : prop.entrySet()) {
 			users.put(entry.getKey().toString(), entry.getValue().toString());
 		}
+
+		// Get the BillingServerSecure
+		bss = BillingServerFactory.getBillingServerSecure();
 	}
 
 	@Override
@@ -76,16 +80,12 @@ public class BillingServerImpl implements BillingServer {
 		if (!md5Hash.equals(users.get(username.trim())))
 			return null;
 
-		// Generate the BillingServerSecure
-		BillingServerSecure bss = BillingServerFactory.newBillingServerSecure();
-
 		return bss;
 	}
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
+		bss.close();
 	}
 
 }
