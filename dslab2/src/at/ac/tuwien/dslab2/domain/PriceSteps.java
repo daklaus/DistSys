@@ -11,13 +11,13 @@ public class PriceSteps {
 		priceSteps = new ConcurrentSkipListSet<PriceStep>();
 	}
 
-	public void addPriceStep(double startPrice, double endPrice,
-			double fixedPrice, double variablePricePercent) {
+	public void add(double startPrice, double endPrice, double fixedPrice,
+			double variablePricePercent) {
 		priceSteps.add(new PriceStep(startPrice, endPrice, fixedPrice,
 				variablePricePercent));
 	}
 
-	public void removePriceStep(double startPrice, double endPrice) {
+	public void remove(double startPrice, double endPrice) {
 		priceSteps.remove(new Interval<Double>(startPrice, endPrice,
 				new DoubleComparator()));
 	}
@@ -33,8 +33,9 @@ public class PriceSteps {
 		builder.append(String.format(sFormat, "Fee_Fixed"));
 		builder.append(String.format(sFormat, "Fee_Variable"));
 		builder.append("\n");
-		for (Iterator iterator = priceSteps.iterator(); iterator.hasNext();) {
-			PriceStep ps = (PriceStep) iterator.next();
+		for (Iterator<PriceStep> iterator = priceSteps.iterator(); iterator
+				.hasNext();) {
+			PriceStep ps = iterator.next();
 
 			builder.append(ps.toString());
 
