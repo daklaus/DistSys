@@ -3,6 +3,8 @@
  */
 package at.ac.tuwien.dslab2.domain;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -11,7 +13,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @author klaus
  * 
  */
-public class Bill implements Iterable<Bill.Auction> {
+public class Bill implements Iterable<Bill.Auction>, Serializable {
+	private static final long serialVersionUID = 1L;
 	private final SortedSet<Auction> auctionBills;
 	private final String user;
 
@@ -32,7 +35,7 @@ public class Bill implements Iterable<Bill.Auction> {
 
 	@Override
 	public Iterator<Bill.Auction> iterator() {
-		return auctionBills.iterator();
+		return Collections.unmodifiableSortedSet(auctionBills).iterator();
 	}
 
 	public class Auction implements Comparable<Auction> {

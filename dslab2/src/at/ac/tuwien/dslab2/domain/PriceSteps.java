@@ -1,14 +1,23 @@
 package at.ac.tuwien.dslab2.domain;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class PriceSteps {
+public class PriceSteps implements Iterable<PriceStep>, Serializable {
+	private static final long serialVersionUID = 1L;
 	private final SortedSet<PriceStep> priceSteps;
 
 	public PriceSteps() {
 		priceSteps = new ConcurrentSkipListSet<PriceStep>();
+	}
+
+	public void add(PriceStep ps) {
+		if (ps == null)
+			throw new IllegalArgumentException("Price step is null");
+		priceSteps.add(ps);
 	}
 
 	public void add(double startPrice, double endPrice, double fixedPrice,
@@ -17,9 +26,24 @@ public class PriceSteps {
 				variablePricePercent));
 	}
 
-	public void remove(double startPrice, double endPrice) {
+	public void remove(double startPrice, double endPrice)
+			throws IllegalStateException {
 		priceSteps.remove(new Interval<Double>(startPrice, endPrice,
 				new DoubleComparator()));
+	}
+
+	public boolean contains(double startPrice, double endPrice) {
+		return priceSteps.contains(new Interval<Double>(startPrice, endPrice,
+				new DoubleComparator()));
+	}
+
+	public boolean isEmpty() {
+		return priceSteps.isEmpty();
+	}
+
+	@Override
+	public Iterator<PriceStep> iterator() {
+		return Collections.unmodifiableSortedSet(priceSteps).iterator();
 	}
 
 	@Override

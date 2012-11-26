@@ -5,10 +5,11 @@ package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import at.ac.tuwien.dslab2.domain.Bill;
+import at.ac.tuwien.dslab2.domain.PriceStep;
 import at.ac.tuwien.dslab2.domain.PriceSteps;
 
 /**
@@ -16,11 +17,13 @@ import at.ac.tuwien.dslab2.domain.PriceSteps;
  * 
  */
 public class BillingServerSecureImpl implements BillingServerSecure {
-	private final Map<String, Bill> bills;
+	private final ConcurrentMap<String, Bill> bills;
+	private final PriceSteps priceSteps;
 
 	// Private constructor prevents instantiation from other classes
 	private BillingServerSecureImpl() {
 		bills = new ConcurrentHashMap<String, Bill>();
+		priceSteps = new PriceSteps();
 	}
 
 	private static class BillingServerSecureHolder {
@@ -33,42 +36,62 @@ public class BillingServerSecureImpl implements BillingServerSecure {
 
 	@Override
 	public PriceSteps getPriceSteps() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return priceSteps;
 	}
 
 	@Override
 	public void createPriceStep(double startPrice, double endPrice,
 			double fixedPrice, double variablePricePercent)
 			throws RemoteException {
-		// TODO Auto-generated method stub
+		if (startPrice < 0 || endPrice < 0 || fixedPrice < 0
+				|| variablePricePercent < 0)
+			throw new RemoteException(
+					"One of the specified values is negative!");
+
+		PriceStep newPs = new PriceStep(startPrice, endPrice, fixedPrice,
+				variablePricePercent);
+
+		for (PriceStep ps : priceSteps) {
+			if (ps.overlaps(newPs)) {
+				throw new RemoteException(
+						"The price step specified overlaps with another price step: "
+								+ ps.getInterval());
+			}
+		}
+
+		priceSteps.add(newPs);
 
 	}
 
 	@Override
 	public void deletePriceStep(double startPrice, double endPrice)
 			throws RemoteException {
-		// TODO Auto-generated method stub
 
+		if (!priceSteps.contains(startPrice, endPrice))
+			throw new RemoteException(
+					"Price steps don't contain the specified interval");
+
+		priceSteps.remove(startPrice, endPrice);
 	}
 
 	@Override
 	public void billAuction(String user, long auctionID, double price)
 			throws RemoteException {
-		// TODO Auto-generated method stub
+		if (user == null)
+			throw new IllegalArgumentException("user is null");
 
+		Bill b = bills.putIfAbsent(user, new Bill(user));
+
+		b.addAuction(auctionID, price);
 	}
 
 	@Override
 	public Bill getBill(String user) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return bills.get(user);
 	}
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

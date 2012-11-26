@@ -55,9 +55,7 @@ class RMIServerServiceImpl implements RMIServerService {
 			if (this.bindingName != null)
 				this.registry.unbind(this.bindingName);
 			if (this.toBeStubbed != null) {
-				if (!UnicastRemoteObject
-						.unexportObject(this.toBeStubbed, false))
-					UnicastRemoteObject.unexportObject(this.toBeStubbed, true);
+				UnicastRemoteObject.unexportObject(this.toBeStubbed, true);
 			}
 		} catch (Exception e) {
 			// Maybe we should ignore the error to proceed with closing the

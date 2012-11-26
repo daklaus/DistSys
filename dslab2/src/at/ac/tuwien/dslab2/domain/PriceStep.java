@@ -30,7 +30,7 @@ public class PriceStep extends Interval<Double> {
 		return this.variablePricePercent;
 	}
 
-	public String intervalToString() {
+	public String getInterval() {
 		return super.toString();
 	}
 
