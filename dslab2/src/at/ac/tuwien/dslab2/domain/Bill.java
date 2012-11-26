@@ -42,6 +42,8 @@ public class Bill implements Iterable<Bill.Auction>, Serializable {
 		private final String user;
 		private final long auctionId;
 		private final double price;
+		private double calculatedFixedFee;
+		private double calculatedVariableFee;
 
 		public Auction(String user, long auctionId, double price) {
 			this.user = user;
@@ -59,6 +61,22 @@ public class Bill implements Iterable<Bill.Auction>, Serializable {
 
 		public double getPrice() {
 			return this.price;
+		}
+
+		public double getCalculatedFixedFee() {
+			return this.calculatedFixedFee;
+		}
+
+		public void setCalculatedFixedFee(double calculatedFixedFee) {
+			this.calculatedFixedFee = calculatedFixedFee;
+		}
+
+		public double getCalculatedVariableFee() {
+			return this.calculatedVariableFee;
+		}
+
+		public void setCalculatedVariableFee(double calculatedVariableFee) {
+			this.calculatedVariableFee = calculatedVariableFee;
 		}
 
 		@Override

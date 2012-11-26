@@ -5,6 +5,7 @@ package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -91,7 +92,28 @@ public class BillingServerSecureImpl implements BillingServerSecure {
 
 	@Override
 	public Bill getBill(String user) throws RemoteException {
-		return bills.get(user);
+		Bill bill = bills.get(user);
+		if (bill == null)
+			return null;
+
+		// Calculate fees
+		// TODO: If possible improve the synchronization and maybe performance
+		// too
+		for (Bill.Auction auction : bill) {
+			for (PriceStep priceStep : priceSteps) {
+				if (priceStep.contains(auction.getPrice())) {
+					synchronized (auction) {
+						auction.setCalculatedFixedFee(priceStep.getFixedPrice());
+						auction.setCalculatedVariableFee(priceStep
+								.getVariablePricePercent()
+								/ 100
+								* auction.getPrice());
+					}
+				}
+			}
+		}
+
+		return bill;
 	}
 
 	@Override

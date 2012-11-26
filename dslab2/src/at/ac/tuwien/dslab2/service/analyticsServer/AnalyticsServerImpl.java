@@ -5,7 +5,6 @@ package at.ac.tuwien.dslab2.service.analyticsServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.UUID;
 
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
@@ -17,10 +16,10 @@ import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
 class AnalyticsServerImpl implements AnalyticsServer {
 
 	@Override
-	public UUID subscribe(String regex, MgmtClientCallback cb)
+	public long subscribe(String regex, MgmtClientCallback cb)
 			throws RemoteException {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -30,7 +29,7 @@ class AnalyticsServerImpl implements AnalyticsServer {
 	}
 
 	@Override
-	public void unsubscribe(UUID id) throws RemoteException {
+	public void unsubscribe(long id) throws RemoteException {
 		// TODO Auto-generated method stub
 
 	}

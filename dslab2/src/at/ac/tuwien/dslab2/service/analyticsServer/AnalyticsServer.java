@@ -3,7 +3,6 @@ package at.ac.tuwien.dslab2.service.analyticsServer;
 import java.io.Closeable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.UUID;
 
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
@@ -22,7 +21,7 @@ public interface AnalyticsServer extends Closeable, Remote {
 	 * @return a unique subscription identifier.
 	 * @throws RemoteException
 	 */
-	UUID subscribe(String regex, MgmtClientCallback cb) throws RemoteException;
+	long subscribe(String regex, MgmtClientCallback cb) throws RemoteException;
 
 	/**
 	 * This method is invoked by the bidding server each time a new event
@@ -42,12 +41,12 @@ public interface AnalyticsServer extends Closeable, Remote {
 
 	/**
 	 * This method is invoked by the management client(s) to terminate an
-	 * existing event subscription. The method receives the subscription
-	 * identifier which has been previously received from the subscribe method.
+	 * existing event subscription.
 	 * 
 	 * @param id
-	 *            An <code>UUID</code> that identifies the subscription
+	 *            The subscription identifier which has been previously received
+	 *            from the subscribe method
 	 * @throws RemoteException
 	 */
-	void unsubscribe(UUID id) throws RemoteException;
+	void unsubscribe(long id) throws RemoteException;
 }
