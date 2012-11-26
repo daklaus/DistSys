@@ -18,13 +18,16 @@ class ClientHandler implements Runnable {
 	private User user;
 	private NotificationThread notificationThread;
 
-	public ClientHandler(TCPClientNetworkService ns) throws IOException {
+	public ClientHandler(TCPClientNetworkService ns, AuctionService as)
+			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
 					"The TCPClientNetworkService is null");
+		if (as == null)
+			throw new IllegalArgumentException("The AuctionService is null");
 
 		this.ns = ns;
-		as = ServiceFactory.getAuctionService();
+		this.as = as;
 		user = null;
 	}
 

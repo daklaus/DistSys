@@ -80,7 +80,11 @@ public class BillingServerSecureImpl implements BillingServerSecure {
 		if (user == null)
 			throw new IllegalArgumentException("user is null");
 
-		Bill b = bills.putIfAbsent(user, new Bill(user));
+		Bill b = new Bill(user);
+
+		Bill existingBill = bills.putIfAbsent(user, b);
+		if (existingBill != null)
+			b = existingBill;
 
 		b.addAuction(auctionID, price);
 	}

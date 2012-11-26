@@ -15,15 +15,23 @@ import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
 class ServerThread extends Thread {
 	private volatile boolean stop;
 	private final TCPServerNetworkService ns;
+	private final AuctionService as;
 	private final List<ClientHandler> clientHandlerList;
 	private ExecutorService pool;
 
-	public ServerThread(int tcpPort) throws IOException {
+	public ServerThread(int tcpPort, String billingServerRef,
+			String analyticsServerRef) throws IOException {
 		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
+		if (billingServerRef == null)
+			throw new IllegalArgumentException("billingServerRef is null");
+		if (analyticsServerRef == null)
+			throw new IllegalArgumentException("analyticsServerRef is null");
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
+		as = ServiceFactory.newAuctionService(billingServerRef,
+				analyticsServerRef);
 		clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}
@@ -46,7 +54,7 @@ class ServerThread extends Thread {
 		try {
 			try {
 				while (!stop) {
-					c = new ClientHandler(ns.accept());
+					c = new ClientHandler(ns.accept(), as);
 					clientHandlerList.add(c);
 					pool.execute(c);
 				}
@@ -77,7 +85,8 @@ class ServerThread extends Thread {
 		stop = true;
 		if (pool != null)
 			shutdownAndAwaitTermination(pool);
-		ServiceFactory.getAuctionService().close();
+		if (as != null)
+			as.close();
 		this.interrupt();
 		if (ns != null)
 			ns.close();

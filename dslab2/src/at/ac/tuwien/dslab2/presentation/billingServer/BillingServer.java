@@ -58,9 +58,7 @@ public class BillingServer {
 		InputStream is = ClassLoader
 				.getSystemResourceAsStream(REGISTRY_PROPERTIES_FILE);
 		if (is == null) {
-			System.err.println(REGISTRY_PROPERTIES_FILE + " not found!");
-			close();
-			System.exit(1);
+			error(REGISTRY_PROPERTIES_FILE + " not found!");
 		}
 		Properties prop = new Properties();
 		try {
@@ -70,19 +68,22 @@ public class BillingServer {
 				is.close();
 			}
 		} catch (IOException e) {
-			System.err.println("Couldn't load " + REGISTRY_PROPERTIES_FILE
-					+ ":");
-			e.printStackTrace();
-			close();
-			System.exit(1);
+			error("Couldn't load " + REGISTRY_PROPERTIES_FILE + ":", e);
 		}
+
+		// Check if key exists
 		if (!prop.containsKey(REGISTRY_PROPERTIES_PORT_KEY)) {
-			System.err.println("Properties file doesn't contain the key "
+			error("Properties file doesn't contain the key "
 					+ REGISTRY_PROPERTIES_PORT_KEY);
-			close();
-			System.exit(1);
 		}
-		port = Integer.parseInt(prop.getProperty(REGISTRY_PROPERTIES_PORT_KEY));
+
+		// Parse value
+		sc = new Scanner(prop.getProperty(REGISTRY_PROPERTIES_PORT_KEY));
+		if (!sc.hasNextInt()) {
+			error("Couldn't parse the properties value of "
+					+ REGISTRY_PROPERTIES_PORT_KEY);
+		}
+		port = sc.nextInt();
 
 		/*
 		 * Bind the RMI interface
@@ -92,10 +93,7 @@ public class BillingServer {
 			rss = RMIServiceFactory.newRMIServerService(port);
 			rss.bind(bindingName, bs);
 		} catch (IOException e) {
-			System.err.println("Couldn't initialize server:");
-			e.printStackTrace();
-			close();
-			System.exit(1);
+			error("Couldn't initialize server:", e);
 		}
 	}
 
@@ -120,7 +118,19 @@ public class BillingServer {
 		}
 	}
 
-	synchronized static void close() {
+	private static void error(String msg) {
+		error(msg, null);
+	}
+
+	private static void error(String msg, Throwable e) {
+		System.err.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		close();
+		System.exit(1);
+	}
+
+	private static void close() {
 		try {
 			if (rss != null) {
 				rss.close();

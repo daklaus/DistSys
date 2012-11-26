@@ -17,9 +17,14 @@ public interface AuctionServerService {
 	 * 
 	 * @param tcpPort
 	 *            the TCP port the server should listen on
+	 * @param billingServerRef
+	 *            the binding name of the billing server in the RMI registry
+	 * @param analyticsServerRef
+	 *            the binding name of the analytics server in the RMI registry
 	 * @throws IOException
 	 */
-	void start(int tcpPort) throws IOException;
+	void start(int tcpPort, String billingServerRef, String analyticsServerRef)
+			throws IOException;
 
 	/**
 	 * Sets the exception handler for uncaught exceptions of invoked threads

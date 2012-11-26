@@ -33,19 +33,21 @@ public class AuctionServer {
 	private static void initialize(String[] args) {
 		Scanner sc;
 
-		if (args.length != 1)
+		if (args.length != 3)
 			usage();
 
 		sc = new Scanner(args[0]);
 		if (!sc.hasNextInt())
 			usage();
 		int tcpPort = sc.nextInt();
+		String billingServerRef = args[1];
+		String analyticsServerRef = args[2];
 
 		ass = ServiceFactory.getAuctionServerService();
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {
-			ass.start(tcpPort);
+			ass.start(tcpPort, billingServerRef, analyticsServerRef);
 		} catch (IOException e) {
 			System.err.println("Error while connecting:");
 			e.printStackTrace();
@@ -57,11 +59,16 @@ public class AuctionServer {
 	}
 
 	private static void usage() {
-		System.err.println("usage: java AuctionServer tcpPort\n");
-		System.err.println("\thost: host name or IP of the auction server\n"
+		System.err.println("usage: java AuctionServer tcpPort billingServerRef"
+				+ " analyticsServerRef\n\n"
+				+ "\thost: host name or IP of the auction server\n"
 				+ "\ttcpPort: TCP connection port on which the "
 				+ "auction server will receive incoming messages "
-				+ "(commands) from clients.");
+				+ "(commands) from clients.\n"
+				+ "\tbillingServerRef: the binding name of the "
+				+ "billing server in the RMI registry\n"
+				+ "\tanalyticsServerRef: the binding name of the "
+				+ "analytics server in the RMI registry");
 
 		close();
 		System.exit(0);

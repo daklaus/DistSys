@@ -6,6 +6,7 @@ package at.ac.tuwien.dslab2.service.billingServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class BillingServerImpl implements BillingServer {
 
 		// Get the BillingServerSecure
 		bss = BillingServerFactory.getBillingServerSecure();
+		UnicastRemoteObject.exportObject(bss, 0);
 	}
 
 	@Override
@@ -86,6 +88,7 @@ public class BillingServerImpl implements BillingServer {
 	@Override
 	public void close() throws IOException {
 		bss.close();
+		UnicastRemoteObject.unexportObject(bss, false);
 	}
 
 }

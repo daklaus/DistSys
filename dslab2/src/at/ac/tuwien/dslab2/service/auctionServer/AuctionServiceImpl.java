@@ -1,6 +1,10 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.rmi.RemoteException;
+import java.util.Properties;
+import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,15 +16,29 @@ import at.ac.tuwien.dslab2.domain.Auction;
 import at.ac.tuwien.dslab2.domain.Bid;
 import at.ac.tuwien.dslab2.domain.Client;
 import at.ac.tuwien.dslab2.domain.User;
+import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
+import at.ac.tuwien.dslab2.service.billingServer.BillingServerSecure;
+import at.ac.tuwien.dslab2.service.rmi.RMIClientService;
+import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
 
 public class AuctionServiceImpl implements AuctionService {
+	private final String REGISTRY_PROPERTIES_FILE = "registry.properties";
+	private final String REGISTRY_PROPERTIES_PORT_KEY = "registry.port";
+	private final String REGISTRY_PROPERTIES_HOST_KEY = "registry.host";
+	private final String BILLINGSERVER_USERNAME = "auctionClientUser";
+	private final String BILLINGSERVER_PASSWORD = "12345";
+
 	private final ConcurrentMap<String, User> users;
 	private final SortedMap<Long, Auction> auctions;
 	private final Timer timer;
 	private volatile long idCounter;
+	private final RMIClientService rcs;
+	private final BillingServerSecure bss;
 
-	// Private constructor prevents instantiation from other classes
-	private AuctionServiceImpl() {
+	// private final AnalyticsServer as;
+
+	public AuctionServiceImpl(String billingServerRef, String analyticsServerRef)
+			throws IOException {
 		// users = Collections.synchronizedMap(new LinkedHashMap<String,
 		// User>());
 		// Better scalability
@@ -31,14 +49,72 @@ public class AuctionServiceImpl implements AuctionService {
 		this.auctions = new ConcurrentSkipListMap<Long, Auction>();
 		this.timer = new Timer("Timer thread");
 		this.idCounter = 1;
-	}
 
-	private static class AuctionServiceHolder {
-		public static final AuctionService INSTANCE = new AuctionServiceImpl();
-	}
+		/*
+		 * Read the properties file
+		 */
+		InputStream is = ClassLoader
+				.getSystemResourceAsStream(REGISTRY_PROPERTIES_FILE);
+		if (is == null)
+			throw new IOException(REGISTRY_PROPERTIES_FILE + " not found!");
 
-	public static AuctionService getInstance() {
-		return AuctionServiceHolder.INSTANCE;
+		Properties prop = new Properties();
+		try {
+			try {
+				prop.load(is);
+			} finally {
+				is.close();
+			}
+		} catch (IOException e) {
+			throw new IOException("Couldn't load " + REGISTRY_PROPERTIES_FILE
+					+ ":", e);
+		}
+
+		// Check if keys exist
+		if (!prop.containsKey(REGISTRY_PROPERTIES_HOST_KEY)) {
+			throw new IOException("Properties file doesn't contain the key "
+					+ REGISTRY_PROPERTIES_HOST_KEY);
+		}
+		if (!prop.containsKey(REGISTRY_PROPERTIES_PORT_KEY)) {
+			throw new IOException("Properties file doesn't contain the key "
+					+ REGISTRY_PROPERTIES_PORT_KEY);
+		}
+
+		// Parse value
+		int port;
+		String host;
+		host = prop.getProperty(REGISTRY_PROPERTIES_HOST_KEY);
+
+		Scanner sc = new Scanner(prop.getProperty(REGISTRY_PROPERTIES_PORT_KEY));
+		if (!sc.hasNextInt()) {
+			throw new IOException("Couldn't parse the properties value of "
+					+ REGISTRY_PROPERTIES_PORT_KEY);
+		}
+		port = sc.nextInt();
+
+		/**
+		 * Get the RMI interfaces
+		 */
+		RMIClientService rcs = null;
+		BillingServer bs = null;
+		BillingServerSecure bss = null;
+		// AnalyticsServer as = null;
+		try {
+			rcs = RMIServiceFactory.newRMIClientService(host, port);
+			bs = (BillingServer) rcs.lookup(billingServerRef);
+			// as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
+
+			// Log into the billing server
+			if (bs != null)
+				bss = bs.login(BILLINGSERVER_USERNAME, BILLINGSERVER_PASSWORD);
+		} catch (Exception e) {
+			// Don't propagate the exception, because we don't care for RMI
+			// exceptions
+			// Maybe add logging later
+		}
+		this.rcs = rcs;
+		this.bss = bss;
+		// this.as = as;
 	}
 
 	@Override
@@ -94,7 +170,13 @@ public class AuctionServiceImpl implements AuctionService {
 
 	@Override
 	public User login(String userName, Client client) {
-		return users.putIfAbsent(userName, new User(userName, client));
+		User u = new User(userName, client);
+
+		User existingUser = users.putIfAbsent(userName, u);
+		if (existingUser != null)
+			u = existingUser;
+
+		return u;
 	}
 
 	@Override
@@ -111,13 +193,18 @@ public class AuctionServiceImpl implements AuctionService {
 	@Override
 	public void close() throws IOException {
 		this.timer.cancel();
+		if (rcs != null)
+			rcs.close();
 	}
 
 	private class AuctionEndTask extends TimerTask {
-		Auction a;
+		private final Auction a;
 
 		public AuctionEndTask(Auction a) {
 			super();
+			if (a == null)
+				throw new IllegalArgumentException("Auction is null");
+
 			this.a = a;
 		}
 
@@ -142,6 +229,18 @@ public class AuctionServiceImpl implements AuctionService {
 				winner.addNotification(notification);
 
 			auctions.remove(a.getId());
+
+			if (bss != null) {
+				try {
+					bss.billAuction(owner.getName(), a.getId(), bid == null ? 0
+							: bid.getAmount());
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI
+					// exceptions
+					// Maybe add logging later
+				}
+			}
 		}
 	}
 
