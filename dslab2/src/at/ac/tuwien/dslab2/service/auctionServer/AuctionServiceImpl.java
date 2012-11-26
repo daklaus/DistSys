@@ -2,7 +2,6 @@ package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedMap;
@@ -13,9 +12,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import at.ac.tuwien.dslab2.domain.Auction;
+import at.ac.tuwien.dslab2.domain.AuctionEvent;
 import at.ac.tuwien.dslab2.domain.Bid;
+import at.ac.tuwien.dslab2.domain.BidEvent;
 import at.ac.tuwien.dslab2.domain.Client;
+import at.ac.tuwien.dslab2.domain.EventType;
 import at.ac.tuwien.dslab2.domain.User;
+import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerSecure;
 import at.ac.tuwien.dslab2.service.rmi.RMIClientService;
@@ -34,8 +37,7 @@ public class AuctionServiceImpl implements AuctionService {
 	private volatile long idCounter;
 	private final RMIClientService rcs;
 	private final BillingServerSecure bss;
-
-	// private final AnalyticsServer as;
+	private final AnalyticsServer as;
 
 	public AuctionServiceImpl(String billingServerRef, String analyticsServerRef)
 			throws IOException {
@@ -98,11 +100,11 @@ public class AuctionServiceImpl implements AuctionService {
 		RMIClientService rcs = null;
 		BillingServer bs = null;
 		BillingServerSecure bss = null;
-		// AnalyticsServer as = null;
+		AnalyticsServer as = null;
 		try {
 			rcs = RMIServiceFactory.newRMIClientService(host, port);
 			bs = (BillingServer) rcs.lookup(billingServerRef);
-			// as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
+			as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
 
 			// Log into the billing server
 			if (bs != null)
@@ -114,7 +116,7 @@ public class AuctionServiceImpl implements AuctionService {
 		}
 		this.rcs = rcs;
 		this.bss = bss;
-		// this.as = as;
+		this.as = as;
 	}
 
 	@Override
@@ -127,6 +129,19 @@ public class AuctionServiceImpl implements AuctionService {
 		synchronized (timer) {
 			timer.schedule(new AuctionEndTask(a), a.getEndDate());
 		}
+
+		// Report event
+		if (as != null) {
+			try {
+				as.processEvent(new AuctionEvent(EventType.AUCTION_STARTED, a
+						.getId()));
+			} catch (Exception e) {
+				// Don't propagate the exception, because we don't care for
+				// RMI exceptions
+				// Maybe add logging later
+			}
+		}
+
 		return a;
 	}
 
@@ -159,10 +174,34 @@ public class AuctionServiceImpl implements AuctionService {
 
 		a.addBid(new Bid(amount, user));
 
+		// Report event
+		if (as != null) {
+			try {
+				as.processEvent(new BidEvent(EventType.BID_PLACED, user
+						.getName(), auctionId, amount));
+			} catch (Exception e) {
+				// Don't propagate the exception, because we don't care for
+				// RMI exceptions
+				// Maybe add logging later
+			}
+		}
+
 		// Notify overbid
 		if (prevHighestBidder != null && !prevHighestBidder.equals(user)
 				&& !prevHighestBidder.equals(a.getHighestBidder())) {
 			prevHighestBidder.addNotification("!new-bid " + a.getDescription());
+
+			// Report event
+			if (as != null) {
+				try {
+					as.processEvent(new BidEvent(EventType.BID_OVERBID,
+							prevHighestBidder.getName(), auctionId, amount));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI exceptions
+					// Maybe add logging later
+				}
+			}
 		}
 
 		return a;
@@ -188,6 +227,11 @@ public class AuctionServiceImpl implements AuctionService {
 			user.setClient(null);
 			user.setLoggedIn(false);
 		}
+	}
+
+	@Override
+	public AnalyticsServer getAnalysticsServerRef() {
+		return as;
 	}
 
 	@Override
@@ -230,6 +274,24 @@ public class AuctionServiceImpl implements AuctionService {
 
 			auctions.remove(a.getId());
 
+			// Report event
+			if (as != null) {
+				try {
+					as.processEvent(new AuctionEvent(EventType.AUCTION_ENDED, a
+							.getId()));
+					if (bid != null)
+						as.processEvent(new BidEvent(EventType.BID_WON, bid
+								.getUser().getName(), a.getId(), bid
+								.getAmount()));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI
+					// exceptions
+					// Maybe add logging later
+				}
+			}
+
+			// Report event
 			if (bss != null) {
 				try {
 					bss.billAuction(owner.getName(), a.getId(), bid == null ? 0

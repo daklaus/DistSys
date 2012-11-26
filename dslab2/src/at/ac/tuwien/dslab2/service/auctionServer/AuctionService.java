@@ -3,17 +3,19 @@
  */
 package at.ac.tuwien.dslab2.service.auctionServer;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import at.ac.tuwien.dslab2.domain.Auction;
 import at.ac.tuwien.dslab2.domain.Client;
 import at.ac.tuwien.dslab2.domain.User;
+import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 
 /**
  * @author klaus
  * 
  */
-public interface AuctionService {
+public interface AuctionService extends Closeable {
 
 	/**
 	 * Creates an auction
@@ -70,9 +72,9 @@ public interface AuctionService {
 	public void logout(User user);
 
 	/**
-	 * Free all acquired resources
+	 * Get the RMI stub for communicating with the analytics server
 	 * 
-	 * @throws IOException
+	 * @return the RMI stub of the <code>AnalyticsServer</code> interface
 	 */
-	void close() throws IOException;
+	public AnalyticsServer getAnalysticsServerRef();
 }

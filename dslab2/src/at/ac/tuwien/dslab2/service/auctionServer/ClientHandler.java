@@ -6,15 +6,20 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.domain.Auction;
+import at.ac.tuwien.dslab2.domain.AuctionEvent;
 import at.ac.tuwien.dslab2.domain.Bid;
 import at.ac.tuwien.dslab2.domain.Client;
+import at.ac.tuwien.dslab2.domain.EventType;
 import at.ac.tuwien.dslab2.domain.User;
+import at.ac.tuwien.dslab2.domain.UserEvent;
+import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 
 class ClientHandler implements Runnable {
 	private volatile boolean stop;
 	private final TCPClientNetworkService ns;
 	private final AuctionService as;
+	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
 
@@ -28,6 +33,7 @@ class ClientHandler implements Runnable {
 
 		this.ns = ns;
 		this.as = as;
+		this.ans = as.getAnalysticsServerRef();
 		user = null;
 	}
 
@@ -146,6 +152,18 @@ class ClientHandler implements Runnable {
 			// Start notification thread
 			// startNotification(user); <- disabled for dslab2
 
+			// Report event
+			if (ans != null) {
+				try {
+					ans.processEvent(new UserEvent(EventType.USER_LOGIN, user
+							.getName()));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI exceptions
+					// Maybe add logging later
+				}
+			}
+
 			return "Successfully logged in as " + userName + "!";
 
 		} else if (tmp.equalsIgnoreCase("!logout")) {
@@ -159,6 +177,18 @@ class ClientHandler implements Runnable {
 			// Stop notification thread
 			if (notificationThread != null)
 				notificationThread.close();
+
+			// Report event
+			if (ans != null) {
+				try {
+					ans.processEvent(new UserEvent(EventType.USER_LOGOUT,
+							userName));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI exceptions
+					// Maybe add logging later
+				}
+			}
 
 			return "Successfully logged out as " + userName + "!";
 
@@ -224,8 +254,21 @@ class ClientHandler implements Runnable {
 
 	public void close() throws IOException {
 		stop = true;
-		if (user != null)
+		if (user != null) {
 			as.logout(user);
+
+			// Report event
+			if (ans != null) {
+				try {
+					ans.processEvent(new UserEvent(EventType.USER_DISCONNECT,
+							user.getName()));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI exceptions
+					// Maybe add logging later
+				}
+			}
+		}
 
 		// Close notification thread
 		if (notificationThread != null)

@@ -3,6 +3,7 @@
  */
 package at.ac.tuwien.dslab2.service.auctionServer;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
@@ -10,7 +11,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * @author klaus
  * 
  */
-public interface AuctionServerService {
+public interface AuctionServerService extends Closeable {
 
 	/**
 	 * Start the server
@@ -34,10 +35,4 @@ public interface AuctionServerService {
 	 */
 	void setExceptionHandler(UncaughtExceptionHandler exHandler);
 
-	/**
-	 * Free all acquired resources
-	 * 
-	 * @throws IOException
-	 */
-	void close() throws IOException;
 }
