@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 import java.util.UUID;
 
 import at.ac.tuwien.dslab2.domain.Event;
-import at.ac.tuwien.dslab2.presentation.managementClient.MgmtClientCallback;
+import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
 
 public interface AnalyticsServer extends Closeable, Remote {
 

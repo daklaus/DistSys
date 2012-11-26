@@ -1,7 +1,7 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.presentation.managementClient;
+package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
