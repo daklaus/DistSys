@@ -3,6 +3,7 @@
  */
 package at.ac.tuwien.dslab2.service.biddingClient;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
@@ -10,7 +11,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * @author klaus
  * 
  */
-public interface AuctionClientService {
+public interface AuctionClientService extends Closeable {
 
 	/**
 	 * Sets the notification handlers of the service
@@ -64,13 +65,6 @@ public interface AuctionClientService {
 	 * @return true if and only if the service is connected
 	 */
 	boolean isConnected();
-
-	/**
-	 * Free all acquired resources
-	 * 
-	 * @throws IOException
-	 */
-	void close() throws IOException;
 
 	/**
 	 * Sets the user name

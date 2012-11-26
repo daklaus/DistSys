@@ -85,12 +85,14 @@ public class Auction {
 	}
 
 	public String getEndDateFormatted() {
-		if (getEndDate() == null)
+		Date endDate = getEndDate();
+
+		if (endDate == null)
 			return null;
 
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT,
 				DateFormat.LONG);
-		return df.format(this.getEndDate());
+		return df.format(endDate);
 	}
 
 	public boolean isExpired() {

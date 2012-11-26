@@ -102,7 +102,8 @@ public class Bill implements Iterable<Bill.Auction>, Serializable {
 			if (o == null)
 				throw new IllegalArgumentException("o is null");
 
-			int first = Long.compare(auctionId, o.auctionId);
+			Long auctionId = new Long(this.auctionId);
+			int first = auctionId.compareTo(o.auctionId);
 			if (first != 0)
 				return first;
 
