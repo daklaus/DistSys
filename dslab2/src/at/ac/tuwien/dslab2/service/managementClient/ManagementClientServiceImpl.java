@@ -4,6 +4,7 @@
 package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedSet;
@@ -24,7 +25,7 @@ import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
  * @author klaus
  * 
  */
-public class ManagementClientServiceImpl implements ManagementClientService {
+class ManagementClientServiceImpl implements ManagementClientService {
 	private final RMIClientService rcs;
 	private final BillingServer bs;
 	private final AnalyticsServer as;
@@ -63,52 +64,64 @@ public class ManagementClientServiceImpl implements ManagementClientService {
 		 * Get the RMI interfaces
 		 */
 		this.rcs = RMIServiceFactory.newRMIClientService(host, port);
-		this.as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
-		this.bs = (BillingServer) rcs.lookup(billingServerRef);
+		this.as = (AnalyticsServer) this.rcs.lookup(analyticsServerRef);
+		this.bs = (BillingServer) this.rcs.lookup(billingServerRef);
 	}
 
 	@Override
-	public void login(String userName, String password) throws AlreadyLoggedInException {
-		if(userName == null)
+	public void login(String userName, String password)
+			throws AlreadyLoggedInException, RemoteException {
+		if (userName == null)
 			throw new IllegalArgumentException("user name is null");
-		if(password == null)
+		if (password == null)
 			throw new IllegalAccessError("password is null");
-		
-		if(bss != null)
-			throw new AlreadyLoggedInException("User already logged in");
-			
-//		this.bss = this.bs
-		// TODO Auto-generated method stub
 
+		if (this.bss != null)
+			throw new AlreadyLoggedInException();
+
+		this.bss = this.bs.login(userName, password);
 	}
 
 	@Override
-	public PriceSteps steps() {
-		// TODO Auto-generated method stub
-		return null;
+	public PriceSteps steps() throws LoggedOutException, RemoteException {
+		if (this.bss == null)
+			throw new LoggedOutException();
+
+		return this.bss.getPriceSteps();
 	}
 
 	@Override
 	public void addStep(double startPrice, double endPrice, double fixedPrice,
-			double variablePricePercent) {
+			double variablePricePercent) throws LoggedOutException,
+			RemoteException {
+		if (this.bss == null)
+			throw new LoggedOutException();
+
+		this.bss.createPriceStep(startPrice, endPrice, fixedPrice,
+				variablePricePercent);
+	}
+
+	@Override
+	public void removeStep(double startPrice, double endPrice)
+			throws LoggedOutException {
+		if (this.bss == null)
+			throw new LoggedOutException();
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void removeStep(double startPrice, double endPrice) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Bill bill(String userName) {
+	public Bill bill(String userName) throws LoggedOutException {
+		if (this.bss == null)
+			throw new LoggedOutException();
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void logout() {
+	public void logout() throws AlreadyLoggedOutException {
+		if (this.bss != null)
+			throw new AlreadyLoggedOutException();
 		// TODO Auto-generated method stub
 
 	}

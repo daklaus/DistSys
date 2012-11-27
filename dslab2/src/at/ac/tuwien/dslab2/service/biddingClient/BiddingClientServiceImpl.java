@@ -13,7 +13,7 @@ import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
  * @author klaus
  * 
  */
-public class BiddingClientServiceImpl implements BiddingClientService {
+class BiddingClientServiceImpl implements BiddingClientService {
 	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;

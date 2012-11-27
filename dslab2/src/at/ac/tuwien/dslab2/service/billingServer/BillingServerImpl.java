@@ -19,7 +19,7 @@ import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
  * @author klaus
  * 
  */
-public class BillingServerImpl implements BillingServer {
+class BillingServerImpl implements BillingServer {
 	private final Map<String, String> users;
 	private final BillingServerSecure bss;
 

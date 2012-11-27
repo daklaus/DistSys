@@ -4,6 +4,7 @@
 package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.io.Closeable;
+import java.rmi.RemoteException;
 import java.util.SortedSet;
 
 import at.ac.tuwien.dslab2.domain.Bill;
@@ -22,16 +23,19 @@ public interface ManagementClientService extends Closeable {
 	 * @param userName
 	 * @param password
 	 * @throws AlreadyLoggedInException
+	 * @throws RemoteException 
 	 */
 	void login(String userName, String password)
-			throws AlreadyLoggedInException;
+			throws AlreadyLoggedInException, RemoteException;
 
 	/**
 	 * Get all existing price steps.
 	 * 
 	 * @return the price steps
+	 * @throws LoggedOutException 
+	 * @throws RemoteException 
 	 */
-	PriceSteps steps();
+	PriceSteps steps() throws LoggedOutException, RemoteException;
 
 	/**
 	 * Add a new price step.
@@ -44,9 +48,11 @@ public interface ManagementClientService extends Closeable {
 	 *            The fixed fee for this price step
 	 * @param variablePricePercent
 	 *            The variable fee in percent for this price step
+	 * @throws LoggedOutException 
+	 * @throws RemoteException 
 	 */
 	void addStep(double startPrice, double endPrice, double fixedPrice,
-			double variablePricePercent);
+			double variablePricePercent) throws LoggedOutException, RemoteException;
 
 	/**
 	 * Remove an existing price step.
@@ -55,8 +61,9 @@ public interface ManagementClientService extends Closeable {
 	 *            The minimum of the interval
 	 * @param endPrice
 	 *            The maximum of the interval
+	 * @throws LoggedOutException 
 	 */
-	void removeStep(double startPrice, double endPrice);
+	void removeStep(double startPrice, double endPrice) throws LoggedOutException;
 
 	/**
 	 * This method gets the bill for a certain user name. This is the list of
@@ -66,14 +73,16 @@ public interface ManagementClientService extends Closeable {
 	 * @param userName
 	 *            The user name of the user whom bill will be returned
 	 * @return
+	 * @throws LoggedOutException 
 	 */
-	Bill bill(String userName);
+	Bill bill(String userName) throws LoggedOutException;
 
 	/**
 	 * Set the client into "logged out" state. After this command, users have to
 	 * use the login method again in order to interact with the billing server.
+	 * @throws AlreadyLoggedOutException 
 	 */
-	void logout();
+	void logout() throws AlreadyLoggedOutException;
 
 	/**
 	 * Subscribe for events with a specified subscription filter (regular

@@ -1,7 +1,6 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedMap;
@@ -26,7 +25,7 @@ import at.ac.tuwien.dslab2.service.billingServer.BillingServerSecure;
 import at.ac.tuwien.dslab2.service.rmi.RMIClientService;
 import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
 
-public class AuctionServiceImpl implements AuctionService {
+class AuctionServiceImpl implements AuctionService {
 	private final ConcurrentMap<String, User> users;
 	private final SortedMap<Long, Auction> auctions;
 	private final Timer timer;

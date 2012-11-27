@@ -11,7 +11,7 @@ import java.util.Properties;
  * @author klaus
  * 
  */
-public class PropertiesServiceImpl implements PropertiesService {
+class PropertiesServiceImpl implements PropertiesService {
 	private Properties registry;
 	private Properties user;
 	private Properties loadTest;

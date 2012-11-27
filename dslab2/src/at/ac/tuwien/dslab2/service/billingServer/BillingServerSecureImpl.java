@@ -5,7 +5,6 @@ package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -17,7 +16,7 @@ import at.ac.tuwien.dslab2.domain.PriceSteps;
  * @author klaus
  * 
  */
-public class BillingServerSecureImpl implements BillingServerSecure {
+class BillingServerSecureImpl implements BillingServerSecure {
 	private final ConcurrentMap<String, Bill> bills;
 	private final PriceSteps priceSteps;
 

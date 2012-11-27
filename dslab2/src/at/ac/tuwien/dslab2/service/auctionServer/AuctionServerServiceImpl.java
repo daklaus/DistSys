@@ -3,7 +3,7 @@ package at.ac.tuwien.dslab2.service.auctionServer;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
-public class AuctionServerServiceImpl implements AuctionServerService {
+class AuctionServerServiceImpl implements AuctionServerService {
 
 	private ServerThread serverThread;
 	private UncaughtExceptionHandler serverExHandler;
