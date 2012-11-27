@@ -38,10 +38,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	@Override
 	public void setNotificationListener(NotificationListener listener,
 			UncaughtExceptionHandler exHandler) {
-		if (listener == null)
-			throw new IllegalArgumentException("notificationListener is null");
-		if (exHandler == null)
-			throw new IllegalArgumentException("exHandler is null");
 		this.notificationListener = listener;
 		this.notificationExHandler = exHandler;
 	}
@@ -49,10 +45,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	@Override
 	public void setReplyListener(ReplyListener listener,
 			UncaughtExceptionHandler exHandler) {
-		if (listener == null)
-			throw new IllegalArgumentException("notificationListener is null");
-		if (exHandler == null)
-			throw new IllegalArgumentException("exHandler is null");
 		this.replyListener = listener;
 		this.replyExHandler = exHandler;
 	}

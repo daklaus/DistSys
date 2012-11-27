@@ -17,9 +17,6 @@ class NotificationThread extends Thread {
 		if (udpPort <= 0)
 			throw new IllegalArgumentException(
 					"The UDP port is not set properly");
-		if (listener == null)
-			throw new IllegalArgumentException(
-					"The NotificationListener is null");
 
 		ns = NetworkServiceFactory.newUDPServerNetworkService(udpPort);
 		this.listener = listener;
@@ -93,7 +90,8 @@ class NotificationThread extends Thread {
 				return;
 			String description = sc.skip("\\s*").nextLine();
 
-			listener.newBid(description);
+			if (listener != null)
+				listener.newBid(description);
 		} else if (tmp.equalsIgnoreCase("!auction-ended")) {
 			if (!sc.hasNext())
 				return;
@@ -105,7 +103,8 @@ class NotificationThread extends Thread {
 				return;
 			String description = sc.skip("\\s*").nextLine();
 
-			listener.auctionEnded(winner, amount, description);
+			if (listener != null)
+				listener.auctionEnded(winner, amount, description);
 		}
 	}
 
