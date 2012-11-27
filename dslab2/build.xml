@@ -4,19 +4,25 @@
 	<property name="src.dir" value="src" />
 	<property name="build.dir" value="build" />
 
-	<!-- You need to update these properties!-->
+	<!-- You need to update these properties! -->
 	<!-- Server's full class name (including the package) -->
-	<property name="server.name" value="at.ac.tuwien.dslab2.presentation.auctionServer.AuctionServer" />
+	<property name="server.name"
+		value="at.ac.tuwien.dslab2.presentation.auctionServer.AuctionServer" />
 	<!-- Bidding Client's full class name (including the package) -->
-	<property name="client.name" value="at.ac.tuwien.dslab2.presentation.biddingClient.BiddingClient" />
+	<property name="client.name"
+		value="at.ac.tuwien.dslab2.presentation.biddingClient.BiddingClient" />
 	<!-- Management Client's full class name (including the package) -->
-	<property name="mgmtclient.name" value="at.ac.tuwien.dslab2.presentation.managementClient.ManagementClient" />
+	<property name="mgmtclient.name"
+		value="at.ac.tuwien.dslab2.presentation.managementClient.ManagementClient" />
 	<!-- Analytics Server's full class name (including the package) -->
-	<property name="analytics.name" value="at.ac.tuwien.dslab2.presentation.analyticsServer.AnalyticsServer" />
+	<property name="analytics.name"
+		value="at.ac.tuwien.dslab2.presentation.analyticsServer.AnalyticsServer" />
 	<!-- Billing Server's full class name (including the package) -->
-	<property name="billing.name" value="at.ac.tuwien.dslab2.presentation.billingServer.BillingServer" />
+	<property name="billing.name"
+		value="at.ac.tuwien.dslab2.presentation.billingServer.BillingServer" />
 	<!-- Load Test's full class name (including the package) -->
-	<property name="loadtest.name" value="at.ac.tuwien.dslab2.presentation.loadTest.LoadTest" />
+	<property name="loadtest.name"
+		value="at.ac.tuwien.dslab2.presentation.loadTest.LoadTest" />
 	<!-- Auction Server's host -->
 	<property name="server.host" value="localhost" />
 	<!-- TCP port -->
@@ -38,7 +44,8 @@
 
 	<target name="compile" description="Compile project.">
 		<mkdir dir="${build.dir}" />
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="project.classpath" debug="true" deprecation="true" includeantruntime="false" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="project.classpath"
+			debug="true" deprecation="true" includeantruntime="false" />
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}">
 				<include name="*.properties" />
@@ -54,7 +61,8 @@
 		</java>
 	</target>
 
-	<target name="run-analytics-server" depends="compile" description="Run Analytics Server.">
+	<target name="run-analytics-server" depends="compile"
+		description="Run Analytics Server.">
 		<java classname="${analytics.name}" fork="true" classpathref="project.classpath">
 			<arg value="${analytics.bindingName}" />
 		</java>
@@ -90,21 +98,24 @@
 		</java>
 	</target>
 
-	<target name="run-mgmtclient1" depends="compile" description="Run Management Client 1.">
+	<target name="run-mgmtclient1" depends="compile"
+		description="Run Management Client 1.">
 		<java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
 			<arg value="${analytics.bindingName}" />
 			<arg value="${billing.bindingName}" />
 		</java>
 	</target>
 
-	<target name="run-mgmtclient2" depends="compile" description="Run Management Client 2.">
+	<target name="run-mgmtclient2" depends="compile"
+		description="Run Management Client 2.">
 		<java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
 			<arg value="${analytics.bindingName}" />
 			<arg value="${billing.bindingName}" />
 		</java>
 	</target>
 
-	<target name="run-mgmtclient3" depends="compile" description="Run Management Client 3.">
+	<target name="run-mgmtclient3" depends="compile"
+		description="Run Management Client 3.">
 		<java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
 			<arg value="${analytics.bindingName}" />
 			<arg value="${billing.bindingName}" />
@@ -116,6 +127,7 @@
 			<arg value="${server.host}" />
 			<arg value="${server.port}" />
 			<arg value="${analytics.bindingName}" />
+			<arg value="${billing.bindingName}" />
 		</java>
 	</target>
 
