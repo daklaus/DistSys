@@ -15,8 +15,6 @@ class ReplyThread extends Thread {
 		if (ns == null)
 			throw new IllegalArgumentException(
 					"The TCPClientNetworkService is null");
-		if (listener == null)
-			throw new IllegalArgumentException("The ReplyListener is null");
 
 		this.ns = ns;
 		this.listener = listener;
@@ -39,7 +37,8 @@ class ReplyThread extends Thread {
 				while (!stop) {
 					reply = ns.receive();
 
-					listener.displayReply(reply);
+					if (listener != null)
+						listener.displayReply(reply);
 				}
 			} finally {
 				if (ns != null)
