@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import at.ac.tuwien.dslab2.domain.Auction;
 import at.ac.tuwien.dslab2.domain.AuctionEvent;
@@ -29,7 +30,7 @@ class AuctionServiceImpl implements AuctionService {
 	private final ConcurrentMap<String, User> users;
 	private final SortedMap<Long, Auction> auctions;
 	private final Timer timer;
-	private volatile long idCounter;
+	private final AtomicLong idCounter;
 	private final RMIClientService rcs;
 	private final BillingServerSecure bss;
 	private final AnalyticsServer as;
@@ -45,7 +46,7 @@ class AuctionServiceImpl implements AuctionService {
 		// Better scalability
 		this.auctions = new ConcurrentSkipListMap<Long, Auction>();
 		this.timer = new Timer("Timer thread");
-		this.idCounter = 1;
+		this.idCounter = new AtomicLong(1);
 
 		/*
 		 * Read the properties file
@@ -95,7 +96,8 @@ class AuctionServiceImpl implements AuctionService {
 	@Override
 	public Auction create(User owner, String description, int duration) {
 
-		Auction a = new Auction(idCounter++, description, owner, duration);
+		Auction a = new Auction(idCounter.getAndIncrement(), description,
+				owner, duration);
 		auctions.put(a.getId(), a);
 
 		// Start timer for auction
