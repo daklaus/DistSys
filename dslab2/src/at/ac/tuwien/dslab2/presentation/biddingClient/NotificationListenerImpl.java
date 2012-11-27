@@ -1,8 +1,6 @@
 package at.ac.tuwien.dslab2.presentation.biddingClient;
 
-import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.NotificationListener;
-import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 
 public class NotificationListenerImpl implements NotificationListener {
 
@@ -14,11 +12,9 @@ public class NotificationListenerImpl implements NotificationListener {
 
 	@Override
 	public void auctionEnded(String winner, double amount, String description) {
-		BiddingClientService acs = BiddingClientServiceFactory.getAuctionClientService();
-
 		System.out.print("\nThe auction '" + description + "' has ended. ");
 
-		String user = acs.getUserName();
+		String user = BiddingClient.getUserName();
 		if (user != null && user.equals(winner)) {
 			System.out.print("You ");
 		} else {

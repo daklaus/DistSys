@@ -23,16 +23,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 
-	// Private constructor prevents instantiation from other classes
-	private BiddingClientServiceImpl() {
-	}
-
-	private static class AuctionClientServiceHolder {
-		public static final BiddingClientService INSTANCE = new BiddingClientServiceImpl();
-	}
-
-	public static BiddingClientService getInstance() {
-		return AuctionClientServiceHolder.INSTANCE;
+	public BiddingClientServiceImpl() {
 	}
 
 	@Override

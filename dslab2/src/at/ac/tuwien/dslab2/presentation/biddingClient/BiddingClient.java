@@ -47,7 +47,7 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-		acs = BiddingClientServiceFactory.getAuctionClientService();
+		acs = BiddingClientServiceFactory.newAuctionClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
@@ -64,7 +64,8 @@ public class BiddingClient {
 	}
 
 	private static void usage() {
-		System.err.println("usage: java BiddingClient server tcpPort udpPort\n");
+		System.err
+				.println("usage: java BiddingClient server tcpPort udpPort\n");
 		System.err.println("\thost: host name or IP of the auction server\n"
 				+ "\ttcpPort: TCP connection port on which the auction "
 				+ "server is listening for incoming connections\n"
@@ -132,6 +133,12 @@ public class BiddingClient {
 		if (acs == null || acs.getUserName() == null)
 			return "> ";
 		return acs.getUserName() + "> ";
+	}
+
+	static String getUserName() {
+		if (acs == null)
+			return null;
+		return acs.getUserName();
 	}
 
 	/**
