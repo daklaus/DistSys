@@ -14,7 +14,7 @@ import at.ac.tuwien.dslab2.domain.PriceSteps;
  * @author klaus
  * 
  */
-public interface ManagementClient extends Closeable {
+public interface ManagementClientService extends Closeable {
 
 	/**
 	 * Login at the billing server.

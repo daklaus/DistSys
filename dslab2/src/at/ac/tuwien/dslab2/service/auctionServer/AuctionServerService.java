@@ -18,13 +18,13 @@ public interface AuctionServerService extends Closeable {
 	 * 
 	 * @param tcpPort
 	 *            the TCP port the server should listen on
-	 * @param billingServerRef
-	 *            the binding name of the billing server in the RMI registry
 	 * @param analyticsServerRef
 	 *            the binding name of the analytics server in the RMI registry
+	 * @param billingServerRef
+	 *            the binding name of the billing server in the RMI registry
 	 * @throws IOException
 	 */
-	void start(int tcpPort, String billingServerRef, String analyticsServerRef)
+	void start(int tcpPort, String analyticsServerRef, String billingServerRef)
 			throws IOException;
 
 	/**

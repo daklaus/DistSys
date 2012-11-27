@@ -19,19 +19,18 @@ class ServerThread extends Thread {
 	private final List<ClientHandler> clientHandlerList;
 	private ExecutorService pool;
 
-	public ServerThread(int tcpPort, String billingServerRef,
-			String analyticsServerRef) throws IOException {
+	public ServerThread(int tcpPort, String analyticsServerRef,
+			String billingServerRef) throws IOException {
 		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
-		if (billingServerRef == null)
-			throw new IllegalArgumentException("billingServerRef is null");
 		if (analyticsServerRef == null)
 			throw new IllegalArgumentException("analyticsServerRef is null");
+		if (billingServerRef == null)
+			throw new IllegalArgumentException("billingServerRef is null");
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
-		as = ServiceFactory.newAuctionService(billingServerRef,
-				analyticsServerRef);
+		as = ServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
 		clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}

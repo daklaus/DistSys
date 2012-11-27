@@ -40,14 +40,14 @@ public class AuctionServer {
 		if (!sc.hasNextInt())
 			usage();
 		int tcpPort = sc.nextInt();
-		String billingServerRef = args[1];
-		String analyticsServerRef = args[2];
+		String analyticsServerRef = args[1];
+		String billingServerRef = args[2];
 
 		ass = ServiceFactory.getAuctionServerService();
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {
-			ass.start(tcpPort, billingServerRef, analyticsServerRef);
+			ass.start(tcpPort, analyticsServerRef, billingServerRef);
 		} catch (IOException e) {
 			System.err.println("Error while connecting:");
 			e.printStackTrace();

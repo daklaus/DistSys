@@ -21,21 +21,21 @@ public class AuctionServerServiceImpl implements AuctionServerService {
 	}
 
 	@Override
-	public void start(int tcpPort, String billingServerRef,
-			String analyticsServerRef) throws IOException {
+	public void start(int tcpPort, String analyticsServerRef,
+			String billingServerRef) throws IOException {
 		if (serverThread != null && serverThread.isAlive())
 			return;
 		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
-		if (billingServerRef == null)
-			throw new IllegalArgumentException("billingServerRef is null");
 		if (analyticsServerRef == null)
 			throw new IllegalArgumentException("analyticsServerRef is null");
+		if (billingServerRef == null)
+			throw new IllegalArgumentException("billingServerRef is null");
 
 		// Start server thread
-		serverThread = new ServerThread(tcpPort, billingServerRef,
-				analyticsServerRef);
+		serverThread = new ServerThread(tcpPort, analyticsServerRef,
+				billingServerRef);
 		serverThread.setName("AuctionServer thread");
 		serverThread.setUncaughtExceptionHandler(serverExHandler);
 		serverThread.start();

@@ -39,7 +39,7 @@ public class AuctionServiceImpl implements AuctionService {
 	private final BillingServerSecure bss;
 	private final AnalyticsServer as;
 
-	public AuctionServiceImpl(String billingServerRef, String analyticsServerRef)
+	public AuctionServiceImpl(String analyticsServerRef, String billingServerRef)
 			throws IOException {
 		// users = Collections.synchronizedMap(new LinkedHashMap<String,
 		// User>());
@@ -94,7 +94,7 @@ public class AuctionServiceImpl implements AuctionService {
 		}
 		port = sc.nextInt();
 
-		/**
+		/*
 		 * Get the RMI interfaces
 		 */
 		RMIClientService rcs = null;

@@ -8,8 +8,8 @@ public abstract class ServiceFactory {
 		return AuctionServerServiceImpl.getInstance();
 	}
 
-	static AuctionService newAuctionService(String billingServerRef,
-			String analyticsServerRef) throws IOException {
-		return new AuctionServiceImpl(billingServerRef, analyticsServerRef);
+	static AuctionService newAuctionService(String analyticsServerRef,
+			String billingServerRef) throws IOException {
+		return new AuctionServiceImpl(analyticsServerRef, billingServerRef);
 	}
 }
