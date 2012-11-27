@@ -5,6 +5,7 @@ package at.ac.tuwien.dslab2.service.analyticsServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
@@ -14,12 +15,17 @@ import at.ac.tuwien.dslab2.service.managementClient.MgmtClientCallback;
  * 
  */
 class AnalyticsServerImpl implements AnalyticsServer {
+	private final AtomicLong subscriptionIdCounter;
+
+	public AnalyticsServerImpl() {
+		this.subscriptionIdCounter = new AtomicLong(1);
+	}
 
 	@Override
 	public long subscribe(String regex, MgmtClientCallback cb)
 			throws RemoteException {
 		// TODO Auto-generated method stub
-		return 0;
+		return subscriptionIdCounter.getAndIncrement();
 	}
 
 	@Override

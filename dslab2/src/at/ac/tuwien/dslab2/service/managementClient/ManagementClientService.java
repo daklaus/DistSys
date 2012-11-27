@@ -62,8 +62,9 @@ public interface ManagementClientService extends Closeable {
 	 * @param endPrice
 	 *            The maximum of the interval
 	 * @throws LoggedOutException 
+	 * @throws RemoteException 
 	 */
-	void removeStep(double startPrice, double endPrice) throws LoggedOutException;
+	void removeStep(double startPrice, double endPrice) throws LoggedOutException, RemoteException;
 
 	/**
 	 * This method gets the bill for a certain user name. This is the list of
@@ -74,8 +75,9 @@ public interface ManagementClientService extends Closeable {
 	 *            The user name of the user whom bill will be returned
 	 * @return
 	 * @throws LoggedOutException 
+	 * @throws RemoteException 
 	 */
-	Bill bill(String userName) throws LoggedOutException;
+	Bill bill(String userName) throws LoggedOutException, RemoteException;
 
 	/**
 	 * Set the client into "logged out" state. After this command, users have to
@@ -92,8 +94,9 @@ public interface ManagementClientService extends Closeable {
 	 *            The subscription filter
 	 * @return the unique identifier of the subscription returned from the
 	 *         analytics server
+	 * @throws RemoteException 
 	 */
-	long subscribe(String regex);
+	long subscribe(String regex) throws RemoteException;
 
 	/**
 	 * Terminate an existing subscription with a specific identifier (
@@ -102,8 +105,9 @@ public interface ManagementClientService extends Closeable {
 	 * @param id
 	 *            The unique identifier of the subscription previously returned
 	 *            from the subscribe method
+	 * @throws RemoteException 
 	 */
-	void unsubscribe(long id);
+	void unsubscribe(long id) throws RemoteException;
 
 	/**
 	 * Sets the listener for the automatic printing of events when they arrive.

@@ -83,7 +83,7 @@ public abstract class Event implements Comparable<Event>, Serializable {
 	public int compareTo(Event o) {
 		// The newer one is the "greater" one
 		Long timestamp = new Long(this.timestamp);
-		return -timestamp.compareTo(o.timestamp);
+		return timestamp.compareTo(o.timestamp);
 	}
 
 }

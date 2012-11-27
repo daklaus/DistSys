@@ -5,6 +5,8 @@ package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedSet;
@@ -34,12 +36,15 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	private final SortedSet<Event> events;
 	private volatile Event latestPrintedEvent;
 	private SubscriptionListener listener;
+	private final MgmtClientCallback callback;
 
 	public ManagementClientServiceImpl(String analyticsServerRef,
 			String billingServerRef) throws IOException {
 		auto = false;
 		latestPrintedEvent = null;
 		events = new ConcurrentSkipListSet<Event>();
+		callback = new MgmtClientCallbackImpl();
+		UnicastRemoteObject.exportObject(callback, 0);
 
 		/*
 		 * Read the properties file
@@ -103,69 +108,97 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 	@Override
 	public void removeStep(double startPrice, double endPrice)
-			throws LoggedOutException {
+			throws LoggedOutException, RemoteException {
 		if (this.bss == null)
 			throw new LoggedOutException();
-		// TODO Auto-generated method stub
 
+		this.bss.deletePriceStep(startPrice, endPrice);
 	}
 
 	@Override
-	public Bill bill(String userName) throws LoggedOutException {
+	public Bill bill(String userName) throws LoggedOutException,
+			RemoteException {
 		if (this.bss == null)
 			throw new LoggedOutException();
-		// TODO Auto-generated method stub
-		return null;
+
+		return this.bss.getBill(userName);
 	}
 
 	@Override
 	public void logout() throws AlreadyLoggedOutException {
 		if (this.bss != null)
 			throw new AlreadyLoggedOutException();
-		// TODO Auto-generated method stub
 
+		this.bss = null;
 	}
 
 	@Override
-	public long subscribe(String regex) {
-		// TODO Auto-generated method stub
-		return 0;
+	public long subscribe(String regex) throws RemoteException {
+		if (regex == null)
+			throw new IllegalArgumentException("regex is null");
+
+		return this.as.subscribe(regex, callback);
 	}
 
 	@Override
-	public void unsubscribe(long id) {
-		// TODO Auto-generated method stub
-
+	public void unsubscribe(long id) throws RemoteException {
+		this.as.unsubscribe(id);
 	}
 
 	@Override
 	public void setSubscriptionListener(SubscriptionListener listener) {
-		// TODO Auto-generated method stub
-
+		this.listener = listener;
 	}
 
 	@Override
 	public SortedSet<Event> print() {
-		// TODO Auto-generated method stub
-		return null;
+		SortedSet<Event> returnSet;
+		if (latestPrintedEvent == null) {
+			returnSet = events.tailSet(latestPrintedEvent);
+		} else {
+			returnSet = events;
+		}
+		if (returnSet.isEmpty())
+			return null;
+
+		latestPrintedEvent = returnSet.last();
+		return returnSet;
 	}
 
 	@Override
 	public void auto() {
-		// TODO Auto-generated method stub
+		this.auto = true;
 
+		try {
+			latestPrintedEvent = events.last();
+		} catch (NoSuchElementException e) {
+			// Ignore if the event list is empty
+		}
 	}
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
-
+		this.auto = false;
 	}
 
 	@Override
 	public void close() throws IOException {
+		UnicastRemoteObject.unexportObject(callback, false);
 		if (rcs != null)
 			rcs.close();
+	}
+
+	private final class MgmtClientCallbackImpl implements MgmtClientCallback {
+
+		@Override
+		public void processEvent(Event event) throws RemoteException {
+			events.add(event);
+
+			if (auto && listener != null) {
+				listener.autoPrintEvent(print());
+			}
+		}
+
 	}
 
 }
