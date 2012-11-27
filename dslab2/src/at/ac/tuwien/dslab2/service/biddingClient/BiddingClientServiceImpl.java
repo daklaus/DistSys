@@ -13,7 +13,7 @@ import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
  * @author klaus
  * 
  */
-public class AuctionClientServiceImpl implements AuctionClientService {
+public class BiddingClientServiceImpl implements BiddingClientService {
 	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -24,14 +24,14 @@ public class AuctionClientServiceImpl implements AuctionClientService {
 	private String userName;
 
 	// Private constructor prevents instantiation from other classes
-	private AuctionClientServiceImpl() {
+	private BiddingClientServiceImpl() {
 	}
 
 	private static class AuctionClientServiceHolder {
-		public static final AuctionClientService INSTANCE = new AuctionClientServiceImpl();
+		public static final BiddingClientService INSTANCE = new BiddingClientServiceImpl();
 	}
 
-	public static AuctionClientService getInstance() {
+	public static BiddingClientService getInstance() {
 		return AuctionClientServiceHolder.INSTANCE;
 	}
 

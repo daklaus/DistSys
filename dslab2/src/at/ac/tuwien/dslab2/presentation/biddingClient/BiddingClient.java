@@ -6,7 +6,7 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 import java.io.IOException;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.biddingClient.AuctionClientService;
+import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 
 /**
@@ -14,7 +14,7 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
  * 
  */
 public class BiddingClient {
-	private static AuctionClientService acs;
+	private static BiddingClientService acs;
 	private static int udpPort;
 
 	/**
@@ -144,7 +144,7 @@ public class BiddingClient {
 		if (command == null)
 			throw new IllegalArgumentException("The command is null");
 		if (acs == null)
-			throw new IllegalStateException("The AuctionClientService is null");
+			throw new IllegalStateException("The BiddingClientService is null");
 
 		// Commands:
 		// !login <username>

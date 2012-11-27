@@ -4,7 +4,6 @@
 package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;

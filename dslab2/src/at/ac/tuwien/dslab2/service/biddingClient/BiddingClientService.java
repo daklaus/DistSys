@@ -11,7 +11,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * @author klaus
  * 
  */
-public interface AuctionClientService extends Closeable {
+public interface BiddingClientService extends Closeable {
 
 	/**
 	 * Sets the notification handlers of the service
