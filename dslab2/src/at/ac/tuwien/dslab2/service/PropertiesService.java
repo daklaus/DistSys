@@ -18,6 +18,11 @@ public interface PropertiesService {
 	static final String REGISTRY_PROPERTIES_HOST_KEY = "registry.host";
 	static final String BILLINGSERVER_USERNAME = "auctionClientUser";
 	static final String BILLINGSERVER_PASSWORD = "12345";
+	static final String LOADTEST_PROPERTIES_CLIENTS_KEY = "clients";
+	static final String LOADTEST_PROPERTIES_AUCTIONSPERMIN_KEY = "auctionsPerMin";
+	static final String LOADTEST_PROPERTIES_AUCTIONDURATION_KEY = "auctionDuration";
+	static final String LOADTEST_PROPERTIES_UPDATEINTERVALSEC_KEY = "updateIntervalSec";
+	static final String LOADTEST_PROPERTIES_BIDSPERMIN_KEY = "bidsPerMin";
 
 	Properties getRegistryProperties() throws IOException;
 
