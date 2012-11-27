@@ -47,7 +47,7 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-		acs = BiddingClientServiceFactory.newAuctionClientService();
+		acs = BiddingClientServiceFactory.newBiddingClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
