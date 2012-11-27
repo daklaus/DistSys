@@ -23,7 +23,7 @@ public interface ManagementClientService extends Closeable {
 	 * @param userName
 	 * @param password
 	 * @throws AlreadyLoggedInException
-	 * @throws RemoteException 
+	 * @throws RemoteException
 	 */
 	void login(String userName, String password)
 			throws AlreadyLoggedInException, RemoteException;
@@ -32,8 +32,8 @@ public interface ManagementClientService extends Closeable {
 	 * Get all existing price steps.
 	 * 
 	 * @return the price steps
-	 * @throws LoggedOutException 
-	 * @throws RemoteException 
+	 * @throws LoggedOutException
+	 * @throws RemoteException
 	 */
 	PriceSteps steps() throws LoggedOutException, RemoteException;
 
@@ -48,11 +48,12 @@ public interface ManagementClientService extends Closeable {
 	 *            The fixed fee for this price step
 	 * @param variablePricePercent
 	 *            The variable fee in percent for this price step
-	 * @throws LoggedOutException 
-	 * @throws RemoteException 
+	 * @throws LoggedOutException
+	 * @throws RemoteException
 	 */
 	void addStep(double startPrice, double endPrice, double fixedPrice,
-			double variablePricePercent) throws LoggedOutException, RemoteException;
+			double variablePricePercent) throws LoggedOutException,
+			RemoteException;
 
 	/**
 	 * Remove an existing price step.
@@ -61,10 +62,11 @@ public interface ManagementClientService extends Closeable {
 	 *            The minimum of the interval
 	 * @param endPrice
 	 *            The maximum of the interval
-	 * @throws LoggedOutException 
-	 * @throws RemoteException 
+	 * @throws LoggedOutException
+	 * @throws RemoteException
 	 */
-	void removeStep(double startPrice, double endPrice) throws LoggedOutException, RemoteException;
+	void removeStep(double startPrice, double endPrice)
+			throws LoggedOutException, RemoteException;
 
 	/**
 	 * This method gets the bill for a certain user name. This is the list of
@@ -74,17 +76,18 @@ public interface ManagementClientService extends Closeable {
 	 * @param userName
 	 *            The user name of the user whom bill will be returned
 	 * @return
-	 * @throws LoggedOutException 
-	 * @throws RemoteException 
+	 * @throws LoggedOutException
+	 * @throws RemoteException
 	 */
 	Bill bill(String userName) throws LoggedOutException, RemoteException;
 
 	/**
 	 * Set the client into "logged out" state. After this command, users have to
 	 * use the login method again in order to interact with the billing server.
-	 * @throws AlreadyLoggedOutException 
+	 * 
+	 * @throws LoggedOutException
 	 */
-	void logout() throws AlreadyLoggedOutException;
+	void logout() throws LoggedOutException;
 
 	/**
 	 * Subscribe for events with a specified subscription filter (regular
@@ -94,7 +97,7 @@ public interface ManagementClientService extends Closeable {
 	 *            The subscription filter
 	 * @return the unique identifier of the subscription returned from the
 	 *         analytics server
-	 * @throws RemoteException 
+	 * @throws RemoteException
 	 */
 	long subscribe(String regex) throws RemoteException;
 
@@ -105,7 +108,7 @@ public interface ManagementClientService extends Closeable {
 	 * @param id
 	 *            The unique identifier of the subscription previously returned
 	 *            from the subscribe method
-	 * @throws RemoteException 
+	 * @throws RemoteException
 	 */
 	void unsubscribe(long id) throws RemoteException;
 
