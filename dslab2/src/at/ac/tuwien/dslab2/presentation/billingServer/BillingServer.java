@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.Scanner;
 
+import at.ac.tuwien.dslab2.service.PropertiesService;
+import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
 import at.ac.tuwien.dslab2.service.rmi.RMIServerService;
 import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
@@ -19,8 +21,6 @@ import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
  * 
  */
 public class BillingServer {
-	private static final String REGISTRY_PROPERTIES_FILE = "registry.properties";
-	private static final String REGISTRY_PROPERTIES_PORT_KEY = "registry.port";
 	private static at.ac.tuwien.dslab2.service.billingServer.BillingServer bs;
 	private static RMIServerService rss;
 
@@ -55,33 +55,26 @@ public class BillingServer {
 		/*
 		 * Read the properties file
 		 */
-		InputStream is = ClassLoader
-				.getSystemResourceAsStream(REGISTRY_PROPERTIES_FILE);
-		if (is == null) {
-			error(REGISTRY_PROPERTIES_FILE + " not found!");
-		}
-		Properties prop = new Properties();
+		Properties prop = null;
 		try {
-			try {
-				prop.load(is);
-			} finally {
-				is.close();
-			}
+			prop = PropertiesServiceFactory.getPropertiesService()
+					.getRegistryProperties();
 		} catch (IOException e) {
-			error("Couldn't load " + REGISTRY_PROPERTIES_FILE + ":", e);
+			error(e.getMessage(), e.getCause());
 		}
 
 		// Check if key exists
-		if (!prop.containsKey(REGISTRY_PROPERTIES_PORT_KEY)) {
+		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY)) {
 			error("Properties file doesn't contain the key "
-					+ REGISTRY_PROPERTIES_PORT_KEY);
+					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
 		}
 
 		// Parse value
-		sc = new Scanner(prop.getProperty(REGISTRY_PROPERTIES_PORT_KEY));
+		sc = new Scanner(
+				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
 		if (!sc.hasNextInt()) {
 			error("Couldn't parse the properties value of "
-					+ REGISTRY_PROPERTIES_PORT_KEY);
+					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
 		}
 		port = sc.nextInt();
 

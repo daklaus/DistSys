@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.service.auctionServer.AuctionServerService;
-import at.ac.tuwien.dslab2.service.auctionServer.ServiceFactory;
+import at.ac.tuwien.dslab2.service.auctionServer.AuctionServerServiceFactory;
 
 /**
  * @author klaus
@@ -43,7 +43,7 @@ public class AuctionServer {
 		String analyticsServerRef = args[1];
 		String billingServerRef = args[2];
 
-		ass = ServiceFactory.getAuctionServerService();
+		ass = AuctionServerServiceFactory.getAuctionServerService();
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {

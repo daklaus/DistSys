@@ -4,7 +4,6 @@
 package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedSet;
@@ -13,6 +12,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import at.ac.tuwien.dslab2.domain.Bill;
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.domain.PriceSteps;
+import at.ac.tuwien.dslab2.service.PropertiesService;
+import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
 import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerSecure;
@@ -24,10 +25,6 @@ import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
  * 
  */
 public class ManagementClientServiceImpl implements ManagementClientService {
-	private final String REGISTRY_PROPERTIES_FILE = "registry.properties";
-	private final String REGISTRY_PROPERTIES_PORT_KEY = "registry.port";
-	private final String REGISTRY_PROPERTIES_HOST_KEY = "registry.host";
-
 	private final RMIClientService rcs;
 	private final BillingServer bs;
 	private final AnalyticsServer as;
@@ -46,42 +43,29 @@ public class ManagementClientServiceImpl implements ManagementClientService {
 		/*
 		 * Read the properties file
 		 */
-		InputStream is = ClassLoader
-				.getSystemResourceAsStream(REGISTRY_PROPERTIES_FILE);
-		if (is == null)
-			throw new IOException(REGISTRY_PROPERTIES_FILE + " not found!");
-
-		Properties prop = new Properties();
-		try {
-			try {
-				prop.load(is);
-			} finally {
-				is.close();
-			}
-		} catch (IOException e) {
-			throw new IOException("Couldn't load " + REGISTRY_PROPERTIES_FILE
-					+ ":", e);
-		}
+		Properties prop = PropertiesServiceFactory.getPropertiesService()
+				.getRegistryProperties();
 
 		// Check if keys exist
-		if (!prop.containsKey(REGISTRY_PROPERTIES_HOST_KEY)) {
+		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_HOST_KEY)) {
 			throw new IOException("Properties file doesn't contain the key "
-					+ REGISTRY_PROPERTIES_HOST_KEY);
+					+ PropertiesService.REGISTRY_PROPERTIES_HOST_KEY);
 		}
-		if (!prop.containsKey(REGISTRY_PROPERTIES_PORT_KEY)) {
+		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY)) {
 			throw new IOException("Properties file doesn't contain the key "
-					+ REGISTRY_PROPERTIES_PORT_KEY);
+					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
 		}
 
 		// Parse value
 		int port;
 		String host;
-		host = prop.getProperty(REGISTRY_PROPERTIES_HOST_KEY);
+		host = prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_HOST_KEY);
 
-		Scanner sc = new Scanner(prop.getProperty(REGISTRY_PROPERTIES_PORT_KEY));
+		Scanner sc = new Scanner(
+				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
-					+ REGISTRY_PROPERTIES_PORT_KEY);
+					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
 		}
 		port = sc.nextInt();
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.service.biddingClient.AuctionClientService;
-import at.ac.tuwien.dslab2.service.biddingClient.ServiceFactory;
+import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 
 /**
  * @author klaus
@@ -47,7 +47,7 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-		acs = ServiceFactory.getAuctionClientService();
+		acs = BiddingClientServiceFactory.getAuctionClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());

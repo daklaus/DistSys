@@ -14,32 +14,22 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
+
 /**
  * @author klaus
  * 
  */
 public class BillingServerImpl implements BillingServer {
-	private final String USERPROPERTIES_FILE = "user.properties";
 	private final Map<String, String> users;
 	private final BillingServerSecure bss;
 
 	public BillingServerImpl() throws IOException {
 
 		// Get the users from the properties file
-		InputStream is = ClassLoader
-				.getSystemResourceAsStream(USERPROPERTIES_FILE);
-		if (is == null)
-			throw new IOException(USERPROPERTIES_FILE + " not found!");
-		Properties prop = new Properties();
-		try {
-			try {
-				prop.load(is);
-			} finally {
-				is.close();
-			}
-		} catch (IOException e) {
-			throw new IOException("Couldn't load " + USERPROPERTIES_FILE, e);
-		}
+		Properties prop = PropertiesServiceFactory.getPropertiesService()
+				.getUserProperties();
+
 		users = new ConcurrentHashMap<String, String>(prop.size());
 		for (Entry<Object, Object> entry : prop.entrySet()) {
 			users.put(entry.getKey().toString(), entry.getValue().toString());

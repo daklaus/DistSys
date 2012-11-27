@@ -30,7 +30,7 @@ class ServerThread extends Thread {
 			throw new IllegalArgumentException("billingServerRef is null");
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
-		as = ServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
+		as = AuctionServerServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
 		clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}
