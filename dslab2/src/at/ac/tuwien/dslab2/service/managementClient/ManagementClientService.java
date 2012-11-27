@@ -21,8 +21,10 @@ public interface ManagementClientService extends Closeable {
 	 * 
 	 * @param userName
 	 * @param password
+	 * @throws AlreadyLoggedInException
 	 */
-	void login(String userName, String password);
+	void login(String userName, String password)
+			throws AlreadyLoggedInException;
 
 	/**
 	 * Get all existing price steps.

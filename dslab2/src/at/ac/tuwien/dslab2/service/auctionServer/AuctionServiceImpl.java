@@ -54,16 +54,6 @@ public class AuctionServiceImpl implements AuctionService {
 		Properties prop = PropertiesServiceFactory.getPropertiesService()
 				.getRegistryProperties();
 
-		// Check if keys exist
-		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_HOST_KEY)) {
-			throw new IOException("Properties file doesn't contain the key "
-					+ PropertiesService.REGISTRY_PROPERTIES_HOST_KEY);
-		}
-		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY)) {
-			throw new IOException("Properties file doesn't contain the key "
-					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
-		}
-
 		// Parse value
 		int port;
 		String host;

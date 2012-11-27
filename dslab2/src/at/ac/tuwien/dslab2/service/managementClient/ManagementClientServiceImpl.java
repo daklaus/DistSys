@@ -46,16 +46,6 @@ public class ManagementClientServiceImpl implements ManagementClientService {
 		Properties prop = PropertiesServiceFactory.getPropertiesService()
 				.getRegistryProperties();
 
-		// Check if keys exist
-		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_HOST_KEY)) {
-			throw new IOException("Properties file doesn't contain the key "
-					+ PropertiesService.REGISTRY_PROPERTIES_HOST_KEY);
-		}
-		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY)) {
-			throw new IOException("Properties file doesn't contain the key "
-					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
-		}
-
 		// Parse value
 		int port;
 		String host;
@@ -78,7 +68,16 @@ public class ManagementClientServiceImpl implements ManagementClientService {
 	}
 
 	@Override
-	public void login(String userName, String password) {
+	public void login(String userName, String password) throws AlreadyLoggedInException {
+		if(userName == null)
+			throw new IllegalArgumentException("user name is null");
+		if(password == null)
+			throw new IllegalAccessError("password is null");
+		
+		if(bss != null)
+			throw new AlreadyLoggedInException("User already logged in");
+			
+//		this.bss = this.bs
 		// TODO Auto-generated method stub
 
 	}

@@ -37,6 +37,9 @@ public class PropertiesServiceImpl implements PropertiesService {
 			registry = loadProperties(REGISTRY_PROPERTIES_FILE);
 		}
 
+		checkKey(registry, REGISTRY_PROPERTIES_HOST_KEY);
+		checkKey(registry, REGISTRY_PROPERTIES_PORT_KEY);
+
 		return registry;
 	}
 
@@ -54,6 +57,12 @@ public class PropertiesServiceImpl implements PropertiesService {
 		if (loadTest == null) {
 			loadTest = loadProperties(LOADTEST_PROPERTIES_FILE);
 		}
+
+		checkKey(loadTest, LOADTEST_PROPERTIES_CLIENTS_KEY);
+		checkKey(loadTest, LOADTEST_PROPERTIES_AUCTIONSPERMIN_KEY);
+		checkKey(loadTest, LOADTEST_PROPERTIES_AUCTIONDURATION_KEY);
+		checkKey(loadTest, LOADTEST_PROPERTIES_UPDATEINTERVALSEC_KEY);
+		checkKey(loadTest, LOADTEST_PROPERTIES_BIDSPERMIN_KEY);
 
 		return loadTest;
 	}
@@ -75,6 +84,18 @@ public class PropertiesServiceImpl implements PropertiesService {
 		}
 
 		return prop;
+	}
+
+	private void checkKey(Properties prop, String key) throws IOException {
+		if (prop == null)
+			throw new IllegalArgumentException("properties is null");
+		if (key == null)
+			throw new IllegalArgumentException("key is null");
+
+		if (!prop.containsKey(key)) {
+			throw new IOException("Properties file doesn't contain the key "
+					+ key);
+		}
 	}
 
 }

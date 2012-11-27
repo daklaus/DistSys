@@ -63,12 +63,6 @@ public class BillingServer {
 			error(e.getMessage(), e.getCause());
 		}
 
-		// Check if key exists
-		if (!prop.containsKey(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY)) {
-			error("Properties file doesn't contain the key "
-					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
-		}
-
 		// Parse value
 		sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
