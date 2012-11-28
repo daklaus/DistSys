@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -36,7 +37,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	private final AnalyticsServer as;
 	private BillingServerSecure bss;
 	private volatile boolean auto;
-	private final SortedSet<Event> events;
+	private final NavigableSet<Event> events;
 	private volatile Event latestPrintedEvent;
 	private SubscriptionListener listener;
 	private final MgmtClientCallback callback;
@@ -164,12 +165,9 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 	@Override
 	public Set<Event> print() {
-		if (auto)
-			return null;
-
 		SortedSet<Event> returnSet;
 		if (latestPrintedEvent != null) {
-			returnSet = events.tailSet(latestPrintedEvent);
+			returnSet = events.tailSet(latestPrintedEvent, false);
 		} else {
 			returnSet = events;
 		}
@@ -211,9 +209,9 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 		@Override
 		public void processEvent(Event event) throws RemoteException {
-			events.add(event);
+			boolean newEvent = events.add(event);
 
-			if (auto && listener != null) {
+			if (auto && listener != null && newEvent) {
 				listener.autoPrintEvent(print());
 			}
 		}

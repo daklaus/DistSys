@@ -21,10 +21,14 @@ public class BillingServer {
 	 */
 	public static void main(String[] args) {
 		try {
-			initialize(args);
-			readInput();
-		} finally {
-			close();
+			try {
+				initialize(args);
+				readInput();
+			} finally {
+				close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

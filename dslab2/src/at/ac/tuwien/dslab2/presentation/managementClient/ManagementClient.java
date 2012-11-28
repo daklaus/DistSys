@@ -31,10 +31,14 @@ public class ManagementClient {
 	 */
 	public static void main(String[] args) {
 		try {
-			initialize(args);
-			readInput();
-		} finally {
-			close();
+			try {
+				initialize(args);
+				readInput();
+			} finally {
+				close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -85,7 +89,7 @@ public class ManagementClient {
 					String reply = submitCommand(cmd);
 
 					if (reply != null) {
-						System.out.println("\n" + reply);
+						System.out.println(reply);
 					} else {
 						end = true;
 					}

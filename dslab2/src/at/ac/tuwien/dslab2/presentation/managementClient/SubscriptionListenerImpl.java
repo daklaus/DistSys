@@ -16,7 +16,7 @@ public class SubscriptionListenerImpl implements SubscriptionListener {
 
 	@Override
 	public void autoPrintEvent(Set<Event> events) {
-		System.out.println("\n");
+		System.out.println();
 		System.out.println(ManagementClient.printEvents(events));
 		System.out.print(ManagementClient.getPrompt());
 	}

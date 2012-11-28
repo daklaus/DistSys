@@ -56,13 +56,14 @@ class RMIServerServiceImpl implements RMIServerService {
 		try {
 			if (this.bindingName != null)
 				this.registry.unbind(this.bindingName);
-			if (this.toBeStubbed != null) {
-				UnicastRemoteObject.unexportObject(this.toBeStubbed, true);
-			}
-			// } catch (SocketException e) {
-			// We don't care if the registry isn't available anymore
 		} catch (NotBoundException e) {
 			// We don't care if it wasn't bound
+		} catch (IOException e) {
+			// We don't care if the registry isn't available anymore
+		}
+
+		if (this.toBeStubbed != null) {
+			UnicastRemoteObject.unexportObject(this.toBeStubbed, true);
 		}
 	}
 }
