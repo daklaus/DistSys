@@ -3,18 +3,17 @@
  */
 package at.ac.tuwien.dslab2.presentation.billingServer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Properties;
-import java.util.Scanner;
-
 import at.ac.tuwien.dslab2.service.PropertiesService;
 import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
 import at.ac.tuwien.dslab2.service.rmi.RMIServerService;
 import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Properties;
+import java.util.Scanner;
 
 /**
  * @author klaus
@@ -76,7 +75,7 @@ public class BillingServer {
 		 * Bind the RMI interface
 		 */
 		try {
-			bs = BillingServerFactory.newBillingServer();
+			bs = BillingServerFactory.newBillingServer(bindingName);
 			rss = RMIServiceFactory.newRMIServerService(port);
 			rss.bind(bindingName, bs);
 		} catch (IOException e) {

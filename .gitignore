@@ -1,6 +1,7 @@
 # Binary Folders #
 build/
 bin/
+out/
 
 # Eclipse Project Files #
 .project
