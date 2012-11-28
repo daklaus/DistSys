@@ -6,6 +6,7 @@ package at.ac.tuwien.dslab2.presentation.managementClient;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -71,6 +72,7 @@ public class ManagementClient {
 
 	private static void readInput() {
 		Scanner sc = new Scanner(System.in);
+		sc.useLocale(Locale.US);
 		String cmd;
 		boolean end;
 
@@ -131,6 +133,7 @@ public class ManagementClient {
 		String tmp;
 
 		Scanner sc = new Scanner(command);
+		sc.useLocale(Locale.US);
 		sc.useDelimiter("\\s+");
 		sc.skip("\\s*");
 

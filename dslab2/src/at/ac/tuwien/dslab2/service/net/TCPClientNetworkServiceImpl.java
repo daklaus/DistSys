@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -49,7 +50,8 @@ public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 		this.socket = socket;
 
 		this.in = new Scanner(new BufferedReader(new InputStreamReader(
-				socket.getInputStream()))).useDelimiter(terminationChar + "+");
+				socket.getInputStream()))).useDelimiter(terminationChar + "+")
+				.useLocale(Locale.US);
 		this.out = new PrintWriter(socket.getOutputStream(), true);
 	}
 

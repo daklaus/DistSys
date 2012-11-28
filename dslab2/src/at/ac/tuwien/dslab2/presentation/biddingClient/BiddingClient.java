@@ -4,6 +4,7 @@
 package at.ac.tuwien.dslab2.presentation.biddingClient;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
@@ -38,11 +39,13 @@ public class BiddingClient {
 		String host = args[0];
 
 		sc = new Scanner(args[1]);
+		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt())
 			usage();
 		int tcpPort = sc.nextInt();
 
 		sc = new Scanner(args[2]);
+		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt())
 			usage();
 		udpPort = sc.nextInt();
@@ -82,6 +85,7 @@ public class BiddingClient {
 
 	private static void readInput() {
 		Scanner sc = new Scanner(System.in);
+		sc.useLocale(Locale.US);
 		String cmd;
 		boolean end;
 
@@ -164,6 +168,7 @@ public class BiddingClient {
 		String tmp;
 
 		Scanner sc = new Scanner(command);
+		sc.useLocale(Locale.US);
 		sc.useDelimiter("\\s+");
 		sc.skip("\\s*");
 

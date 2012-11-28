@@ -6,6 +6,7 @@ import at.ac.tuwien.dslab2.service.loadTest.LoadTestServiceFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class LoadTest {
@@ -29,6 +30,7 @@ public class LoadTest {
 
         String serverHost = args[0];
         sc = new Scanner(args[1]);
+		sc.useLocale(Locale.US);
         if (!sc.hasNextInt())
             usage();
         int serverPort = sc.nextInt();

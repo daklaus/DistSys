@@ -3,10 +3,10 @@ package at.ac.tuwien.dslab2.service.auctionServer;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
+import java.util.Locale;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.domain.Auction;
-import at.ac.tuwien.dslab2.domain.AuctionEvent;
 import at.ac.tuwien.dslab2.domain.Bid;
 import at.ac.tuwien.dslab2.domain.Client;
 import at.ac.tuwien.dslab2.domain.EventType;
@@ -118,6 +118,7 @@ class ClientHandler implements Runnable {
 		String tmp;
 
 		Scanner sc = new Scanner(command);
+		sc.useLocale(Locale.US);
 		sc.useDelimiter("\\s+");
 		sc.skip("\\s*");
 

@@ -1,6 +1,7 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.SortedMap;
@@ -61,6 +62,7 @@ class AuctionServiceImpl implements AuctionService {
 
 		Scanner sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
+		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
 					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);

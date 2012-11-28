@@ -6,7 +6,9 @@ package at.ac.tuwien.dslab2.service.managementClient;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -39,12 +41,19 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	private volatile Event latestPrintedEvent;
 	private SubscriptionListener listener;
 	private final MgmtClientCallback callback;
+	private final List<Long> subscriptionIds;
 
 	public ManagementClientServiceImpl(String analyticsServerRef,
 			String billingServerRef) throws IOException {
+		if (analyticsServerRef == null)
+			throw new IllegalArgumentException("analyticsServerRef is null");
+		if (billingServerRef == null)
+			throw new IllegalArgumentException("billingServerRef is null");
+
 		auto = false;
 		latestPrintedEvent = null;
 		events = new ConcurrentSkipListSet<Event>();
+		subscriptionIds = new ArrayList<Long>();
 		callback = new MgmtClientCallbackImpl();
 		UnicastRemoteObject.exportObject(callback, 0);
 
@@ -61,6 +70,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 		Scanner sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
+		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
 					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
@@ -139,7 +149,9 @@ class ManagementClientServiceImpl implements ManagementClientService {
 		if (regex == null)
 			throw new IllegalArgumentException("regex is null");
 
-		return this.as.subscribe(regex, callback);
+		long id = this.as.subscribe(regex, callback);
+		this.subscriptionIds.add(id);
+		return id;
 	}
 
 	@Override
@@ -158,7 +170,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 			return null;
 
 		SortedSet<Event> returnSet;
-		if (latestPrintedEvent == null) {
+		if (latestPrintedEvent != null) {
 			returnSet = events.tailSet(latestPrintedEvent);
 		} else {
 			returnSet = events;
@@ -188,6 +200,10 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 	@Override
 	public void close() throws IOException {
+		for (Long id : subscriptionIds) {
+			unsubscribe(id);
+		}
+
 		UnicastRemoteObject.unexportObject(callback, false);
 		if (rcs != null)
 			rcs.close();

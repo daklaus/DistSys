@@ -3,6 +3,7 @@ package at.ac.tuwien.dslab2.service.loadTest;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +28,7 @@ public class AuctionBiddingHandler extends TimerTask {
             biddingClientService.submitCommand("!list");
             String reply = queue.take();
             Scanner scanner = new Scanner(reply.trim());
+    		scanner.useLocale(Locale.US);
             scanner.useDelimiter(Pattern.compile("\\.\\s+.*\\n?\\s*"));
             scanner.skip(Pattern.compile("\\s*"));
             if (!scanner.hasNext()) return;
