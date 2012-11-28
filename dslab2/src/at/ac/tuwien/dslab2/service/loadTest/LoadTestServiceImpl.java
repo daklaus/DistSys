@@ -1,16 +1,5 @@
 package at.ac.tuwien.dslab2.service.loadTest;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.presentation.auctionServer.ServerExceptionHandlerImpl;
 import at.ac.tuwien.dslab2.service.PropertiesService;
@@ -23,11 +12,13 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
-import at.ac.tuwien.dslab2.service.managementClient.AlreadyLoggedInException;
-import at.ac.tuwien.dslab2.service.managementClient.LoggedOutException;
-import at.ac.tuwien.dslab2.service.managementClient.ManagementClientService;
-import at.ac.tuwien.dslab2.service.managementClient.ManagementClientServiceFactory;
-import at.ac.tuwien.dslab2.service.managementClient.SubscriptionListener;
+import at.ac.tuwien.dslab2.service.managementClient.*;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 class LoadTestServiceImpl implements LoadTestService {
 
@@ -45,10 +36,13 @@ class LoadTestServiceImpl implements LoadTestService {
     private BillingServer billingServer;
     private final Timer biddingTimer;
     private final Timer auctionCreationTimer;
-    private final BlockingQueue<String> queue;
     private List<BiddingClientService> biddingClientServices;
     private final Timer auctionListingTimer;
     private AnalyticsServer analyticsServer;
+    private final BlockingQueue<String> auctionListQueue;
+    private final BlockingQueue<String> auctionCreateQueue;
+    private final BlockingQueue<String> auctionBiddingQueue;
+    private final LinkedList<TimerTask> openTimerTasks;
 
     public LoadTestServiceImpl(int auctionServerTcpPort, String billingServerBindingName, String analyticsServerBindingName, String auctionServerHostName) throws IOException {
         this.auctionServerTcpPort = auctionServerTcpPort;
@@ -58,9 +52,11 @@ class LoadTestServiceImpl implements LoadTestService {
         this.biddingTimer = new Timer("BiddingTimer");
         this.auctionCreationTimer = new Timer("AuctionCreationTimer");
         this.auctionListingTimer = new Timer("AuctionListingTimer");
-        this.queue = new SynchronousQueue<String>();
+        this.auctionListQueue = new SynchronousQueue<String>();
+        this.auctionCreateQueue = new SynchronousQueue<String>();
+        this.auctionBiddingQueue = new SynchronousQueue<String>();
         this.biddingClientServices = new LinkedList<BiddingClientService>();
-
+        this.openTimerTasks = new LinkedList<TimerTask>();
         initialize();
     }
 
@@ -127,25 +123,24 @@ class LoadTestServiceImpl implements LoadTestService {
     }
 
     private void startBiddingClients() throws IOException {
-        try {
-            for (int i = 0; i < this.clientCount; i++) {
-                BiddingClientService biddingClientService = BiddingClientServiceFactory.newBiddingClientService();
-                biddingClientService.setReplyListener(new LoadTestReplyListener(queue), null);
-                biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 1);
-                biddingClientService.submitCommand("!login user" + i + " 1");
-                queue.take();
-                this.biddingClientServices.add(biddingClientService);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        for (int i = 0; i < this.clientCount; i++) {
+            BiddingClientService biddingClientService = BiddingClientServiceFactory.newBiddingClientService();
+            biddingClientService.setReplyListener(new LoadTestReplyListener(auctionListQueue, auctionBiddingQueue, auctionCreateQueue), null);
+            biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 1);
+            biddingClientService.submitCommand("!login user" + i + " 1");
+            this.biddingClientServices.add(biddingClientService);
         }
     }
 
     private void startHandlers() throws IOException {
         for (BiddingClientService biddingClientService : this.biddingClientServices) {
-            AuctionBiddingHandler auctionBiddingHandler = new AuctionBiddingHandler(biddingClientService, queue);
-            AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, queue, auctionDuration);
-            AuctionListingHandler auctionListingHandler = new AuctionListingHandler(biddingClientService, queue);
+            AuctionBiddingHandler auctionBiddingHandler = new AuctionBiddingHandler(biddingClientService, auctionListQueue, auctionBiddingQueue);
+            AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, auctionCreateQueue, auctionDuration);
+            AuctionListingHandler auctionListingHandler = new AuctionListingHandler(biddingClientService, auctionListQueue);
+
+            this.openTimerTasks.add(auctionBiddingHandler);
+            this.openTimerTasks.add(auctionCreationHandler);
+            this.openTimerTasks.add(auctionListingHandler);
 
             long delay = (60 / this.bidsPerMin) * 1000;
             this.biddingTimer.schedule(auctionBiddingHandler, delay, delay);
@@ -153,6 +148,7 @@ class LoadTestServiceImpl implements LoadTestService {
             this.auctionCreationTimer.schedule(auctionCreationHandler, delay, delay);
             delay = this.updateInterval * 1000;
             this.auctionListingTimer.schedule(auctionListingHandler, delay, delay);
+
         }
     }
 
@@ -197,6 +193,10 @@ class LoadTestServiceImpl implements LoadTestService {
 
     @Override
     public void close() throws IOException {
+        for (TimerTask task : this.openTimerTasks) {
+            task.cancel();
+        }
+
         this.auctionCreationTimer.cancel();
         this.biddingTimer.cancel();
         this.auctionListingTimer.cancel();
