@@ -102,11 +102,12 @@ class LoadTestServiceImpl implements LoadTestService {
         try {
             startBillingServer();
             startAnalyticsServer();
+            Thread.sleep(3000);
             startAuctionServer();
             startManagementClient();
             startBiddingClients();
             startHandlers();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -162,7 +163,6 @@ class LoadTestServiceImpl implements LoadTestService {
         });
         managementClientService.auto();
         managementClientService.subscribe(".*");
-
         try {
             managementClientService.login("stefan", "stefan");
 

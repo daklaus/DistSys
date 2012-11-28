@@ -33,7 +33,7 @@ public class AuctionBiddingHandler extends TimerTask {
             scanner.useDelimiter(Pattern.compile("\\.\\s+.*\\n?\\s*"));
             scanner.skip(Pattern.compile("\\s*"));
 
-            while (scanner.hasNext()) {
+            while (scanner.hasNextInt()) {
                 int auctionId = scanner.nextInt();
                 double price = (System.currentTimeMillis() - currentTime) / 1000;
                 biddingClientService.submitCommand("!bid " + auctionId + " " + String.format("%.2f", price));
