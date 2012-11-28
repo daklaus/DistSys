@@ -1,20 +1,20 @@
 /**
  * 
  */
-package at.ac.tuwien.dslab2.presentation.billingServer;
+package at.ac.tuwien.dslab2.presentation.analyticsServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
+import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServerFactory;
 
 /**
  * @author klaus
  * 
  */
-public class BillingServer {
-	private static at.ac.tuwien.dslab2.service.billingServer.BillingServer bs;
+public class AnalyticsServer {
+	private static at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer as;
 
 	/**
 	 * @param args
@@ -38,14 +38,14 @@ public class BillingServer {
 		String bindingName = args[0];
 
 		try {
-			bs = BillingServerFactory.newBillingServer(bindingName);
+			as = AnalyticsServerFactory.newAnalyticsServer(bindingName);
 		} catch (IOException e) {
 			error("Couldn't initialize server:", e);
 		}
 	}
 
 	private static void usage() {
-		System.err.println("usage: java BillingServer bindingName\n");
+		System.err.println("usage: java AnalyticsServer bindingName\n");
 		System.err.println("bindingName: binding name of the servers "
 				+ "interface in the RMI registry\n");
 
@@ -75,8 +75,8 @@ public class BillingServer {
 
 	private static void close() {
 		try {
-			if (bs != null) {
-				bs.close();
+			if (as != null) {
+				as.close();
 			}
 		} catch (IOException e) {
 			System.err.println("Something went wrong while closing:");

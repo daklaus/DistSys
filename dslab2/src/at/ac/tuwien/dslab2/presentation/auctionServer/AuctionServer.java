@@ -49,26 +49,23 @@ public class AuctionServer {
 		try {
 			ass.start(tcpPort, analyticsServerRef, billingServerRef);
 		} catch (IOException e) {
-			System.err.println("Error while connecting:");
-			e.printStackTrace();
-
-			close();
-			System.exit(1);
+			error("Error while connecting:", e);
 		}
 
 	}
 
 	private static void usage() {
-		System.err.println("usage: java AuctionServer tcpPort billingServerRef"
-				+ " analyticsServerRef\n\n"
-				+ "\thost: host name or IP of the auction server\n"
-				+ "\ttcpPort: TCP connection port on which the "
-				+ "auction server will receive incoming messages "
-				+ "(commands) from clients.\n"
-				+ "\tbillingServerRef: the binding name of the "
-				+ "billing server in the RMI registry\n"
-				+ "\tanalyticsServerRef: the binding name of the "
-				+ "analytics server in the RMI registry");
+		System.err
+				.println("usage: java AuctionServer tcpPort analyticsServerName "
+						+ "billingServerName\n\n"
+						+ "\thost: host name or IP of the auction server\n"
+						+ "\ttcpPort: TCP connection port on which the "
+						+ "auction server will receive incoming messages "
+						+ "(commands) from clients.\n"
+						+ "\tanalyticsServerName: the binding name of the "
+						+ "analytics server in the RMI registry"
+						+ "\tbillingServerName: the binding name of the "
+						+ "billing server in the RMI registry\n");
 
 		close();
 		System.exit(0);
@@ -86,7 +83,7 @@ public class AuctionServer {
 		}
 	}
 
-	synchronized static void close() {
+	private static void close() {
 		if (ass != null) {
 			try {
 				ass.close();
@@ -95,5 +92,13 @@ public class AuctionServer {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private static void error(String msg, Throwable e) {
+		System.err.println(msg);
+		if (e != null)
+			e.printStackTrace();
+		close();
+		System.exit(1);
 	}
 }

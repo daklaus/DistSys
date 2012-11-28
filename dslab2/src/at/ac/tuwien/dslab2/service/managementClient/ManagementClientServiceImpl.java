@@ -6,9 +6,11 @@ package at.ac.tuwien.dslab2.service.managementClient;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -151,7 +153,10 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	}
 
 	@Override
-	public SortedSet<Event> print() {
+	public Set<Event> print() {
+		if (auto)
+			return null;
+
 		SortedSet<Event> returnSet;
 		if (latestPrintedEvent == null) {
 			returnSet = events.tailSet(latestPrintedEvent);

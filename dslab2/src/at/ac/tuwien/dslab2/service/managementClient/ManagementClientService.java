@@ -5,7 +5,7 @@ package at.ac.tuwien.dslab2.service.managementClient;
 
 import java.io.Closeable;
 import java.rmi.RemoteException;
-import java.util.SortedSet;
+import java.util.Set;
 
 import at.ac.tuwien.dslab2.domain.Bill;
 import at.ac.tuwien.dslab2.domain.Event;
@@ -125,7 +125,7 @@ public interface ManagementClientService extends Closeable {
 	 * 
 	 * @return a set of all events described above
 	 */
-	SortedSet<Event> print();
+	Set<Event> print();
 
 	/**
 	 * Turns the client in automatic subscription printing mode. Before this to
