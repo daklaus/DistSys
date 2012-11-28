@@ -13,12 +13,9 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
 import at.ac.tuwien.dslab2.service.managementClient.*;
-import at.ac.tuwien.dslab2.service.rmi.RMIServerService;
-import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -43,7 +40,6 @@ class LoadTestServiceImpl implements LoadTestService {
     private List<BiddingClientService> biddingClientServices;
     private final Timer auctionListingTimer;
     private AnalyticsServer analyticsServer;
-    private RMIServerService analyticsServerRemoteRef;
 
     public LoadTestServiceImpl(int auctionServerTcpPort, String billingServerBindingName, String analyticsServerBindingName, String auctionServerHostName) throws IOException {
         this.auctionServerTcpPort = auctionServerTcpPort;
@@ -96,30 +92,6 @@ class LoadTestServiceImpl implements LoadTestService {
         scanner.close();
     }
 
-    private RMIServerService createRegistry() throws RemoteException {
-        /*
-        * Read the properties file
-        */
-        Properties prop = null;
-        try {
-            prop = PropertiesServiceFactory.getPropertiesService()
-                    .getRegistryProperties();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Parse value
-        Scanner scanner = new Scanner(
-                prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
-        if (!scanner.hasNextInt()) {
-            throw new RuntimeException("Couldn't parse the properties value of "
-                    + PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
-        }
-        int port = scanner.nextInt();
-
-        return RMIServiceFactory.newRMIServerService(port);
-    }
-
     @Override
     public void start() {
         try {
@@ -146,12 +118,17 @@ class LoadTestServiceImpl implements LoadTestService {
     }
 
     private void startBiddingClients() throws IOException {
-        for (int i = 0; i < this.clientCount; i++) {
-            BiddingClientService biddingClientService = BiddingClientServiceFactory.newBiddingClientService();
-            biddingClientService.setReplyListener(new LoadTestReplyListener(queue), null);
-            biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 1);
-            biddingClientService.submitCommand("!login user" + i + " 1");
-            this.biddingClientServices.add(biddingClientService);
+        try {
+            for (int i = 0; i < this.clientCount; i++) {
+                BiddingClientService biddingClientService = BiddingClientServiceFactory.newBiddingClientService();
+                biddingClientService.setReplyListener(new LoadTestReplyListener(queue), null);
+                biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 1);
+                biddingClientService.submitCommand("!login user" + i + " 1");
+                queue.take();
+                this.biddingClientServices.add(biddingClientService);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -207,8 +184,6 @@ class LoadTestServiceImpl implements LoadTestService {
 
     private void startAnalyticsServer() throws IOException {
         this.analyticsServer = AnalyticsServerFactory.newAnalyticsServer(analyticsServerBindingName);
-        this.analyticsServerRemoteRef = createRegistry();
-        this.analyticsServerRemoteRef.bind(analyticsServerBindingName, analyticsServer);
     }
 
     @Override
@@ -226,7 +201,6 @@ class LoadTestServiceImpl implements LoadTestService {
             this.auctionServerService.close();
         }
         this.billingServer.close();
-        this.analyticsServerRemoteRef.close();
         this.analyticsServer.close();
 
     }

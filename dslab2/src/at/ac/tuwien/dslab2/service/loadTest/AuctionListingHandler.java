@@ -20,7 +20,9 @@ public class AuctionListingHandler extends TimerTask {
     public void run() {
         try {
             biddingClientService.submitCommand("!list");
-            queue.take();
+            String response = queue.take();
+            System.out.println(Thread.currentThread().getName() + ": !list");
+            System.out.println(response);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {

@@ -28,13 +28,16 @@ public class AuctionBiddingHandler extends TimerTask {
             String reply = queue.take();
             Scanner scanner = new Scanner(reply.trim());
             scanner.useDelimiter(Pattern.compile("\\.\\s+.*\\n?\\s*"));
+            scanner.skip(Pattern.compile("\\s*"));
             if (!scanner.hasNext()) return;
 
             while (scanner.hasNext()) {
                 int auctionId = scanner.nextInt();
                 double price = System.nanoTime() - currentTime;
                 biddingClientService.submitCommand("!bid " + auctionId + " " + price);
-                queue.take();
+                String response = queue.take();
+                System.out.println(Thread.currentThread().getName() + ": !bid");
+                System.out.println(response);
             }
             scanner.close();
         } catch (IOException e) {

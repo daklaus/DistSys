@@ -21,7 +21,9 @@ public class AuctionCreationHandler extends TimerTask {
     public void run() {
         try {
             biddingClientService.submitCommand("!create " + duration + " description");
-            queue.take();
+            String response = queue.take();
+            System.out.println(Thread.currentThread().getName() + ": !create");
+            System.out.println(response);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
