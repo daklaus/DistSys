@@ -10,7 +10,8 @@ import java.io.IOException;
  * 
  */
 public abstract class AnalyticsServerFactory {
-	public static AnalyticsServer newAnalyticsServer(String analyticsServerBindingName) throws IOException {
-		return new AnalyticsServerImpl();
+	public static AnalyticsServer newAnalyticsServer(String bindingName)
+			throws IOException {
+		return new AnalyticsServerImpl(bindingName);
 	}
 }

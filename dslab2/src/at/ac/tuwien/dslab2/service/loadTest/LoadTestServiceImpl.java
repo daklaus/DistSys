@@ -170,7 +170,7 @@ class LoadTestServiceImpl implements LoadTestService {
         managementClientService = ManagementClientServiceFactory.newManagementClientService(analyticsServerBindingName, billingServerBindingName);
         managementClientService.setSubscriptionListener(new SubscriptionListener() {
             @Override
-            public void autoPrintEvent(SortedSet<Event> events) {
+            public void autoPrintEvent(Set<Event> events) {
                 System.out.println(events.toString());
             }
         });
