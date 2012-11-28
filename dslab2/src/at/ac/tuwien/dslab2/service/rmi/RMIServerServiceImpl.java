@@ -1,5 +1,7 @@
 package at.ac.tuwien.dslab2.service.rmi;
 
+import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -50,17 +52,17 @@ class RMIServerServiceImpl implements RMIServerService {
 	}
 
 	@Override
-	public void close() {
+	public void close() throws IOException {
 		try {
 			if (this.bindingName != null)
 				this.registry.unbind(this.bindingName);
 			if (this.toBeStubbed != null) {
 				UnicastRemoteObject.unexportObject(this.toBeStubbed, true);
 			}
-		} catch (Exception e) {
-			// Maybe we should ignore the error to proceed with closing the
-			// service
-			throw new RuntimeException("Unable to close the RMI service", e);
+			// } catch (SocketException e) {
+			// We don't care if the registry isn't available anymore
+		} catch (NotBoundException e) {
+			// We don't care if it wasn't bound
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package at.ac.tuwien.dslab2.service.loadTest;
 
-import at.ac.tuwien.dslab2.service.biddingClient.ReplyListener;
-
 import java.util.concurrent.BlockingQueue;
+
+import at.ac.tuwien.dslab2.service.biddingClient.ReplyListener;
 
 public class LoadTestReplyListener implements ReplyListener {
 

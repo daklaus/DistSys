@@ -2,7 +2,6 @@ package at.ac.tuwien.dslab2.service.biddingClient;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.Locale;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
@@ -79,7 +78,6 @@ class NotificationThread extends Thread {
 		String tmp;
 
 		Scanner sc = new Scanner(command);
-		sc.useLocale(Locale.US);
 		sc.useDelimiter("\\s+");
 		sc.skip("\\s*");
 

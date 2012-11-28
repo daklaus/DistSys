@@ -4,7 +4,6 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import at.ac.tuwien.dslab2.domain.Auction;
 import at.ac.tuwien.dslab2.domain.Client;

@@ -8,7 +8,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -70,7 +69,6 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 		Scanner sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
-		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
 					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);

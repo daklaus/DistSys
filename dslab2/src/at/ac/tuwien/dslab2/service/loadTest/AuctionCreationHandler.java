@@ -1,10 +1,10 @@
 package at.ac.tuwien.dslab2.service.loadTest;
 
-import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
-
 import java.io.IOException;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
+
+import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 
 public class AuctionCreationHandler extends TimerTask {
 

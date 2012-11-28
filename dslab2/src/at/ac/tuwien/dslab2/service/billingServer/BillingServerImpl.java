@@ -9,11 +9,10 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 import at.ac.tuwien.dslab2.service.PropertiesService;
@@ -44,7 +43,6 @@ class BillingServerImpl implements BillingServer {
 		// Parse value
 		Scanner sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
-		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
 					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);

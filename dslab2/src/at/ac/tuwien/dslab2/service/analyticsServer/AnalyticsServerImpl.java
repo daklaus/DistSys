@@ -5,14 +5,12 @@ package at.ac.tuwien.dslab2.service.analyticsServer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.domain.Subscription;
@@ -48,7 +46,6 @@ class AnalyticsServerImpl implements AnalyticsServer {
 		// Parse value
 		Scanner sc = new Scanner(
 				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
-		sc.useLocale(Locale.US);
 		if (!sc.hasNextInt()) {
 			throw new IOException("Couldn't parse the properties value of "
 					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
