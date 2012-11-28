@@ -170,17 +170,7 @@ public class ManagementClient {
 			if (pss.isEmpty())
 				return "There are currently no price steps configurated";
 
-			StringBuilder builder = new StringBuilder();
-			for (Iterator<PriceStep> iterator = pss.iterator(); iterator
-					.hasNext();) {
-				PriceStep ps = iterator.next();
-				builder.append(ps.toString());
-
-				if (iterator.hasNext())
-					builder.append("\n");
-			}
-
-			return builder.toString();
+			return pss.toString();
 
 		} else if (tmp.equalsIgnoreCase("!addStep")) {
 			if (!sc.hasNextDouble())

@@ -1,22 +1,20 @@
 package at.ac.tuwien.dslab2.domain;
 
-import java.io.Serializable;
-
-public class PriceStep extends Interval<Double> implements Serializable {
+public class PriceStep extends Interval<Double> {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The size in characters to which each value will be padded within the
 	 * toString method
 	 */
-	public static final int PADDING_SIZE = 20;
+	public static final int PADDING_SIZE = 15;
 
 	private final double fixedPrice;
 	private final double variablePricePercent;
 
 	public PriceStep(double startPrice, double endPrice, double fixedPrice,
 			double variablePricePercent) {
-		super(startPrice, endPrice, new DoubleComparator());
+		super(startPrice, endPrice);
 
 		if (startPrice < 0 || endPrice < 0)
 			throw new IllegalArgumentException(

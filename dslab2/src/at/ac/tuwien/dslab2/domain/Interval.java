@@ -1,18 +1,18 @@
 package at.ac.tuwien.dslab2.domain;
 
-import java.util.Comparator;
+import java.io.Serializable;
 
-class Interval<T> implements Comparable<Interval<T>> {
+class Interval<T extends Comparable<T>> implements Comparable<Interval<T>>,
+		Serializable {
+	private static final long serialVersionUID = 1L;
 	protected final T min;
 	protected final T max;
-	protected final Comparator<T> comparator;
 
 	/**
 	 * <p>
 	 * Constructs a new <code>Interval</code> with the specified minimum and
 	 * maximum values (<i>min</i> is exclusive - left-open interval, e.g.
-	 * '(<i>min</i> <i>max</i>]') using the <code>Comparator</code> for
-	 * comparison.
+	 * '(<i>min</i> <i>max</i>]').
 	 * </p>
 	 * 
 	 * @param min
@@ -20,11 +20,8 @@ class Interval<T> implements Comparable<Interval<T>> {
 	 * @param max
 	 *            second number that defines the edge of the interval
 	 *            (inclusive)
-	 * @param comparator
-	 *            comparator which is used for comparing the former values
 	 */
-	public Interval(T min, T max, Comparator<T> comparator) {
-		this.comparator = comparator;
+	public Interval(T min, T max) {
 		this.min = min;
 		this.max = max;
 	}
@@ -53,24 +50,22 @@ class Interval<T> implements Comparable<Interval<T>> {
 
 	/**
 	 * <p>
-	 * Tests whether the specified <code>T</code> occurs within this interval
-	 * using Comparators <code>compareTo</code>.
+	 * Tests whether the specified <code>T</code> occurs within this interval.
 	 * </p>
 	 * 
 	 * @param value
 	 *            the value to test
 	 * @return <code>true</code> if the specified value occurs within this
-	 *         interval by Comparators <code>compareTo</code>
+	 *         interval
 	 */
 	public boolean contains(T value) {
-		return this.comparator.compare(value, this.min) > 0
-				&& this.comparator.compare(value, this.max) <= 0;
+		return value.compareTo(this.min) > 0 && value.compareTo(this.max) <= 0;
 	}
 
 	/**
 	 * <p>
-	 * Tests whether the specified interval occurs entirely within this interval
-	 * using Comparators <code>compareTo</code>.
+	 * Tests whether the specified interval occurs entirely within this
+	 * interval.
 	 * </p>
 	 * 
 	 * <p>
@@ -86,14 +81,12 @@ class Interval<T> implements Comparable<Interval<T>> {
 		if (interval == null)
 			throw new NullPointerException("interval is null");
 
-		return this.contains(interval.getMin())
-				&& this.contains(interval.getMax());
+		return this.contains(interval.min) && this.contains(interval.max);
 	}
 
 	/**
 	 * <p>
-	 * Tests whether the specified interval overlaps with this interval using
-	 * Comparators <code>compareTo</code>.
+	 * Tests whether the specified interval overlaps with this interval.
 	 * </p>
 	 * 
 	 * <p>
@@ -118,7 +111,7 @@ class Interval<T> implements Comparable<Interval<T>> {
 
 	@Override
 	public int compareTo(Interval<T> o) {
-		return this.comparator.compare(this.min, o.min);
+		return this.min.compareTo(o.min);
 	}
 
 	@Override

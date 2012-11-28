@@ -28,13 +28,11 @@ public class PriceSteps implements Iterable<PriceStep>, Serializable {
 
 	public void remove(double startPrice, double endPrice)
 			throws IllegalStateException {
-		priceSteps.remove(new Interval<Double>(startPrice, endPrice,
-				new DoubleComparator()));
+		priceSteps.remove(new Interval<Double>(startPrice, endPrice));
 	}
 
 	public boolean contains(double startPrice, double endPrice) {
-		return priceSteps.contains(new Interval<Double>(startPrice, endPrice,
-				new DoubleComparator()));
+		return priceSteps.contains(new Interval<Double>(startPrice, endPrice));
 	}
 
 	public boolean isEmpty() {
