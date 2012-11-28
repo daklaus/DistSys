@@ -83,7 +83,7 @@ public class AuctionServer {
 		}
 	}
 
-	private static void close() {
+	synchronized static void close() {
 		if (ass != null) {
 			try {
 				ass.close();
