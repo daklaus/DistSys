@@ -5,16 +5,9 @@ package at.ac.tuwien.dslab2.presentation.billingServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Properties;
-import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.PropertiesService;
-import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
-import at.ac.tuwien.dslab2.service.rmi.RMIServerService;
-import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
 
 /**
  * @author klaus
@@ -22,7 +15,6 @@ import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
  */
 public class BillingServer {
 	private static at.ac.tuwien.dslab2.service.billingServer.BillingServer bs;
-	private static RMIServerService rss;
 
 	/**
 	 * @param args
@@ -37,48 +29,16 @@ public class BillingServer {
 	}
 
 	private static void initialize(String[] args) {
-		String bindingName;
-		int port;
-
 		/*
 		 * Process arguments
 		 */
-		Scanner sc;
 		if (args.length != 1)
 			usage();
 
-		sc = new Scanner(args[0]);
-		if (!sc.hasNext())
-			usage();
-		bindingName = sc.next();
+		String bindingName = args[0];
 
-		/*
-		 * Read the properties file
-		 */
-		Properties prop = null;
 		try {
-			prop = PropertiesServiceFactory.getPropertiesService()
-					.getRegistryProperties();
-		} catch (IOException e) {
-			error(e.getMessage(), e.getCause());
-		}
-
-		// Parse value
-		sc = new Scanner(
-				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
-		if (!sc.hasNextInt()) {
-			error("Couldn't parse the properties value of "
-					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
-		}
-		port = sc.nextInt();
-
-		/*
-		 * Bind the RMI interface
-		 */
-		try {
-			bs = BillingServerFactory.newBillingServer();
-			rss = RMIServiceFactory.newRMIServerService(port);
-			rss.bind(bindingName, bs);
+			bs = BillingServerFactory.newBillingServer(bindingName);
 		} catch (IOException e) {
 			error("Couldn't initialize server:", e);
 		}
@@ -105,10 +65,6 @@ public class BillingServer {
 		}
 	}
 
-	private static void error(String msg) {
-		error(msg, null);
-	}
-
 	private static void error(String msg, Throwable e) {
 		System.err.println(msg);
 		if (e != null)
@@ -119,9 +75,6 @@ public class BillingServer {
 
 	private static void close() {
 		try {
-			if (rss != null) {
-				rss.close();
-			}
 			if (bs != null) {
 				bs.close();
 			}

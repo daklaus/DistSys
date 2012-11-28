@@ -3,7 +3,7 @@
  */
 package at.ac.tuwien.dslab2.service.managementClient;
 
-import java.util.SortedSet;
+import java.util.Set;
 
 import at.ac.tuwien.dslab2.domain.Event;
 
@@ -20,5 +20,5 @@ public interface SubscriptionListener {
 	 * @param event
 	 *            The event that happened and should be processed
 	 */
-	void autoPrintEvent(SortedSet<Event> events);
+	void autoPrintEvent(Set<Event> events);
 }

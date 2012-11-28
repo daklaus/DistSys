@@ -112,7 +112,6 @@ public class BiddingClient {
 				} catch (IOException e) {
 					System.err.println("Error while submitting command:");
 					e.printStackTrace();
-					end = true;
 				}
 			}
 		}
