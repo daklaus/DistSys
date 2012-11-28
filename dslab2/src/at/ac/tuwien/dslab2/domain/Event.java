@@ -42,10 +42,6 @@ public abstract class Event implements Comparable<Event>, Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-		result = prime * result
-				+ (int) (this.timestamp ^ (this.timestamp >>> 32));
-		result = prime * result
-				+ ((this.type == null) ? 0 : this.type.hashCode());
 		return result;
 	}
 
@@ -62,10 +58,6 @@ public abstract class Event implements Comparable<Event>, Serializable {
 			if (other.id != null)
 				return false;
 		} else if (!this.id.equals(other.id))
-			return false;
-		if (this.timestamp != other.timestamp)
-			return false;
-		if (this.type != other.type)
 			return false;
 		return true;
 	}
