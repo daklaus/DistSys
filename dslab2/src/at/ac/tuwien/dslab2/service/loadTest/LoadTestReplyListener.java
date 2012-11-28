@@ -4,11 +4,11 @@ import at.ac.tuwien.dslab2.service.biddingClient.ReplyListener;
 
 import java.util.concurrent.BlockingQueue;
 
-public class LoadTestReplayListener implements ReplyListener {
+public class LoadTestReplyListener implements ReplyListener {
 
     private final BlockingQueue<String> queue;
 
-    public LoadTestReplayListener(BlockingQueue<String> queue) {
+    public LoadTestReplyListener(BlockingQueue<String> queue) {
         this.queue = queue;
     }
 

@@ -18,7 +18,7 @@ public class AuctionBiddingHandler extends TimerTask {
         this.biddingClientService = biddingClientService;
         this.queue = queue;
         this.currentTime = System.nanoTime();
-        this.biddingClientService.setReplyListener(new LoadTestReplayListener(queue), null);
+
     }
 
     @Override

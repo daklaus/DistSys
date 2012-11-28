@@ -148,8 +148,9 @@ class LoadTestServiceImpl implements LoadTestService {
     private void startBiddingClients() throws IOException {
         for (int i = 0; i < this.clientCount; i++) {
             BiddingClientService biddingClientService = BiddingClientServiceFactory.newBiddingClientService();
-            biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 12345);
-            biddingClientService.submitCommand("!login user" + i);
+            biddingClientService.setReplyListener(new LoadTestReplyListener(queue), null);
+            biddingClientService.connect(auctionServerHostName, auctionServerTcpPort, 1);
+            biddingClientService.submitCommand("!login user" + i + " 1");
             this.biddingClientServices.add(biddingClientService);
         }
     }
@@ -160,9 +161,12 @@ class LoadTestServiceImpl implements LoadTestService {
             AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, queue, auctionDuration);
             AuctionListingHandler auctionListingHandler = new AuctionListingHandler(biddingClientService, queue);
 
-            this.biddingTimer.schedule(auctionBiddingHandler, System.currentTimeMillis() + this.bidsPerMin * 60 * 1000);
-            this.auctionCreationTimer.schedule(auctionCreationHandler, System.currentTimeMillis() + this.auctionsPerMin * 60 * 1000);
-            this.auctionListingTimer.schedule(auctionListingHandler, System.currentTimeMillis() + this.updateInterval * 60 * 1000);
+            long delay = (60 / this.bidsPerMin) * 1000;
+            this.biddingTimer.schedule(auctionBiddingHandler, delay, delay);
+            delay = (60 / this.auctionsPerMin) * 1000;
+            this.auctionCreationTimer.schedule(auctionCreationHandler, delay, delay);
+            delay = this.updateInterval * 1000;
+            this.auctionListingTimer.schedule(auctionListingHandler, delay, delay);
         }
     }
 
