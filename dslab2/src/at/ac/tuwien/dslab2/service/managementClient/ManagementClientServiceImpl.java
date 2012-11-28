@@ -126,7 +126,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 	@Override
 	public void logout() throws LoggedOutException {
-		if (this.bss != null)
+		if (this.bss == null)
 			throw new LoggedOutException();
 
 		this.bss = null;
