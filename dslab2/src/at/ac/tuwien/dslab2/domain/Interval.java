@@ -86,7 +86,8 @@ class Interval<T> implements Comparable<Interval<T>> {
 		if (interval == null)
 			throw new NullPointerException("interval is null");
 
-		return contains(interval.getMin()) && contains(interval.getMax());
+		return this.contains(interval.getMin())
+				&& this.contains(interval.getMax());
 	}
 
 	/**
@@ -108,8 +109,11 @@ class Interval<T> implements Comparable<Interval<T>> {
 		if (interval == null)
 			throw new NullPointerException("interval is null");
 
-		return interval.contains(this.min) || interval.contains(this.max)
-				|| contains(interval.getMin());
+		return (this.contains(interval.min) && interval.contains(this.max))
+				|| (this.contains(interval.max) && interval.contains(this.min))
+				|| (interval.contains(this.min) && interval.contains(this.max))
+				|| (this.contains(interval.min) && this.contains(interval.max))
+				|| this.equals(interval);
 	}
 
 	@Override
