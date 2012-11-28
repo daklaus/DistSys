@@ -9,24 +9,50 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import at.ac.tuwien.dslab2.service.PropertiesService;
 import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
+import at.ac.tuwien.dslab2.service.rmi.RMIServerService;
+import at.ac.tuwien.dslab2.service.rmi.RMIServiceFactory;
 
 /**
  * @author klaus
  * 
  */
 class BillingServerImpl implements BillingServer {
+	private final RMIServerService rss;
 	private final Map<String, String> users;
 	private final BillingServerSecure bss;
 
-	public BillingServerImpl() throws IOException {
+	public BillingServerImpl(String bindingName) throws IOException {
+		/*
+		 * Read the registry properties file
+		 */
+		Properties prop = null;
+		prop = PropertiesServiceFactory.getPropertiesService()
+				.getRegistryProperties();
+
+		// Parse value
+		Scanner sc = new Scanner(
+				prop.getProperty(PropertiesService.REGISTRY_PROPERTIES_PORT_KEY));
+		if (!sc.hasNextInt()) {
+			throw new IOException("Couldn't parse the properties value of "
+					+ PropertiesService.REGISTRY_PROPERTIES_PORT_KEY);
+		}
+		int port = sc.nextInt();
+
+		/*
+		 * Bind the RMI interface
+		 */
+		this.rss = RMIServiceFactory.newRMIServerService(port);
+		this.rss.bind(bindingName, this);
 
 		// Get the users from the properties file
-		Properties prop = PropertiesServiceFactory.getPropertiesService()
+		prop = PropertiesServiceFactory.getPropertiesService()
 				.getUserProperties();
 
 		users = new ConcurrentHashMap<String, String>(prop.size());
@@ -76,6 +102,9 @@ class BillingServerImpl implements BillingServer {
 
 	@Override
 	public void close() throws IOException {
+		if (rss != null) {
+			rss.close();
+		}
 		bss.close();
 		UnicastRemoteObject.unexportObject(bss, false);
 	}

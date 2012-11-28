@@ -68,8 +68,8 @@ class BillingServerSecureImpl implements BillingServerSecure {
 			throws RemoteException {
 
 		if (!priceSteps.contains(startPrice, endPrice))
-			throw new RemoteException(
-					"Price steps don't contain the specified interval");
+			throw new RemoteException("Price step (" + startPrice + " "
+					+ endPrice + "] does not exist");
 
 		priceSteps.remove(startPrice, endPrice);
 	}

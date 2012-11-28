@@ -10,8 +10,9 @@ import java.io.IOException;
  * 
  */
 public abstract class BillingServerFactory {
-	public static BillingServer newBillingServer() throws IOException {
-		return new BillingServerImpl();
+	public static BillingServer newBillingServer(String bindingName)
+			throws IOException {
+		return new BillingServerImpl(bindingName);
 	}
 
 	static BillingServerSecure getBillingServerSecure() {
