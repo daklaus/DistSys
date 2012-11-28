@@ -106,7 +106,7 @@ class LoadTestServiceImpl implements LoadTestService {
             startAuctionServer();
             startManagementClient();
             startBiddingClients();
-            startHandlers();
+            startTimerTasks();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -115,7 +115,7 @@ class LoadTestServiceImpl implements LoadTestService {
     private void startAuctionServer() throws IOException {
         this.auctionServerService = AuctionServerServiceFactory.getAuctionServerService();
         this.auctionServerService.setExceptionHandler(new ServerExceptionHandlerImpl());
-        this.auctionServerService.start(auctionServerTcpPort, billingServerBindingName, analyticsServerBindingName);
+        this.auctionServerService.start(auctionServerTcpPort, analyticsServerBindingName, billingServerBindingName);
 
     }
 
@@ -133,7 +133,7 @@ class LoadTestServiceImpl implements LoadTestService {
         }
     }
 
-    private void startHandlers() throws IOException {
+    private void startTimerTasks() throws IOException {
         for (BiddingClientService biddingClientService : this.biddingClientServices) {
             AuctionBiddingHandler auctionBiddingHandler = new AuctionBiddingHandler(biddingClientService, auctionListQueue, auctionBiddingQueue);
             AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, auctionCreateQueue, auctionDuration);
