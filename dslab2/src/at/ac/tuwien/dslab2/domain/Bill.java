@@ -38,7 +38,8 @@ public class Bill implements Iterable<Bill.Auction>, Serializable {
 		return Collections.unmodifiableSortedSet(auctionBills).iterator();
 	}
 
-	public class Auction implements Comparable<Auction> {
+	public class Auction implements Comparable<Auction>, Serializable {
+		private static final long serialVersionUID = 1L;
 		private final String user;
 		private final long auctionId;
 		private final double price;

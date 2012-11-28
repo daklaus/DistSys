@@ -87,7 +87,7 @@ public class AuctionServer {
 		if (ass != null) {
 			try {
 				ass.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.err.println("Something went wrong while closing:");
 				e.printStackTrace();
 			}

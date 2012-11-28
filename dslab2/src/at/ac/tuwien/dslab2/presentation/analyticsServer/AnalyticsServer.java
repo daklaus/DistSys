@@ -78,7 +78,7 @@ public class AnalyticsServer {
 			if (as != null) {
 				as.close();
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.err.println("Something went wrong while closing:");
 			e.printStackTrace();
 		}

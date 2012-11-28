@@ -5,6 +5,7 @@ package at.ac.tuwien.dslab2.service.billingServer;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -66,7 +67,8 @@ class BillingServerImpl implements BillingServer {
 	}
 
 	@Override
-	public BillingServerSecure login(String username, String password) {
+	public BillingServerSecure login(String username, String password)
+			throws RemoteException {
 		if (username == null || password == null)
 			throw new IllegalArgumentException(
 					"Either username or password is null");
@@ -75,7 +77,8 @@ class BillingServerImpl implements BillingServer {
 		 * Check the username
 		 */
 		if (!users.containsKey(username.trim()))
-			return null;
+			throw new RemoteException("User " + username.trim()
+					+ " doesn't exist");
 
 		/*
 		 * Check the password
@@ -95,7 +98,8 @@ class BillingServerImpl implements BillingServer {
 
 		// Check password
 		if (!md5Hash.equals(users.get(username.trim())))
-			return null;
+			throw new RemoteException("Wrong password for user "
+					+ username.trim());
 
 		return bss;
 	}

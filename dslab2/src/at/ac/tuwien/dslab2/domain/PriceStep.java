@@ -1,6 +1,10 @@
 package at.ac.tuwien.dslab2.domain;
 
-public class PriceStep extends Interval<Double> {
+import java.io.Serializable;
+
+public class PriceStep extends Interval<Double> implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The size in characters to which each value will be padded within the
 	 * toString method

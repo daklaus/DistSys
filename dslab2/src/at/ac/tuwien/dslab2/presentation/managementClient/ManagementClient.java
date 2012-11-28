@@ -89,11 +89,12 @@ public class ManagementClient {
 					} else {
 						end = true;
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.err.println("ERROR: " + e.getMessage());
 				}
 			}
-			System.out.print(getPrompt());
+			if (!end)
+				System.out.print(getPrompt());
 		}
 	}
 
@@ -236,7 +237,7 @@ public class ManagementClient {
 			if (bill == null)
 				return "No bill for user " + userName;
 
-			final int PADDING_SIZE = 20;
+			final int PADDING_SIZE = 15;
 			final String format = "%-" + PADDING_SIZE;
 
 			StringBuilder builder = new StringBuilder();
@@ -251,14 +252,14 @@ public class ManagementClient {
 					.hasNext();) {
 				Bill.Auction a = iterator.next();
 
-				builder.append(String.format(format + "ld", a.getAuctionId()));
-				builder.append(String.format(format + "f", a.getPrice()));
-				builder.append(String.format(format + "f",
+				builder.append(String.format(format + "d", a.getAuctionId()));
+				builder.append(String.format(format + ".2f", a.getPrice()));
+				builder.append(String.format(format + ".2f",
 						a.getCalculatedFixedFee()));
-				builder.append(String.format(format + "f",
+				builder.append(String.format(format + ".2f",
 						a.getCalculatedVariableFee()));
 				builder.append(String.format(
-						format + "f",
+						format + ".2f",
 						a.getCalculatedFixedFee()
 								+ a.getCalculatedVariableFee()));
 
@@ -268,13 +269,13 @@ public class ManagementClient {
 			return builder.toString();
 
 		} else if (tmp.equalsIgnoreCase("!logout")) {
+			String userName = ManagementClient.userName;
+			ManagementClient.userName = null;
 			try {
 				mcs.logout();
 			} catch (LoggedOutException e) {
 				return "ERROR: You have to log in first!";
 			}
-			String userName = ManagementClient.userName;
-			ManagementClient.userName = null;
 
 			return "Successfully logged out as " + userName + "!";
 
@@ -357,7 +358,7 @@ public class ManagementClient {
 		if (mcs != null) {
 			try {
 				mcs.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.err.println("Something went wrong while closing:");
 				e.printStackTrace();
 			}

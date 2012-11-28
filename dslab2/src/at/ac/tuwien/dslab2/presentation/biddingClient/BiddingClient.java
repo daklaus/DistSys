@@ -109,7 +109,7 @@ public class BiddingClient {
 					}
 
 					System.out.print(getPrompt());
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.err.println("Error while submitting command:");
 					e.printStackTrace();
 				}
@@ -121,7 +121,7 @@ public class BiddingClient {
 		if (acs != null) {
 			try {
 				acs.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.err.println("Something went wrong while closing:");
 				e.printStackTrace();
 			}
