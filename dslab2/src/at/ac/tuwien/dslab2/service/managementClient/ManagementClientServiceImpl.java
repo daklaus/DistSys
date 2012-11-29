@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
@@ -14,6 +15,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import at.ac.tuwien.dslab2.domain.Bill;
@@ -38,8 +40,9 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	private BillingServerSecure bss;
 	private volatile boolean auto;
 	private final NavigableSet<Event> events;
+	private final Object latestEventLockObj;
 	private volatile Event latestPrintedEvent;
-	private SubscriptionListener listener;
+	private volatile SubscriptionListener listener;
 	private final MgmtClientCallback callback;
 	private final List<Long> subscriptionIds;
 
@@ -51,6 +54,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 			throw new IllegalArgumentException("billingServerRef is null");
 
 		auto = false;
+		latestEventLockObj = new Object();
 		latestPrintedEvent = null;
 		events = new ConcurrentSkipListSet<Event>();
 		subscriptionIds = new ArrayList<Long>();
@@ -149,13 +153,23 @@ class ManagementClientServiceImpl implements ManagementClientService {
 			throw new IllegalArgumentException("regex is null");
 
 		long id = this.as.subscribe(regex, callback);
-		this.subscriptionIds.add(id);
+		synchronized (this.subscriptionIds) {
+			this.subscriptionIds.add(id);
+		}
 		return id;
 	}
 
 	@Override
 	public void unsubscribe(long id) throws RemoteException {
-		this.as.unsubscribe(id);
+		synchronized (this.subscriptionIds) {
+			if (!this.subscriptionIds.contains(id))
+				throw new IllegalStateException(
+						"You didn't subscribe for a subscription with ID " + id);
+
+			this.as.unsubscribe(id);
+
+			this.subscriptionIds.remove(id);
+		}
 	}
 
 	@Override
@@ -166,15 +180,18 @@ class ManagementClientServiceImpl implements ManagementClientService {
 	@Override
 	public Set<Event> print() {
 		SortedSet<Event> returnSet;
-		if (latestPrintedEvent != null) {
-			returnSet = events.tailSet(latestPrintedEvent, false);
-		} else {
-			returnSet = events;
-		}
-		if (returnSet.isEmpty())
-			return null;
+		synchronized (this.latestEventLockObj) {
+			if (latestPrintedEvent != null) {
+				returnSet = new TreeSet<Event>(events.tailSet(
+						latestPrintedEvent, false));
+			} else {
+				returnSet = new TreeSet<Event>(events);
+			}
+			if (returnSet.isEmpty())
+				return null;
 
-		latestPrintedEvent = returnSet.last();
+			latestPrintedEvent = returnSet.last();
+		}
 		return returnSet;
 	}
 
@@ -183,7 +200,9 @@ class ManagementClientServiceImpl implements ManagementClientService {
 		this.auto = true;
 
 		try {
-			latestPrintedEvent = events.last();
+			synchronized (this.latestEventLockObj) {
+				latestPrintedEvent = events.last();
+			}
 		} catch (NoSuchElementException e) {
 			// Ignore if the event list is empty
 		}
@@ -196,8 +215,13 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 	@Override
 	public void close() throws IOException {
-		for (Long id : subscriptionIds) {
-			unsubscribe(id);
+		synchronized (this.subscriptionIds) {
+			for (Iterator<Long> iterator = this.subscriptionIds.iterator(); iterator
+					.hasNext();) {
+				Long id = iterator.next();
+				this.as.unsubscribe(id);
+				iterator.remove();
+			}
 		}
 
 		UnicastRemoteObject.unexportObject(callback, false);

@@ -275,7 +275,9 @@ class AnalyticsServerImpl implements AnalyticsServer {
 
 	@Override
 	public void unsubscribe(long id) throws RemoteException {
-		subscriptions.remove(id);
+		if (this.subscriptions.remove(id) == null)
+			throw new IllegalArgumentException("Subscription with ID " + id
+					+ " doesn't exist");
 	}
 
 	@Override

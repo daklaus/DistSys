@@ -4,7 +4,6 @@
 package at.ac.tuwien.dslab2.domain;
 
 import java.io.Serializable;
-import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -20,12 +19,8 @@ public abstract class Event implements Comparable<Event>, Serializable {
 	protected final long timestamp;
 
 	public Event(EventType type) {
-		SecureRandom secureRandom = new SecureRandom();
-		byte[] bArray = new byte[64]; // 512 bit
-		secureRandom.nextBytes(bArray);
-
 		this.timestamp = System.currentTimeMillis();
-		this.id = UUID.nameUUIDFromBytes(bArray);
+		this.id = UUID.randomUUID();
 		this.type = type;
 	}
 
@@ -46,6 +41,10 @@ public abstract class Event implements Comparable<Event>, Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+		result = prime * result
+				+ (int) (this.timestamp ^ (this.timestamp >>> 32));
+		result = prime * result
+				+ ((this.type == null) ? 0 : this.type.hashCode());
 		return result;
 	}
 
@@ -63,6 +62,10 @@ public abstract class Event implements Comparable<Event>, Serializable {
 				return false;
 		} else if (!this.id.equals(other.id))
 			return false;
+		if (this.timestamp != other.timestamp)
+			return false;
+		if (this.type != other.type)
+			return false;
 		return true;
 	}
 
@@ -79,7 +82,15 @@ public abstract class Event implements Comparable<Event>, Serializable {
 	public int compareTo(Event o) {
 		// The newer one is the "greater" one
 		Long timestamp = new Long(this.timestamp);
-		return timestamp.compareTo(o.timestamp);
+		int first = timestamp.compareTo(o.timestamp);
+		if (first != 0)
+			return first;
+
+		int second = this.type.compareTo(o.type);
+		if (second != 0)
+			return second;
+
+		return this.id.compareTo(o.id);
 	}
 
 }
