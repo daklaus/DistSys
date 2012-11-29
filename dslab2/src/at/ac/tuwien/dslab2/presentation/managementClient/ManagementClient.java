@@ -11,7 +11,6 @@ import java.util.Set;
 
 import at.ac.tuwien.dslab2.domain.Bill;
 import at.ac.tuwien.dslab2.domain.Event;
-import at.ac.tuwien.dslab2.domain.PriceStep;
 import at.ac.tuwien.dslab2.domain.PriceSteps;
 import at.ac.tuwien.dslab2.service.managementClient.AlreadyLoggedInException;
 import at.ac.tuwien.dslab2.service.managementClient.LoggedOutException;

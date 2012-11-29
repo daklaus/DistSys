@@ -4,6 +4,7 @@
 package at.ac.tuwien.dslab2.domain;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -19,9 +20,12 @@ public abstract class Event implements Comparable<Event>, Serializable {
 	protected final long timestamp;
 
 	public Event(EventType type) {
+		SecureRandom secureRandom = new SecureRandom();
+		byte[] bArray = new byte[64]; // 512 bit
+		secureRandom.nextBytes(bArray);
 
-		this.timestamp = new Date().getTime();
-		this.id = UUID.randomUUID();
+		this.timestamp = System.currentTimeMillis();
+		this.id = UUID.nameUUIDFromBytes(bArray);
 		this.type = type;
 	}
 
