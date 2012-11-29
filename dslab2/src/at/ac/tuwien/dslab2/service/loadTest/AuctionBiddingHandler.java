@@ -59,7 +59,8 @@ public class AuctionBiddingHandler extends TimerTask {
 
 
 
-        } catch (Exception e) {
+        } catch (InterruptedException ignored) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
