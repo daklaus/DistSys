@@ -12,11 +12,13 @@ public class AuctionCreationHandler extends TimerTask {
     private final BiddingClientService biddingClientService;
     private final int duration;
     private Thread timerThread;
+    private final TimerNotifications timerNotifications;
 
-    public AuctionCreationHandler(BiddingClientService biddingClientService, BlockingQueue<String> queue, int duration) {
+    public AuctionCreationHandler(BiddingClientService biddingClientService, BlockingQueue<String> queue, int duration, TimerNotifications timerNotifications) {
         this.queue = queue;
         this.biddingClientService = biddingClientService;
         this.duration = duration;
+        this.timerNotifications = timerNotifications;
     }
     @Override
     public void run() {
@@ -24,12 +26,10 @@ public class AuctionCreationHandler extends TimerTask {
             this.timerThread = Thread.currentThread();
             biddingClientService.submitCommand("!create " + duration + " description");
             String response = queue.take();
-            //System.out.println(this.timerThread.getName() + ": !create");
-            //System.out.println(response);
+            timerNotifications.newCreation(response);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
-
         }
     }
 

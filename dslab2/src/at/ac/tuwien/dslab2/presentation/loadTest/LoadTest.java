@@ -1,12 +1,12 @@
 package at.ac.tuwien.dslab2.presentation.loadTest;
 
+import at.ac.tuwien.dslab2.service.loadTest.LoadTestService;
+import at.ac.tuwien.dslab2.service.loadTest.LoadTestServiceFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
-
-import at.ac.tuwien.dslab2.service.loadTest.LoadTestService;
-import at.ac.tuwien.dslab2.service.loadTest.LoadTestServiceFactory;
 
 public class LoadTest {
 
@@ -41,8 +41,9 @@ public class LoadTest {
 		String billingBindingName = args[3];
 
 		try {
-			loadTestService = LoadTestServiceFactory.newLoadTest(serverPort,
-					billingBindingName, analyticsBindingName, serverHost);
+            NotificationListenerImpl listener = new NotificationListenerImpl();
+            loadTestService = LoadTestServiceFactory.newLoadTest(serverPort,
+					billingBindingName, analyticsBindingName, serverHost, listener, listener);
 			loadTestService.start();
 		} catch (IOException e) {
 			System.err.println("Error while connecting:");

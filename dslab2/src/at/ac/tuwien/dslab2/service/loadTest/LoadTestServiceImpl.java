@@ -1,6 +1,5 @@
 package at.ac.tuwien.dslab2.service.loadTest;
 
-import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.presentation.auctionServer.ServerExceptionHandlerImpl;
 import at.ac.tuwien.dslab2.service.PropertiesService;
 import at.ac.tuwien.dslab2.service.PropertiesServiceFactory;
@@ -43,12 +42,17 @@ class LoadTestServiceImpl implements LoadTestService {
     private final BlockingQueue<String> auctionCreateQueue;
     private final BlockingQueue<String> auctionBiddingQueue;
     private final LinkedList<TimerTask> openTimerTasks;
+    private final SubscriptionListener subscriptionListener;
+    private final TimerNotifications timerNotifications;
+    private final Random random;
 
-    public LoadTestServiceImpl(int auctionServerTcpPort, String billingServerBindingName, String analyticsServerBindingName, String auctionServerHostName) throws IOException {
+    public LoadTestServiceImpl(int auctionServerTcpPort, String billingServerBindingName, String analyticsServerBindingName, String auctionServerHostName, SubscriptionListener subscriptionListener, TimerNotifications timerNotifications) throws IOException {
         this.auctionServerTcpPort = auctionServerTcpPort;
         this.billingServerBindingName = billingServerBindingName;
         this.analyticsServerBindingName = analyticsServerBindingName;
         this.auctionServerHostName = auctionServerHostName;
+        this.subscriptionListener = subscriptionListener;
+        this.timerNotifications = timerNotifications;
         this.biddingTimer = new Timer("BiddingTimer");
         this.auctionCreationTimer = new Timer("AuctionCreationTimer");
         this.auctionListingTimer = new Timer("AuctionListingTimer");
@@ -57,6 +61,7 @@ class LoadTestServiceImpl implements LoadTestService {
         this.auctionBiddingQueue = new SynchronousQueue<String>();
         this.biddingClientServices = new LinkedList<BiddingClientService>();
         this.openTimerTasks = new LinkedList<TimerTask>();
+        this.random = new Random();
         initialize();
     }
 
@@ -102,7 +107,6 @@ class LoadTestServiceImpl implements LoadTestService {
         try {
             startBillingServer();
             startAnalyticsServer();
-            Thread.sleep(3000);
             startAuctionServer();
             startManagementClient();
             startBiddingClients();
@@ -135,9 +139,9 @@ class LoadTestServiceImpl implements LoadTestService {
 
     private void startTimerTasks() throws IOException {
         for (BiddingClientService biddingClientService : this.biddingClientServices) {
-            AuctionBiddingHandler auctionBiddingHandler = new AuctionBiddingHandler(biddingClientService, auctionListQueue, auctionBiddingQueue);
-            AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, auctionCreateQueue, auctionDuration);
-            AuctionListingHandler auctionListingHandler = new AuctionListingHandler(biddingClientService, auctionListQueue);
+            AuctionBiddingHandler auctionBiddingHandler = new AuctionBiddingHandler(biddingClientService, auctionListQueue, auctionBiddingQueue, this.timerNotifications, this.random);
+            AuctionCreationHandler auctionCreationHandler = new AuctionCreationHandler(biddingClientService, auctionCreateQueue, auctionDuration, this.timerNotifications);
+            AuctionListingHandler auctionListingHandler = new AuctionListingHandler(biddingClientService, auctionListQueue, this.timerNotifications);
 
             this.openTimerTasks.add(auctionBiddingHandler);
             this.openTimerTasks.add(auctionCreationHandler);
@@ -155,12 +159,7 @@ class LoadTestServiceImpl implements LoadTestService {
 
     private void startManagementClient() throws IOException {
         managementClientService = ManagementClientServiceFactory.newManagementClientService(analyticsServerBindingName, billingServerBindingName);
-        managementClientService.setSubscriptionListener(new SubscriptionListener() {
-            @Override
-            public void autoPrintEvent(Set<Event> events) {
-                System.out.println(events.toString());
-            }
-        });
+        managementClientService.setSubscriptionListener(this.subscriptionListener);
         managementClientService.auto();
         managementClientService.subscribe(".*");
         try {

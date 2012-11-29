@@ -11,10 +11,12 @@ public class AuctionListingHandler extends TimerTask {
     private final BiddingClientService biddingClientService;
     private final BlockingQueue<String> queue;
     private Thread timerThread;
+    private final TimerNotifications timerNotifications;
 
-    public AuctionListingHandler(BiddingClientService biddingClientService, BlockingQueue<String> queue) {
+    public AuctionListingHandler(BiddingClientService biddingClientService, BlockingQueue<String> queue, TimerNotifications timerNotifications) {
         this.biddingClientService = biddingClientService;
         this.queue = queue;
+        this.timerNotifications = timerNotifications;
     }
 
     @Override
@@ -23,8 +25,7 @@ public class AuctionListingHandler extends TimerTask {
             this.timerThread = Thread.currentThread();
             biddingClientService.submitCommand("!list");
             String response = queue.take();
-            //System.out.println(Thread.currentThread().getName() + ": !list");
-            //System.out.println(response);
+            timerNotifications.newListing(response);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
