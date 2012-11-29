@@ -192,6 +192,7 @@ class ManagementClientServiceImpl implements ManagementClientService {
 
 			latestPrintedEvent = returnSet.last();
 		}
+		removeOldEvents();
 		return returnSet;
 	}
 
@@ -203,8 +204,28 @@ class ManagementClientServiceImpl implements ManagementClientService {
 			synchronized (this.latestEventLockObj) {
 				latestPrintedEvent = events.last();
 			}
+			removeOldEvents();
 		} catch (NoSuchElementException e) {
 			// Ignore if the event list is empty
+		}
+	}
+
+	private void removeOldEvents() {
+		long time;
+		synchronized (latestEventLockObj) {
+			if (this.latestPrintedEvent == null)
+				return;
+			time = this.latestPrintedEvent.getTimestamp() - 60000; // 60s
+																	// before
+																	// latest
+																	// printed
+																	// event
+		}
+		for (Iterator<Event> iterator = this.events.iterator(); iterator
+				.hasNext();) {
+			Event event = iterator.next();
+			if (event.getTimestamp() < time)
+				iterator.remove();
 		}
 	}
 
@@ -219,7 +240,11 @@ class ManagementClientServiceImpl implements ManagementClientService {
 			for (Iterator<Long> iterator = this.subscriptionIds.iterator(); iterator
 					.hasNext();) {
 				Long id = iterator.next();
-				this.as.unsubscribe(id);
+				try {
+					this.as.unsubscribe(id);
+				} catch (IOException e) {
+					// If the server isn't available, we don't care
+				}
 				iterator.remove();
 			}
 		}
