@@ -33,10 +33,7 @@ class LoadTestServiceImpl implements LoadTestService {
     private ManagementClientService managementClientService;
     private AuctionServerService auctionServerService;
     private BillingServer billingServer;
-    private final Timer biddingTimer;
-    private final Timer auctionCreationTimer;
     private List<BiddingClientService> biddingClientServices;
-    private final Timer auctionListingTimer;
     private AnalyticsServer analyticsServer;
     private final BlockingQueue<String> auctionListQueue;
     private final BlockingQueue<String> auctionCreateQueue;
@@ -45,6 +42,7 @@ class LoadTestServiceImpl implements LoadTestService {
     private final SubscriptionListener subscriptionListener;
     private final TimerNotifications timerNotifications;
     private final Random random;
+    private final LinkedList<Timer> timers;
 
     public LoadTestServiceImpl(int auctionServerTcpPort, String billingServerBindingName, String analyticsServerBindingName, String auctionServerHostName, SubscriptionListener subscriptionListener, TimerNotifications timerNotifications) throws IOException {
         this.auctionServerTcpPort = auctionServerTcpPort;
@@ -53,14 +51,13 @@ class LoadTestServiceImpl implements LoadTestService {
         this.auctionServerHostName = auctionServerHostName;
         this.subscriptionListener = subscriptionListener;
         this.timerNotifications = timerNotifications;
-        this.biddingTimer = new Timer("BiddingTimer");
-        this.auctionCreationTimer = new Timer("AuctionCreationTimer");
-        this.auctionListingTimer = new Timer("AuctionListingTimer");
+        this.timers = new LinkedList<Timer>();
         this.auctionListQueue = new SynchronousQueue<String>();
         this.auctionCreateQueue = new SynchronousQueue<String>();
         this.auctionBiddingQueue = new SynchronousQueue<String>();
         this.biddingClientServices = new LinkedList<BiddingClientService>();
         this.openTimerTasks = new LinkedList<TimerTask>();
+
         this.random = new Random();
         initialize();
     }
@@ -147,12 +144,19 @@ class LoadTestServiceImpl implements LoadTestService {
             this.openTimerTasks.add(auctionCreationHandler);
             this.openTimerTasks.add(auctionListingHandler);
 
+            Timer biddingTimer = new Timer("BiddingTimer");
+            this.timers.add(biddingTimer);
+            Timer auctionCreationTimer = new Timer("AuctionCreationTimer");
+            this.timers.add(auctionCreationTimer);
+            Timer auctionListingTimer = new Timer("AuctionListingTimer");
+            this.timers.add(auctionListingTimer);
+
             long delay = (60 / this.bidsPerMin) * 1000;
-            this.biddingTimer.schedule(auctionBiddingHandler, delay, delay);
+            biddingTimer.schedule(auctionBiddingHandler, delay, delay);
             delay = (60 / this.auctionsPerMin) * 1000;
-            this.auctionCreationTimer.schedule(auctionCreationHandler, delay, delay);
+            auctionCreationTimer.schedule(auctionCreationHandler, delay, delay);
             delay = this.updateInterval * 1000;
-            this.auctionListingTimer.schedule(auctionListingHandler, delay, delay);
+            auctionListingTimer.schedule(auctionListingHandler, delay, delay);
 
         }
     }
@@ -195,10 +199,9 @@ class LoadTestServiceImpl implements LoadTestService {
         for (TimerTask task : this.openTimerTasks) {
             task.cancel();
         }
-
-        this.auctionCreationTimer.cancel();
-        this.biddingTimer.cancel();
-        this.auctionListingTimer.cancel();
+        for (Timer timer : this.timers) {
+            timer.cancel();
+        }
         if (this.managementClientService != null) {
             this.managementClientService.close();
         }
