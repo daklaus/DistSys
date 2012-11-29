@@ -11,9 +11,9 @@ public class StatisticsEvent extends Event {
 	private static final long serialVersionUID = 1L;
 	private final double value;
 
-	public StatisticsEvent(EventType type, double auctionId) {
+	public StatisticsEvent(EventType type, double value) {
 		super(type);
-		this.value = auctionId;
+		this.value = value;
 	}
 
 	public double getValue() {
