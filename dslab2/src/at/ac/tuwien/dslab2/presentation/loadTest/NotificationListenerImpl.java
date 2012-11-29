@@ -24,7 +24,7 @@ public class NotificationListenerImpl implements SubscriptionListener, TimerNoti
         this.numCreationEvents = new AtomicLong();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format(format + "s", "Auction Count"));
+        builder.append(String.format(format + "s", "AuctionEvent Count"));
         builder.append(String.format(format + "s", "AuctionBid Count"));
         builder.append(String.format(format + "s", "AuctionCreation Count"));
         builder.append(String.format(format + "s", "AuctionListing Count: "));
@@ -58,7 +58,7 @@ public class NotificationListenerImpl implements SubscriptionListener, TimerNoti
 
     private void output() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("Auction Count: " + format + "d", this.numAllAuctionEvents.get()));
+        builder.append(String.format("AuctionEvent Count: " + format + "d", this.numAllAuctionEvents.get()));
         builder.append(String.format("AuctionBid Count: " + format + "d", this.numBidEvents.get()));
         builder.append(String.format("AuctionCreation Count: " + format + "d", this.numCreationEvents.get()));
         builder.append(String.format("AuctionListing Count: " + format + "d", this.numListingEvents.get()));
