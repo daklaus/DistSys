@@ -77,7 +77,7 @@ class AuctionServiceImpl implements AuctionService {
 		try {
 			rcs = RMIServiceFactory.newRMIClientService(host, port);
 			bs = (BillingServer) rcs.lookup(billingServerRef);
-			as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
+			 as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
 
 			// Log into the billing server
 			if (bs != null)
