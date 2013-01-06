@@ -11,14 +11,14 @@ import java.security.NoSuchAlgorithmException;
 public interface KeyService {
 
     /**
-     * This method creates a key for the specified user.
+     * This method creates a key for the specified username.
      * It uses one key in the keys directory
      * specified by the username (<keysDir>/<username>.key)
-     * @param user
+     * @param username
      * @return the secret key
      * @throws IOException
      */
-    public SecretKey createKeyFor(User user) throws IOException;
+    public SecretKey createKeyFor(String username) throws IOException;
 
     /**
      * Creates a new HashMAC for the provided data using specified Key.
