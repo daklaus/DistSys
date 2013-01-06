@@ -27,6 +27,7 @@ class KeyServiceImpl implements KeyService {
 
     @Override
     public SecretKey createKeyFor(String username) throws IOException {
+        //TODO: Better Handling when KeyFile not found!
         File file = new File(this.keyDirectory.getPath() + "/" + username + ".key");
         byte[] bytesDecoded = Hex.decode(readBytes(file));
         return new SecretKeySpec(bytesDecoded, "HmacSHA256");
