@@ -37,7 +37,7 @@ public class AuctionServer {
 	private static void initialize(String[] args) {
 		Scanner sc;
 
-		if (args.length != 3)
+		if (args.length != 5)
 			usage();
 
 		sc = new Scanner(args[0]);
@@ -46,8 +46,10 @@ public class AuctionServer {
 		int tcpPort = sc.nextInt();
 		String analyticsServerRef = args[1];
 		String billingServerRef = args[2];
+        String serverPrivateKeyFile = args[3];
+        String clientsKeysDirectory = args[4];
 
-		ass = AuctionServerServiceFactory.getAuctionServerService();
+        ass = AuctionServerServiceFactory.getAuctionServerService();
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {
@@ -62,14 +64,15 @@ public class AuctionServer {
 		System.err
 				.println("usage: java AuctionServer tcpPort analyticsServerName "
 						+ "billingServerName\n\n"
-						+ "\thost: host name or IP of the auction server\n"
 						+ "\ttcpPort: TCP connection port on which the "
 						+ "auction server will receive incoming messages "
 						+ "(commands) from clients.\n"
 						+ "\tanalyticsServerName: the binding name of the "
 						+ "analytics server in the RMI registry"
 						+ "\tbillingServerName: the binding name of the "
-						+ "billing server in the RMI registry\n");
+						+ "billing server in the RMI registry\n"
+                        + "\tlocation of private key file\n"
+                        + "\tdirectory of private/public keys of bidding clients");
 
 		close();
 		System.exit(0);
