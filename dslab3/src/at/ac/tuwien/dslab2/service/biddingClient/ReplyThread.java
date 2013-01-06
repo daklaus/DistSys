@@ -44,13 +44,12 @@ class ReplyThread extends Thread {
 		try {
 			try {
 				while (!stop) {
-					reply = ns.receive();
+					reply = ns.receive().trim();
 
 					if (listener != null){
                         String userName = bcs.getUserName();
                         //if it's a list command
-                        if (Pattern.compile("\\d+\\..*", Pattern.DOTALL).matcher(reply).matches()
-                            && userName != null) {
+                        if (userName != null && isListResponse(reply)) {
                             if (!hasCorrectMAC(reply, userName)) {
                                 listener.displayReply(
                                         "The provided Message Authentication Code is incorrect!\n"
@@ -59,7 +58,7 @@ class ReplyThread extends Thread {
                                 reply = ns.receive();
                                 if (!hasCorrectMAC(reply, userName)) {
                                     listener.displayReply(
-                                        "The provided Message Authentication Code is incorrect again!"
+                                        "The provided Message Authentication Code is incorrect again!\n"
                                       + "No further retransmission");
                                     continue;
                                 }
@@ -88,6 +87,11 @@ class ReplyThread extends Thread {
 			}
 		}
 	}
+
+    private boolean isListResponse(String reply) {
+        return Pattern.compile("\\d+\\..*", Pattern.DOTALL).matcher(reply).matches()
+        || reply.startsWith("There are currently no auctions running!");
+    }
 
     private boolean hasCorrectMAC(String message, String userName) {
         try {
