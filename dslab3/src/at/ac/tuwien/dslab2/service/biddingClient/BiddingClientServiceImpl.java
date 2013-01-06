@@ -6,7 +6,7 @@ package at.ac.tuwien.dslab2.service.biddingClient;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import at.ac.tuwien.dslab2.service.KeyService;
+import at.ac.tuwien.dslab2.service.security.KeyService;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 

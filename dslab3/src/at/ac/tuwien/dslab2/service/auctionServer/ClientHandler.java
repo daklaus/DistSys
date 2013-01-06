@@ -1,23 +1,17 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
+import at.ac.tuwien.dslab2.domain.*;
+import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
+import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import at.ac.tuwien.dslab2.service.security.KeyService;
+import org.bouncycastle.util.encoders.Base64;
+
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
 import java.security.GeneralSecurityException;
 import java.util.Scanner;
-
-import at.ac.tuwien.dslab2.domain.Auction;
-import at.ac.tuwien.dslab2.domain.Bid;
-import at.ac.tuwien.dslab2.domain.Client;
-import at.ac.tuwien.dslab2.domain.EventType;
-import at.ac.tuwien.dslab2.domain.User;
-import at.ac.tuwien.dslab2.domain.UserEvent;
-import at.ac.tuwien.dslab2.service.KeyService;
-import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
-import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
-import org.bouncycastle.util.encoders.Base64;
-
-import javax.crypto.SecretKey;
 
 class ClientHandler implements Runnable {
     private volatile boolean stop;

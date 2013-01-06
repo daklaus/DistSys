@@ -9,8 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import at.ac.tuwien.dslab2.service.KeyService;
-import at.ac.tuwien.dslab2.service.KeyServiceFactory;
+import at.ac.tuwien.dslab2.service.security.KeyService;
+import at.ac.tuwien.dslab2.service.security.KeyServiceFactory;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
 

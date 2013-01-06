@@ -6,8 +6,8 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 import java.io.IOException;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.KeyService;
-import at.ac.tuwien.dslab2.service.KeyServiceFactory;
+import at.ac.tuwien.dslab2.service.security.KeyService;
+import at.ac.tuwien.dslab2.service.security.KeyServiceFactory;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 

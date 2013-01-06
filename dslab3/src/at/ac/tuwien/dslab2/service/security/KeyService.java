@@ -1,4 +1,4 @@
-package at.ac.tuwien.dslab2.service;
+package at.ac.tuwien.dslab2.service.security;
 
 import at.ac.tuwien.dslab2.domain.User;
 

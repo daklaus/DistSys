@@ -1,6 +1,6 @@
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import at.ac.tuwien.dslab2.service.KeyService;
+import at.ac.tuwien.dslab2.service.security.KeyService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 import org.bouncycastle.util.encoders.Base64;
 
