@@ -36,7 +36,7 @@ public class BiddingClient {
 	private static void initialize(String[] args) {
 		Scanner sc;
 
-		if (args.length != 3)
+		if (args.length != 5)
 			usage();
 
 		String host = args[0];
@@ -50,6 +50,9 @@ public class BiddingClient {
 		if (!sc.hasNextInt())
 			usage();
 		udpPort = sc.nextInt();
+
+        String serverPublicKeyFile = args[3];
+        String clientsKeysDirectory = args[4];
 
 		acs = BiddingClientServiceFactory.newBiddingClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
@@ -74,7 +77,9 @@ public class BiddingClient {
 				+ "\ttcpPort: TCP connection port on which the auction "
 				+ "server is listening for incoming connections\n"
 				+ "\tudpPort: this port will be used for handling UDP "
-				+ "notifications from the auction server");
+				+ "notifications from the auction server"
+                + "\tlocation of public key file for the auction server\n"
+                + "\tdirectory of private/public keys");
 
 		close();
 		System.exit(0);
