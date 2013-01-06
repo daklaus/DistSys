@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.SecretKey;
 
@@ -100,7 +101,7 @@ class ReplyThread extends Thread {
                 return false;
             }
             byte[] data = chunks[0].getBytes();
-            byte[] actualMAC = chunks[1].getBytes();
+            byte[] actualMAC = Base64.decode(chunks[1]);
             SecretKey secretKey = ks.createKeyFor(userName);
             byte[] expectedMAC = ks.createHashMAC(secretKey, data);
 

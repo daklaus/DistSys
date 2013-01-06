@@ -15,6 +15,7 @@ import at.ac.tuwien.dslab2.domain.UserEvent;
 import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.SecretKey;
 
@@ -209,7 +210,8 @@ class ClientHandler implements Runnable {
                 String userName = user.getName();
                 SecretKey secretKey = this.ks.createKeyFor(userName);
                 byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
-                builder.append(hashMAC);
+                byte[] encodedMAC = Base64.encode(hashMAC);
+                builder.append(new String(encodedMAC));
 
                 return builder.toString();
             }
