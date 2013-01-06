@@ -3,6 +3,7 @@ package at.ac.tuwien.dslab2.service.auctionServer;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.util.Scanner;
 
 import at.ac.tuwien.dslab2.domain.Auction;
@@ -11,18 +12,22 @@ import at.ac.tuwien.dslab2.domain.Client;
 import at.ac.tuwien.dslab2.domain.EventType;
 import at.ac.tuwien.dslab2.domain.User;
 import at.ac.tuwien.dslab2.domain.UserEvent;
+import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 
+import javax.crypto.SecretKey;
+
 class ClientHandler implements Runnable {
-	private volatile boolean stop;
-	private final TCPClientNetworkService ns;
+    private volatile boolean stop;
+    private final KeyService ks;
+    private final TCPClientNetworkService ns;
 	private final AuctionService as;
 	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
 
-	public ClientHandler(TCPClientNetworkService ns, AuctionService as)
+    public ClientHandler(TCPClientNetworkService ns, AuctionService as, KeyService ks)
 			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
@@ -32,7 +37,8 @@ class ClientHandler implements Runnable {
 
 		this.ns = ns;
 		this.as = as;
-		this.ans = as.getAnalysticsServerRef();
+        this.ks = ks;
+        this.ans = as.getAnalysticsServerRef();
 		user = null;
 	}
 
@@ -67,7 +73,7 @@ class ClientHandler implements Runnable {
 			} finally {
 				close();
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// The if-clause down here is because of what is described in
 			// http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
 			// under "What if a thread doesn't respond to Thread.interrupt?"
@@ -93,7 +99,7 @@ class ClientHandler implements Runnable {
 	 *         be closed
 	 * @throws IOException
 	 */
-	private String executeCommand(String command) throws IOException {
+	private String executeCommand(String command) throws IOException, GeneralSecurityException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
 		if (ns == null)
@@ -192,10 +198,21 @@ class ClientHandler implements Runnable {
 			return "Successfully logged out as " + userName + "!";
 
 		} else if (tmp.equalsIgnoreCase("!list")) {
+            StringBuilder builder = new StringBuilder();
+            String auctions = as.list();
+            builder.append(auctions);
 
-			return as.list();
+            //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
+            builder.append("\u001f");
 
-		} else if (tmp.equalsIgnoreCase("!create")) {
+            String userName = user.getName();
+            SecretKey secretKey = this.ks.createKeyFor(userName);
+            byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
+            builder.append(hashMAC);
+
+            return builder.toString();
+
+        } else if (tmp.equalsIgnoreCase("!create")) {
 			if (user == null)
 				return "You have to log in first!";
 

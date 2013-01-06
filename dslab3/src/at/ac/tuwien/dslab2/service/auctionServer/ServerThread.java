@@ -9,18 +9,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import at.ac.tuwien.dslab2.service.KeyService;
+import at.ac.tuwien.dslab2.service.KeyServiceFactory;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
 
 class ServerThread extends Thread {
-	private volatile boolean stop;
+    private final KeyService ks;
+    private volatile boolean stop;
 	private final TCPServerNetworkService ns;
 	private final AuctionService as;
 	private final List<ClientHandler> clientHandlerList;
 	private ExecutorService pool;
 
-	public ServerThread(int tcpPort, String analyticsServerRef,
-			String billingServerRef) throws IOException {
+    public ServerThread(int tcpPort, String analyticsServerRef,
+                        String billingServerRef, String keyDirectory) throws IOException {
 		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
@@ -28,10 +31,13 @@ class ServerThread extends Thread {
 			throw new IllegalArgumentException("analyticsServerRef is null");
 		if (billingServerRef == null)
 			throw new IllegalArgumentException("billingServerRef is null");
+        if (keyDirectory == null)
+			throw new IllegalArgumentException("key directory is null");
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
 		as = AuctionServerServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
-		clientHandlerList = Collections
+        ks = KeyServiceFactory.getService(keyDirectory);
+        clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}
 
@@ -53,7 +59,7 @@ class ServerThread extends Thread {
 		try {
 			try {
 				while (!stop) {
-					c = new ClientHandler(ns.accept(), as);
+					c = new ClientHandler(ns.accept(), as, ks);
 					clientHandlerList.add(c);
 					pool.execute(c);
 				}

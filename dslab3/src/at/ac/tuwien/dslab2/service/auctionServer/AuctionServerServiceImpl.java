@@ -22,7 +22,7 @@ class AuctionServerServiceImpl implements AuctionServerService {
 
 	@Override
 	public void start(int tcpPort, String analyticsServerRef,
-			String billingServerRef) throws IOException {
+                      String billingServerRef, String keyDirectory) throws IOException {
 		if (serverThread != null && serverThread.isAlive())
 			return;
 		if (tcpPort <= 0)
@@ -32,10 +32,12 @@ class AuctionServerServiceImpl implements AuctionServerService {
 			throw new IllegalArgumentException("analyticsServerRef is null");
 		if (billingServerRef == null)
 			throw new IllegalArgumentException("billingServerRef is null");
+        if (keyDirectory == null)
+			throw new IllegalArgumentException("key directory is null");
 
 		// Start server thread
 		serverThread = new ServerThread(tcpPort, analyticsServerRef,
-				billingServerRef);
+				billingServerRef, keyDirectory);
 		serverThread.setName("AuctionServer thread");
 		serverThread.setUncaughtExceptionHandler(serverExHandler);
 		serverThread.start();

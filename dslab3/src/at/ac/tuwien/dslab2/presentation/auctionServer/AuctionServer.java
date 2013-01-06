@@ -53,7 +53,7 @@ public class AuctionServer {
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {
-			ass.start(tcpPort, analyticsServerRef, billingServerRef);
+			ass.start(tcpPort, analyticsServerRef, billingServerRef, clientsKeysDirectory);
 		} catch (IOException e) {
 			error("Error while connecting:", e);
 		}

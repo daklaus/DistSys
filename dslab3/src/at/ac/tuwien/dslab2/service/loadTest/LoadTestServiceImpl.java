@@ -138,7 +138,7 @@ class LoadTestServiceImpl implements LoadTestService {
 		this.auctionServerService
 				.setExceptionHandler(new ServerExceptionHandlerImpl());
 		this.auctionServerService.start(auctionServerTcpPort,
-				analyticsServerBindingName, billingServerBindingName);
+				analyticsServerBindingName, billingServerBindingName, null);
 
 	}
 
