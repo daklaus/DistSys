@@ -46,7 +46,7 @@ public class AuctionServer {
 		int tcpPort = sc.nextInt();
 		String analyticsServerRef = args[1];
 		String billingServerRef = args[2];
-        String serverPrivateKeyFile = args[3];
+        String serverPrivateKeyFileLocation = args[3];
         String clientsKeysDirectory = args[4];
 
         ass = AuctionServerServiceFactory.getAuctionServerService();

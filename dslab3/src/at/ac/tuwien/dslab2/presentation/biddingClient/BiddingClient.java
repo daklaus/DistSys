@@ -51,7 +51,7 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-        String serverPublicKeyFile = args[3];
+        String serverPublicKeyFileLocation = args[3];
         String clientsKeysDirectory = args[4];
 
 		acs = BiddingClientServiceFactory.newBiddingClientService();
