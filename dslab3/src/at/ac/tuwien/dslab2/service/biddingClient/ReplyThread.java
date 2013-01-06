@@ -2,10 +2,13 @@ package at.ac.tuwien.dslab2.service.biddingClient;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.util.regex.Pattern;
 
 import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+
+import javax.crypto.SecretKey;
 
 class ReplyThread extends Thread {
     private final BiddingClientService bcs;
@@ -87,14 +90,22 @@ class ReplyThread extends Thread {
 	}
 
     private boolean hasCorrectMAC(String message, String userName) {
-        String[] chunks = message.split("\u001f");
-        if (chunks.length != 2) {
-            return false;
+        try {
+            String[] chunks = message.split("\u001f");
+            if (chunks.length != 2) {
+                return false;
+            }
+            byte[] data = chunks[0].getBytes();
+            byte[] actualMAC = chunks[1].getBytes();
+            SecretKey secretKey = ks.createKeyFor(userName);
+            byte[] expectedMAC = ks.createHashMAC(secretKey, data);
+
+            return ks.verifyHashMAC(expectedMAC, actualMAC);
+        } catch (Exception e) {
+            if (listener != null)
+                listener.displayReply(e.getMessage());
         }
-        byte[] hMAC = chunks[1].getBytes();
-
-
-        return true;
+         return false;
     }
 
 	public void close() throws IOException {
