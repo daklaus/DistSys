@@ -6,6 +6,8 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 import java.io.IOException;
 import java.util.Scanner;
 
+import at.ac.tuwien.dslab2.service.KeyService;
+import at.ac.tuwien.dslab2.service.KeyServiceFactory;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 
@@ -54,7 +56,8 @@ public class BiddingClient {
         String serverPublicKeyFileLocation = args[3];
         String clientsKeysDirectory = args[4];
 
-		acs = BiddingClientServiceFactory.newBiddingClientService();
+        KeyService keyService = KeyServiceFactory.getService(clientsKeysDirectory);
+        acs = BiddingClientServiceFactory.newBiddingClientService(keyService);
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());

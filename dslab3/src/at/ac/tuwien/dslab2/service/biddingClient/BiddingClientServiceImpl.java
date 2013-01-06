@@ -6,6 +6,7 @@ package at.ac.tuwien.dslab2.service.biddingClient;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 
@@ -14,7 +15,8 @@ import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-	private TCPClientNetworkService ns;
+    private final KeyService ks;
+    private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
@@ -23,8 +25,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 
-	public BiddingClientServiceImpl() {
-	}
+    public BiddingClientServiceImpl(KeyService ks) {
+        this.ks = ks;
+    }
 
 	@Override
 	public void setNotificationListener(NotificationListener listener,
@@ -102,7 +105,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			throw new IllegalStateException("Service not connected!");
 
 		// Start reply thread
-		replyThread = new ReplyThread(ns, replyListener);
+		replyThread = new ReplyThread(ns, replyListener, this, ks);
 		replyThread.setName("Reply thread");
 		replyThread.setUncaughtExceptionHandler(replyExHandler);
 		replyThread.start();

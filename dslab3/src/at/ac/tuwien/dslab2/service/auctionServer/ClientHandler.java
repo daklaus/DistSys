@@ -93,7 +93,7 @@ class ClientHandler implements Runnable {
 	/**
 	 * Parse command, execute the methods of the AuctionService and return the
 	 * reply
-	 * 
+	 *
 	 * @param command
 	 * @return the reply to send to the client or null if the connection should
 	 *         be closed
@@ -198,19 +198,22 @@ class ClientHandler implements Runnable {
 			return "Successfully logged out as " + userName + "!";
 
 		} else if (tmp.equalsIgnoreCase("!list")) {
-            StringBuilder builder = new StringBuilder();
-            String auctions = as.list();
-            builder.append(auctions);
+            if (user != null && user.isLoggedIn()) {
+                StringBuilder builder = new StringBuilder();
+                String auctions = as.list();
+                builder.append(auctions);
 
-            //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
-            builder.append("\u001f");
+                //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
+                builder.append("\u001f");
 
-            String userName = user.getName();
-            SecretKey secretKey = this.ks.createKeyFor(userName);
-            byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
-            builder.append(hashMAC);
+                String userName = user.getName();
+                SecretKey secretKey = this.ks.createKeyFor(userName);
+                byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
+                builder.append(hashMAC);
 
-            return builder.toString();
+                return builder.toString();
+            }
+            return as.list();
 
         } else if (tmp.equalsIgnoreCase("!create")) {
 			if (user == null)
@@ -296,7 +299,7 @@ class ClientHandler implements Runnable {
 
 	/**
 	 * Start receiving notifications from the server
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void startNotification(User user) throws IOException {

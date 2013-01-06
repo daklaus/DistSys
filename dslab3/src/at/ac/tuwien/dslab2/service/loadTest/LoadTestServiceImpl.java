@@ -150,7 +150,7 @@ class LoadTestServiceImpl implements LoadTestService {
 	private void startBiddingClients() throws IOException {
 		for (int i = 0; i < this.clientCount; i++) {
 			BiddingClientService biddingClientService = BiddingClientServiceFactory
-					.newBiddingClientService();
+					.newBiddingClientService(null);
 			biddingClientService.setReplyListener(new LoadTestReplyListener(
 					auctionListQueue, auctionBiddingQueue, auctionCreateQueue),
 					null);
