@@ -1,15 +1,13 @@
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.security.GeneralSecurityException;
-import java.util.regex.Pattern;
-
 import at.ac.tuwien.dslab2.service.KeyService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.net.SocketException;
+import java.util.regex.Pattern;
 
 class ReplyThread extends Thread {
     private final BiddingClientService bcs;
@@ -64,6 +62,9 @@ class ReplyThread extends Thread {
                                     continue;
                                 }
                             }
+                            String[] chunks = reply.split("\u001f");
+                            assert (chunks.length == 2);
+                            reply = chunks[0];
                         }
                         listener.displayReply(reply);
                     }
