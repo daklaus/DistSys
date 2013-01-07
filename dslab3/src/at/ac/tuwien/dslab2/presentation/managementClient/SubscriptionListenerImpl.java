@@ -3,16 +3,16 @@
  */
 package at.ac.tuwien.dslab2.presentation.managementClient;
 
-import java.util.Set;
-
 import at.ac.tuwien.dslab2.domain.Event;
 import at.ac.tuwien.dslab2.service.managementClient.SubscriptionListener;
+
+import java.util.Set;
 
 /**
  * @author klaus
  * 
  */
-public class SubscriptionListenerImpl implements SubscriptionListener {
+class SubscriptionListenerImpl implements SubscriptionListener {
 
 	@Override
 	public void autoPrintEvent(Set<Event> events) {

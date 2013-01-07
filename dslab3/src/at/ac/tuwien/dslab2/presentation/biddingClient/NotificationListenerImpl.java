@@ -2,7 +2,7 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 
 import at.ac.tuwien.dslab2.service.biddingClient.NotificationListener;
 
-public class NotificationListenerImpl implements NotificationListener {
+class NotificationListenerImpl implements NotificationListener {
 
 	@Override
 	public void newBid(String description) {

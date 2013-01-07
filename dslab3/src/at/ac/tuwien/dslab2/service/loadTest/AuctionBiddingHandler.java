@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Pattern;
 
-public class AuctionBiddingHandler extends TimerTask {
+class AuctionBiddingHandler extends TimerTask {
 
     private final BiddingClientService biddingClientService;
     private final long currentTime;

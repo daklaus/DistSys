@@ -2,7 +2,7 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
-public class ReplyExHandlerImpl implements UncaughtExceptionHandler {
+class ReplyExHandlerImpl implements UncaughtExceptionHandler {
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {

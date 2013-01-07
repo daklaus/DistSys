@@ -5,7 +5,7 @@ import at.ac.tuwien.dslab2.service.biddingClient.ReplyListener;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Pattern;
 
-public class LoadTestReplyListener implements ReplyListener {
+class LoadTestReplyListener implements ReplyListener {
 
     private final BlockingQueue<String> auctionListQueue;
     private final BlockingQueue<String> auctionBiddingQueue;

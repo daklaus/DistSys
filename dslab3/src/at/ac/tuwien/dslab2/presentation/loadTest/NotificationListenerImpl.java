@@ -7,7 +7,7 @@ import at.ac.tuwien.dslab2.service.managementClient.SubscriptionListener;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class NotificationListenerImpl implements SubscriptionListener, TimerNotifications {
+class NotificationListenerImpl implements SubscriptionListener, TimerNotifications {
 
     private final AtomicLong numAllAuctionEvents;
     private final AtomicLong numBidEvents;

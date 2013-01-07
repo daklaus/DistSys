@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
-public class AuctionListingHandler extends TimerTask {
+class AuctionListingHandler extends TimerTask {
 
     private final BiddingClientService biddingClientService;
     private final BlockingQueue<String> queue;
