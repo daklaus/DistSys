@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
+class TCPServerNetworkServiceImpl implements TCPServerNetworkService {
 	private final ServerSocket socket;
 
 	/**

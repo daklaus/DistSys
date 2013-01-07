@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServerNetworkServiceImpl implements UDPServerNetworkService {
+class UDPServerNetworkServiceImpl implements UDPServerNetworkService {
 	private final DatagramSocket socket;
 
 	/**

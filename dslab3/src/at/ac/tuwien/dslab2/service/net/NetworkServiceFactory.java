@@ -3,8 +3,19 @@ package at.ac.tuwien.dslab2.service.net;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 public abstract class NetworkServiceFactory {
+
+    public static TCPClientNetworkService newBase64TCPClientNetworkService(
+            TCPClientNetworkService tcpClientNetworkService, Charset charset) {
+        return new Base64TCPClientDecorator(tcpClientNetworkService, charset);
+    }
+
+    public static TCPServerNetworkService newBase64TCPServerNetworkService(
+            TCPServerNetworkService tcpServerNetworkService, Charset charset) {
+        return new Base64TCPServerDecorator(tcpServerNetworkService, charset);
+    }
 
 	public static TCPClientNetworkService newTCPClientNetworkService(
 			Socket socket) throws IOException {

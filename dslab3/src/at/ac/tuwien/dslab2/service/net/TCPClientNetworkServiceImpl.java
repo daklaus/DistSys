@@ -10,7 +10,7 @@ import java.net.SocketException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
+class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	private final Socket socket;
 	private final Scanner in;
 	private final PrintWriter out;

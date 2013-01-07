@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
+class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 	private final InetAddress server;
 	private final DatagramSocket socket;
 	private final int port;
