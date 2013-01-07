@@ -18,6 +18,7 @@ class SubscriptionListenerImpl implements SubscriptionListener {
 	public void autoPrintEvent(Set<Event> events) {
 		System.out.println();
 		System.out.print(ManagementClient.printEvents(events));
+		System.out.flush();
 	}
 
 }

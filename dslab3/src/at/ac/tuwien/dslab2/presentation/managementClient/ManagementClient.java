@@ -78,6 +78,7 @@ public class ManagementClient {
 		boolean end;
 
 		System.out.print(getPrompt());
+		System.out.flush();
 		end = false;
 		while (!end && sc.hasNextLine()) {
 
@@ -96,8 +97,10 @@ public class ManagementClient {
 					System.err.println("ERROR: " + e.getMessage());
 				}
 			}
-			if (!end)
+			if (!end) {
 				System.out.print(getPrompt());
+				System.out.flush();
+			}
 		}
 	}
 

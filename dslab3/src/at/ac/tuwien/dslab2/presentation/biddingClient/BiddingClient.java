@@ -53,11 +53,12 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-        String serverPublicKeyFileLocation = args[3];
-        String clientsKeysDirectory = args[4];
+		String serverPublicKeyFileLocation = args[3];
+		String clientsKeysDirectory = args[4];
 
-        KeyService keyService = KeyServiceFactory.getService(clientsKeysDirectory);
-        acs = BiddingClientServiceFactory.newBiddingClientService(keyService);
+		KeyService keyService = KeyServiceFactory
+				.getService(clientsKeysDirectory);
+		acs = BiddingClientServiceFactory.newBiddingClientService(keyService);
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
@@ -81,8 +82,8 @@ public class BiddingClient {
 				+ "server is listening for incoming connections\n"
 				+ "\tudpPort: this port will be used for handling UDP "
 				+ "notifications from the auction server"
-                + "\tlocation of public key file for the auction server\n"
-                + "\tdirectory of private/public keys");
+				+ "\tlocation of public key file for the auction server\n"
+				+ "\tdirectory of private/public keys");
 
 		close();
 		System.exit(0);
@@ -98,6 +99,7 @@ public class BiddingClient {
 		boolean end;
 
 		System.out.print(getPrompt());
+		System.out.flush();
 		end = false;
 		while (!end && sc.hasNextLine()) {
 
@@ -121,6 +123,7 @@ public class BiddingClient {
 					}
 
 					System.out.print(getPrompt());
+					System.out.flush();
 				} catch (Exception e) {
 					System.err.println("Error while submitting command:");
 					e.printStackTrace();

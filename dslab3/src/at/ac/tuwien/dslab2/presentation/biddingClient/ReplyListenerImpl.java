@@ -8,6 +8,7 @@ class ReplyListenerImpl implements ReplyListener {
 	public void displayReply(String reply) {
 		System.out.println("\n" + reply);
 		System.out.print(BiddingClient.getPrompt());
+		System.out.flush();
 	}
 
 }

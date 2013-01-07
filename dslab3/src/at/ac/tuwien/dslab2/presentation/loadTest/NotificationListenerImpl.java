@@ -30,6 +30,7 @@ class NotificationListenerImpl implements SubscriptionListener, TimerNotificatio
         builder.append(String.format(format + "s", "AuctionListing Count: "));
         builder.append("\n");
         System.out.print(builder.toString());
+		System.out.flush();
     }
 
     @Override
@@ -65,5 +66,6 @@ class NotificationListenerImpl implements SubscriptionListener, TimerNotificatio
         builder.append("\r");
 
         System.out.print(builder.toString());
+		System.out.flush();
     }
 }
