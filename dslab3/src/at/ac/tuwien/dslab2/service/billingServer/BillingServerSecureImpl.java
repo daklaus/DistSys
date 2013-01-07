@@ -47,6 +47,8 @@ class BillingServerSecureImpl implements BillingServerSecure {
 				|| variablePricePercent < 0)
 			throw new RemoteException(
 					"One of the specified values is negative!");
+		if (startPrice >= endPrice)
+			throw new RemoteException("Min has to be lower than max!");
 
 		PriceStep newPs = new PriceStep(startPrice, endPrice, fixedPrice,
 				variablePricePercent);

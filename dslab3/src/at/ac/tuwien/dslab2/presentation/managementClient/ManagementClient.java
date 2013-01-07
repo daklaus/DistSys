@@ -120,14 +120,14 @@ public class ManagementClient {
 		// !auto
 		// !hide
 		// !print
-		// !end
+		// !exit
 
 		final String commands = "!login <username> <password>\n" + "!steps\n"
 				+ "!addStep <min> <max> <fee-fixed> <fee-variable>\n"
 				+ "!removeStep <min> <max>\n" + "!bill <username>\n"
 				+ "!logout\n" + "!subscribe '<regex>'\n"
 				+ "!unsubscribe <id>\n" + "!auto\n" + "!hide\n" + "!print\n"
-				+ "!end";
+				+ "!exit";
 		final String invalidCommand = "ERROR: Invalid command '" + command
 				+ "'\n\nCommands are:\n" + commands;
 		final String cmdRegex = "![a-zA-Z-]+";
@@ -310,7 +310,7 @@ public class ManagementClient {
 
 			return printEvents(mcs.print());
 
-		} else if (tmp.equalsIgnoreCase("!end")) {
+		} else if (tmp.equalsIgnoreCase("!exit")) {
 
 			return null;
 		}
