@@ -193,24 +193,27 @@ class ClientHandler implements Runnable {
 			return "Successfully logged out as " + userName + "!";
 
 		} else if (tmp.equalsIgnoreCase("!list")) {
-            if (user != null && user.isLoggedIn()) {
-                StringBuilder builder = new StringBuilder();
-                String auctions = as.list();
-                builder.append(auctions);
+            try {
+                if (user != null && user.isLoggedIn()) {
+                    StringBuilder builder = new StringBuilder();
+                    String auctions = as.list();
+                    builder.append(auctions);
 
-                //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
-                builder.append("\u001f");
+                    //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
+                    builder.append("\u001f");
 
-                String userName = user.getName();
-                SecretKey secretKey = this.ks.createKeyFor(userName);
-                byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
-                byte[] encodedMAC = Base64.encode(hashMAC);
-                builder.append(new String(encodedMAC));
+                    String userName = user.getName();
+                    SecretKey secretKey = this.ks.createKeyFor(userName);
+                    byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
+                    byte[] encodedMAC = Base64.encode(hashMAC);
+                    builder.append(new String(encodedMAC));
 
-                return builder.toString();
+                    return builder.toString();
+                }
+                return as.list();
+            } catch (IOException e) {
+                return e.getMessage();
             }
-            return as.list();
-
         } else if (tmp.equalsIgnoreCase("!create")) {
 			if (user == null)
 				return "You have to log in first!";
