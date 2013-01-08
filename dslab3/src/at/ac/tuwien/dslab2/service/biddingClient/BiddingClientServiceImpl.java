@@ -10,7 +10,6 @@ import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 import org.bouncycastle.util.encoders.Base64;
 
@@ -124,16 +123,13 @@ class BiddingClientServiceImpl implements BiddingClientService {
 				throw new IOException("Interrupted login procedure", e);
 			}
 		} else if (command.matches("^!getClientList.*")) {
+			// Parse and store the client list
 			try {
-
-				// Parse and store the client list
 				parseClientList(this.replyQueue.take());
-				// Turn off pasting in the synchronization queue again
-				this.replyListener.setForwardToQueue(false);
-
-			} catch (InterruptedException e) {
-				throw new IOException("Interrupted login procedure", e);
+			} catch (InterruptedException ignored) {
 			}
+			// Turn off pasting in the synchronization queue again
+			this.replyListener.setForwardToQueue(false);
 		}
 	}
 
