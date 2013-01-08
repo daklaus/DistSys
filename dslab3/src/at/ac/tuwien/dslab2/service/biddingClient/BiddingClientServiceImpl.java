@@ -111,21 +111,23 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void postSendAction(String command) throws IOException {
 		if (command.matches("^!login.*")) {
 			try {
-				/*
-				 * Get client list after login
-				 */
-				// Wait for reply of login command
-				String loginReply = this.replyQueue.take();
-				// Turn off output to the presentation layer
-				this.replyListener.setForwardToListener(false);
-				// Get clients list
-				ns.send("!getClientList");
-				saveClientList(this.replyQueue.take());
 
+				// Wait for reply of login command (and ignore it)
+				this.replyQueue.take();
+
+				// Get client list after login
+				getClientList();
+
+			} catch (InterruptedException e) {
+				throw new IOException("Interrupted login procedure", e);
+			}
+		} else if (command.matches("^!getClientList.*")) {
+			try {
+
+				// Parse and store the client list
+				parseClientList(this.replyQueue.take());
 				// Turn off pasting in the synchronization queue again
 				this.replyListener.setForwardToQueue(false);
-				// Turn on displaying to the presentation layer again
-				this.replyListener.setForwardToListener(true);
 
 			} catch (InterruptedException e) {
 				throw new IOException("Interrupted login procedure", e);
@@ -133,7 +135,21 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		}
 	}
 
-	private void saveClientList(String clientList) {
+	private void getClientList() throws IOException, InterruptedException {
+		// Turn off output to the presentation layer
+		this.replyListener.setForwardToListener(false);
+		// Get clients list
+		ns.send("!getClientList");
+		// Parse and store the client list
+		parseClientList(this.replyQueue.take());
+
+		// Turn off pasting in the synchronization queue again
+		this.replyListener.setForwardToQueue(false);
+		// Turn on displaying to the presentation layer again
+		this.replyListener.setForwardToListener(true);
+	}
+
+	private void parseClientList(String clientList) {
 		// TODO Auto-generated method stub
 
 	}
@@ -182,8 +198,14 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			// cmd = cmd + " " + udpPort;
 			String clientChallenge = generateClientChallenge(Charset
 					.forName("UTF-16"));
-			command = command + " " + serverPort + " " + clientChallenge;
+			command = command + " " + udpPort + " " + clientChallenge;
 
+			// Clean queue if it has another reply of a previous command
+			this.replyQueue.clear();
+			// Begin synchronization with queue
+			this.replyListener.setForwardToQueue(true);
+
+		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			// Clean queue if it has another reply of a previous command
 			this.replyQueue.clear();
 			// Begin synchronization with queue

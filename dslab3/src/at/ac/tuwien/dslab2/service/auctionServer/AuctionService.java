@@ -27,7 +27,7 @@ public interface AuctionService extends Closeable {
 	 *            how long the auction runs from now (in seconds)
 	 * @return the auction which has been created if successfull; null otherwise
 	 */
-	public Auction create(User owner, String description, int duration);
+	Auction create(User owner, String description, int duration);
 
 	/**
 	 * Lists all auctions in one string. Each auction in one line in the form:<br>
@@ -36,7 +36,7 @@ public interface AuctionService extends Closeable {
 	 * 
 	 * @return a string listing all auctions currently running
 	 */
-	public String list();
+	String list();
 
 	/**
 	 * Bids a specified amount on an auction
@@ -49,7 +49,7 @@ public interface AuctionService extends Closeable {
 	 *            the amount to bid
 	 * @return the auction of this bid if the auction exists; null otherwise
 	 */
-	public Auction bid(User user, long auctionId, double amount);
+	Auction bid(User user, long auctionId, double amount);
 
 	/**
 	 * Logs the user in and binds it to the client
@@ -60,7 +60,7 @@ public interface AuctionService extends Closeable {
 	 *            the client from which the user wants to log in
 	 * @return a User object if the login was successful; null otherwise
 	 */
-	public User login(String userName, Client client);
+	User login(String userName, Client client);
 
 	/**
 	 * Logs the user out. This deletes the user.
@@ -68,12 +68,19 @@ public interface AuctionService extends Closeable {
 	 * @param user
 	 *            the user who should be logged out
 	 */
-	public void logout(User user);
+	void logout(User user);
 
 	/**
 	 * Get the RMI stub for communicating with the analytics server
 	 * 
 	 * @return the RMI stub of the <code>AnalyticsServer</code> interface
 	 */
-	public AnalyticsServer getAnalysticsServerRef();
+	AnalyticsServer getAnalysticsServerRef();
+
+	/**
+	 * Get the currently connected clients
+	 * 
+	 * @return the currently connected clients
+	 */
+	String getClientList();
 }

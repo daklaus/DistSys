@@ -14,16 +14,16 @@ import java.security.GeneralSecurityException;
 import java.util.Scanner;
 
 class ClientHandler implements Runnable {
-    private volatile boolean stop;
-    private final TCPClientNetworkService ns;
+	private volatile boolean stop;
+	private final TCPClientNetworkService ns;
 	private final AuctionService as;
 	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
-    private final String keyDirectory;
+	private final String keyDirectory;
 
-    public ClientHandler(TCPClientNetworkService ns, AuctionService as, String keyDirectory)
-			throws IOException {
+	public ClientHandler(TCPClientNetworkService ns, AuctionService as,
+			String keyDirectory) throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
 					"The TCPClientNetworkService is null");
@@ -32,8 +32,8 @@ class ClientHandler implements Runnable {
 
 		this.ns = ns;
 		this.as = as;
-        this.keyDirectory = keyDirectory;
-        this.ans = as.getAnalysticsServerRef();
+		this.keyDirectory = keyDirectory;
+		this.ans = as.getAnalysticsServerRef();
 		user = null;
 	}
 
@@ -88,13 +88,14 @@ class ClientHandler implements Runnable {
 	/**
 	 * Parse command, execute the methods of the AuctionService and return the
 	 * reply
-	 *
+	 * 
 	 * @param command
 	 * @return the reply to send to the client or null if the connection should
 	 *         be closed
 	 * @throws IOException
 	 */
-	private String executeCommand(String command) throws IOException, GeneralSecurityException {
+	private String executeCommand(String command) throws IOException,
+			GeneralSecurityException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
 		if (ns == null)
@@ -107,6 +108,7 @@ class ClientHandler implements Runnable {
 		// !list
 		// !create <duration> <description>
 		// !bid <auction-id> <amount>
+		// !getClientList
 		// !end
 
 		final String commands = "!login <username>\n" + "!logout\n" + "!list\n"
@@ -193,28 +195,31 @@ class ClientHandler implements Runnable {
 			return "Successfully logged out as " + userName + "!";
 
 		} else if (tmp.equalsIgnoreCase("!list")) {
-            try {
-                if (user != null && user.isLoggedIn()) {
-                    StringBuilder builder = new StringBuilder();
-                    String auctions = as.list();
-                    builder.append(auctions);
+			try {
+				if (user != null && user.isLoggedIn()) {
+					StringBuilder builder = new StringBuilder();
+					String auctions = as.list();
+					builder.append(auctions);
 
-                    //Unit Separator(see: http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
-                    builder.append("\u001f");
+					// Unit Separator(see:
+					// http://en.wikipedia.org/wiki/Unit_separator#Field_separators)
+					builder.append("\u001f");
 
-                    String userName = user.getName();
-                    HashMACService hashMACService = HashMACServiceFactory.getService(this.keyDirectory, userName);
-                    byte[] hashMAC = hashMACService.createHashMAC(auctions.getBytes());
-                    byte[] encodedMAC = Base64.encode(hashMAC);
-                    builder.append(new String(encodedMAC));
+					String userName = user.getName();
+					HashMACService hashMACService = HashMACServiceFactory
+							.getService(this.keyDirectory, userName);
+					byte[] hashMAC = hashMACService.createHashMAC(auctions
+							.getBytes());
+					byte[] encodedMAC = Base64.encode(hashMAC);
+					builder.append(new String(encodedMAC));
 
-                    return builder.toString();
-                }
-                return as.list();
-            } catch (IOException e) {
-                return e.getMessage();
-            }
-        } else if (tmp.equalsIgnoreCase("!create")) {
+					return builder.toString();
+				}
+				return as.list();
+			} catch (IOException e) {
+				return e.getMessage();
+			}
+		} else if (tmp.equalsIgnoreCase("!create")) {
 			if (user == null)
 				return "You have to log in first!";
 
@@ -262,6 +267,12 @@ class ClientHandler implements Runnable {
 					+ a.getDescription() + "'. Current highest bid is "
 					+ String.format("%.2f", b.getAmount()) + ".";
 
+		} else if (tmp.equalsIgnoreCase("!getClientList")) {
+			if (user == null)
+				return "You have to log in first!";
+
+			return as.getClientList();
+
 		} else if (tmp.equalsIgnoreCase("!end")) {
 
 			return null;
@@ -298,7 +309,7 @@ class ClientHandler implements Runnable {
 
 	/**
 	 * Start receiving notifications from the server
-	 *
+	 * 
 	 * @throws IOException
 	 */
 	private void startNotification(User user) throws IOException {

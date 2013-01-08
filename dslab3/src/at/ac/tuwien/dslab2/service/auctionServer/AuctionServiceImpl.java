@@ -77,7 +77,7 @@ class AuctionServiceImpl implements AuctionService {
 		try {
 			rcs = RMIServiceFactory.newRMIClientService(host, port);
 			bs = (BillingServer) rcs.lookup(billingServerRef);
-			 as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
+			as = (AnalyticsServer) rcs.lookup(analyticsServerRef);
 
 			// Log into the billing server
 			if (bs != null)
@@ -133,6 +133,27 @@ class AuctionServiceImpl implements AuctionService {
 			sb.append("\n");
 		}
 		// }
+
+		return sb.toString();
+	}
+
+	@Override
+	public String getClientList() {
+		Client c;
+		StringBuilder sb = new StringBuilder();
+		sb.append("Active Clients:\n");
+		for (User u : users.values()) {
+			c = u.getClient();
+			if (c == null)
+				continue;
+
+			sb.append(c.getIp().getHostAddress());
+			sb.append(':');
+			sb.append(c.getUdpPort());
+			sb.append(" - ");
+			sb.append(u.toString());
+			sb.append("\n");
+		}
 
 		return sb.toString();
 	}
