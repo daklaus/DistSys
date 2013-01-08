@@ -117,6 +117,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 				// Get client list after login
 				getClientList();
+				// Turn off pasting in the synchronization queue again
+				this.replyListener.setForwardToQueue(false);
 
 			} catch (InterruptedException e) {
 				throw new IOException("Interrupted login procedure", e);
@@ -143,8 +145,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		// Parse and store the client list
 		parseClientList(this.replyQueue.take());
 
-		// Turn off pasting in the synchronization queue again
-		this.replyListener.setForwardToQueue(false);
 		// Turn on displaying to the presentation layer again
 		this.replyListener.setForwardToListener(true);
 	}
