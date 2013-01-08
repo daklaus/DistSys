@@ -3,18 +3,19 @@ package at.ac.tuwien.dslab2.service.net;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.charset.Charset;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 public abstract class NetworkServiceFactory {
 
     public static TCPClientNetworkService newBase64TCPClientNetworkService(
-            TCPClientNetworkService tcpClientNetworkService, Charset charset) {
-        return new Base64TCPClientDecorator(tcpClientNetworkService, charset);
+            TCPClientNetworkService tcpClientNetworkService, PublicKey publicKey, PrivateKey privateKey) {
+        return new RSATCPClientDecorator(tcpClientNetworkService, publicKey, privateKey);
     }
 
     public static TCPServerNetworkService newBase64TCPServerNetworkService(
-            TCPServerNetworkService tcpServerNetworkService, Charset charset) {
-        return new Base64TCPServerDecorator(tcpServerNetworkService, charset);
+            TCPServerNetworkService tcpServerNetworkService, PublicKey publicKey, PrivateKey privateKey) {
+        return new RSATCPServerDecorator(tcpServerNetworkService, publicKey, privateKey);
     }
 
 	public static TCPClientNetworkService newTCPClientNetworkService(
