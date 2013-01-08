@@ -76,13 +76,6 @@ public interface BiddingClientService extends Closeable {
 	String getUserName();
 
 	/**
-	 * Sets the hashMACService
-	 * 
-	 * @param hashMACService
-	 */
-	void setHashMACService(HashMACService hashMACService);
-
-	/**
 	 * Gets the HashMACService if logged in
 	 * 
 	 * @return the HashMACService if logged in; null otherwise

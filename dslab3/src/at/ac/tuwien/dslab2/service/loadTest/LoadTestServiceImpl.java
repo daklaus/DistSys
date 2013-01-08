@@ -149,9 +149,12 @@ class LoadTestServiceImpl implements LoadTestService {
 
 	private void startBiddingClients() throws IOException {
 		for (int i = 0; i < this.clientCount; i++) {
+			// TODO: Remove static definition of server's public key file
+			// location and client keys directory
 			BiddingClientService biddingClientService = BiddingClientServiceFactory
 					.newBiddingClientService(auctionServerHostName,
-							auctionServerTcpPort, 1);
+							auctionServerTcpPort, 1,
+							"keys/auction-server.pub.pem", "keys/");
 			biddingClientService.setReplyListener(new LoadTestReplyListener(
 					auctionListQueue, auctionBiddingQueue, auctionCreateQueue),
 					null);

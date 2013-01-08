@@ -14,7 +14,9 @@ public abstract class BiddingClientServiceFactory {
 	 * @return
 	 */
 	public static BiddingClientService newBiddingClientService(String server,
-			int serverPort, int udpPort) {
-		return new BiddingClientServiceImpl(server, serverPort, udpPort);
+			int serverPort, int udpPort, String serverPublicKeyFileLocation,
+			String clientsKeysDirectory) {
+		return new BiddingClientServiceImpl(server, serverPort, udpPort,
+				serverPublicKeyFileLocation, clientsKeysDirectory);
 	}
 }
