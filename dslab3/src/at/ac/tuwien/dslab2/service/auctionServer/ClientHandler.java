@@ -4,9 +4,9 @@ import at.ac.tuwien.dslab2.domain.*;
 import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 import at.ac.tuwien.dslab2.service.security.HashMACService;
+import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 import org.bouncycastle.util.encoders.Base64;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
@@ -15,14 +15,14 @@ import java.util.Scanner;
 
 class ClientHandler implements Runnable {
     private volatile boolean stop;
-    private final HashMACService ks;
     private final TCPClientNetworkService ns;
 	private final AuctionService as;
 	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
+    private final String keyDirectory;
 
-    public ClientHandler(TCPClientNetworkService ns, AuctionService as, HashMACService ks)
+    public ClientHandler(TCPClientNetworkService ns, AuctionService as, String keyDirectory)
 			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
@@ -32,7 +32,7 @@ class ClientHandler implements Runnable {
 
 		this.ns = ns;
 		this.as = as;
-        this.ks = ks;
+        this.keyDirectory = keyDirectory;
         this.ans = as.getAnalysticsServerRef();
 		user = null;
 	}
@@ -203,8 +203,8 @@ class ClientHandler implements Runnable {
                     builder.append("\u001f");
 
                     String userName = user.getName();
-                    SecretKey secretKey = this.ks.createKeyFor(userName);
-                    byte[] hashMAC = this.ks.createHashMAC(secretKey, auctions.getBytes());
+                    HashMACService hashMACService = HashMACServiceFactory.getService(this.keyDirectory, userName);
+                    byte[] hashMAC = hashMACService.createHashMAC(auctions.getBytes());
                     byte[] encodedMAC = Base64.encode(hashMAC);
                     builder.append(new String(encodedMAC));
 

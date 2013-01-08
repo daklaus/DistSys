@@ -3,13 +3,13 @@
  */
 package at.ac.tuwien.dslab2.presentation.biddingClient;
 
-import java.io.IOException;
-import java.util.Scanner;
-
-import at.ac.tuwien.dslab2.service.security.HashMACService;
-import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
+
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * @author klaus
@@ -18,6 +18,9 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 public class BiddingClient {
 	private static BiddingClientService acs;
 	private static int udpPort;
+    private static String serverPublicKeyFileLocation;
+    private static String clientsKeysDirectory;
+
 
 	/**
 	 * @param args
@@ -53,12 +56,11 @@ public class BiddingClient {
 			usage();
 		udpPort = sc.nextInt();
 
-		String serverPublicKeyFileLocation = args[3];
-		String clientsKeysDirectory = args[4];
+		serverPublicKeyFileLocation = args[3];
+		clientsKeysDirectory = args[4];
 
-		HashMACService hashMACService = HashMACServiceFactory
-				.getService(clientsKeysDirectory);
-		acs = BiddingClientServiceFactory.newBiddingClientService(hashMACService);
+
+		acs = BiddingClientServiceFactory.newBiddingClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
@@ -90,7 +92,7 @@ public class BiddingClient {
 	}
 
 	private enum ParseResult {
-		End, Login
+		End, Fail, Login
 	}
 
 	private static void readInput() {
@@ -113,23 +115,23 @@ public class BiddingClient {
 				case Login:
 					cmd = cmd + " " + udpPort;
 					break;
-				}
+                }
 			}
 
-			if (!end) {
-				try {
-					if (!cmd.trim().isEmpty()) {
-						acs.submitCommand(cmd);
-					}
+            if (!end && r != ParseResult.Fail) {
+                try {
+                    if (!cmd.trim().isEmpty()) {
+                        acs.submitCommand(cmd);
+                    }
 
-					System.out.print(getPrompt());
-					System.out.flush();
-				} catch (Exception e) {
-					System.err.println("Error while submitting command:");
-					e.printStackTrace();
-				}
-			}
-		}
+                    System.out.print(getPrompt());
+                    System.out.flush();
+                } catch (Exception e) {
+                    System.err.println("Error while submitting command:");
+                    e.printStackTrace();
+                }
+            }
+        }
 	}
 
 	synchronized static void close() {
@@ -187,20 +189,33 @@ public class BiddingClient {
 
 		tmp = sc.next(cmdRegex);
 		if (tmp.equalsIgnoreCase("!login")) {
-			if (!sc.hasNext())
-				return null;
+            if (!sc.hasNext()) {
+                return null;
+            }
+            String username = sc.next();
+            acs.setUserName(username);
 
-			acs.setUserName(sc.next());
-
-			return ParseResult.Login;
-		} else if (tmp.equalsIgnoreCase("!logout")) {
-
+            return initLoginServices(username);
+        } else if (tmp.equalsIgnoreCase("!logout")) {
 			acs.setUserName(null);
+            acs.setHashMACService(null);
 		} else if (tmp.equalsIgnoreCase("!end")) {
 			return ParseResult.End;
 		}
 
 		return null;
 	}
+
+    private static ParseResult initLoginServices(String username) {
+        try {
+            HashMACService hashMACService = HashMACServiceFactory.getService(clientsKeysDirectory, username);
+            acs.setHashMACService(hashMACService);
+        } catch (IOException e) {
+            System.out.println("Could not log in because keys for user " + username + " not found in directory " + clientsKeysDirectory);
+            System.out.flush();
+            return ParseResult.Fail;
+        }
+        return ParseResult.Login;
+    }
 
 }

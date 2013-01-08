@@ -1,5 +1,8 @@
 package at.ac.tuwien.dslab2.service.auctionServer;
 
+import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
+import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Collections;
@@ -9,17 +12,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import at.ac.tuwien.dslab2.service.security.HashMACService;
-import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
-import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
-import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
-
 class ServerThread extends Thread {
-    private final HashMACService ks;
     private volatile boolean stop;
 	private final TCPServerNetworkService ns;
 	private final AuctionService as;
 	private final List<ClientHandler> clientHandlerList;
+    private final String keyDirectory;
 	private ExecutorService pool;
 
     public ServerThread(int tcpPort, String analyticsServerRef,
@@ -36,7 +34,7 @@ class ServerThread extends Thread {
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
 		as = AuctionServerServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
-        ks = HashMACServiceFactory.getService(keyDirectory);
+        this.keyDirectory = keyDirectory;
         clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}
@@ -59,7 +57,7 @@ class ServerThread extends Thread {
 		try {
 			try {
 				while (!stop) {
-					c = new ClientHandler(ns.accept(), as, ks);
+					c = new ClientHandler(ns.accept(), as, this.keyDirectory);
 					clientHandlerList.add(c);
 					pool.execute(c);
 				}

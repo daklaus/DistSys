@@ -3,6 +3,8 @@
  */
 package at.ac.tuwien.dslab2.service.biddingClient;
 
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -79,4 +81,19 @@ public interface BiddingClientService extends Closeable {
 	 * @return the user name if logged in; null otherwise
 	 */
 	String getUserName();
+
+    /**
+     * Sets the hashMACService
+     *
+     * @param hashMACService
+     */
+    void setHashMACService(HashMACService hashMACService);
+
+
+    /**
+     * Gets the HashMACService if logged in
+     *
+     * @return the HashMACService if logged in; null otherwise
+     */
+    HashMACService getHashMACService();
 }

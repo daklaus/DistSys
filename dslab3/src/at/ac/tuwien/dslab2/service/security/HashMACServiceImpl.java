@@ -3,33 +3,31 @@ package at.ac.tuwien.dslab2.service.security;
 import org.bouncycastle.util.encoders.Hex;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
 class HashMACServiceImpl implements HashMACService {
 
-    private final File keyDirectory;
+    private final SecretKeySpec secretKey;
 
-    public HashMACServiceImpl(String directory) {
-        this.keyDirectory = new File(directory);
+    public HashMACServiceImpl(String directory, String username) throws IOException {
+        File keyDirectory = new File(directory);
+        File file = new File(keyDirectory.getPath() + "/" + username + ".key");
+        byte[] bytesDecoded = Hex.decode(readBytes(file));
+        this.secretKey = new SecretKeySpec(bytesDecoded, "HmacSHA256");
     }
 
     @Override
-    public byte[] createHashMAC(SecretKey secretKey, byte[] data) throws GeneralSecurityException {
+    public byte[] createHashMAC(byte[] data) throws GeneralSecurityException {
         Mac hMac = Mac.getInstance("HmacSHA256");
         hMac.init(secretKey);
         hMac.update(data);
         return hMac.doFinal();
-    }
-
-    @Override
-    public SecretKey createKeyFor(String username) throws IOException {
-        File file = new File(this.keyDirectory.getPath() + "/" + username + ".key");
-        byte[] bytesDecoded = Hex.decode(readBytes(file));
-        return new SecretKeySpec(bytesDecoded, "HmacSHA256");
     }
 
     private byte[] readBytes(File file) throws IOException {

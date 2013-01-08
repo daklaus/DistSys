@@ -3,19 +3,18 @@
  */
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+
+import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * @author klaus
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-    private final HashMACService ks;
     private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -24,9 +23,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private ReplyThread replyThread;
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
+    private HashMACService hashMACService;
 
-    public BiddingClientServiceImpl(HashMACService ks) {
-        this.ks = ks;
+    public BiddingClientServiceImpl() {
     }
 
 	@Override
@@ -105,7 +104,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			throw new IllegalStateException("Service not connected!");
 
 		// Start reply thread
-		replyThread = new ReplyThread(ns, replyListener, this, ks);
+		replyThread = new ReplyThread(ns, replyListener, this);
 		replyThread.setName("Reply thread");
 		replyThread.setUncaughtExceptionHandler(replyExHandler);
 		replyThread.start();
@@ -121,7 +120,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return this.userName;
 	}
 
-	@Override
+    @Override
+    public void setHashMACService(HashMACService hashMACService) {
+        this.hashMACService = hashMACService;
+    }
+
+    @Override
+    public HashMACService getHashMACService() {
+        return this.hashMACService;
+    }
+
+    @Override
 	public void close() throws IOException {
 		if (notificationThread != null)
 			notificationThread.close();

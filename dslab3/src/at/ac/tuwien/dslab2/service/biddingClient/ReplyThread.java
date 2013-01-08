@@ -1,22 +1,20 @@
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
 import org.bouncycastle.util.encoders.Base64;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.regex.Pattern;
 
 class ReplyThread extends Thread {
     private final BiddingClientService bcs;
-    private final HashMACService ks;
     private volatile boolean stop;
 	private final TCPClientNetworkService ns;
 	private final ReplyListener listener;
 
-    public ReplyThread(TCPClientNetworkService ns, ReplyListener listener, BiddingClientService bcs, HashMACService ks)
+    public ReplyThread(TCPClientNetworkService ns, ReplyListener listener, BiddingClientService bcs)
 			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
@@ -24,7 +22,6 @@ class ReplyThread extends Thread {
 
 		this.ns = ns;
         this.bcs = bcs;
-        this.ks = ks;
         this.listener = listener;
 	}
 
@@ -47,15 +44,16 @@ class ReplyThread extends Thread {
 
 					if (listener != null){
                         String userName = bcs.getUserName();
+                        HashMACService hashMACService = bcs.getHashMACService();
                         //if it's a list command
-                        if (userName != null && isListResponse(reply)) {
-                            if (!hasCorrectMAC(reply, userName)) {
+                        if (userName != null && hashMACService != null && isListResponse(reply)) {
+                            if (!hasCorrectMAC(reply, userName, hashMACService)) {
                                 listener.displayReply(
                                         "The provided Message Authentication Code is incorrect!\n"
                                       + "The command will be retransmitted!");
                                 bcs.submitCommand("!list");
                                 reply = ns.receive();
-                                if (!hasCorrectMAC(reply, userName)) {
+                                if (!hasCorrectMAC(reply, userName, hashMACService)) {
                                     listener.displayReply(
                                         "The provided Message Authentication Code is incorrect again!\n"
                                       + "No further retransmission");
@@ -95,7 +93,11 @@ class ReplyThread extends Thread {
         || reply.startsWith("There are currently no auctions running!");
     }
 
-    private boolean hasCorrectMAC(String message, String userName) {
+    private boolean hasCorrectMAC(String message, String userName, HashMACService ks) {
+        if (ks == null) {
+            throw new IllegalArgumentException("HashMACService is null!");
+        }
+
         try {
             String[] chunks = message.split("\u001f");
             if (chunks.length != 2) {
@@ -103,15 +105,14 @@ class ReplyThread extends Thread {
             }
             byte[] data = chunks[0].getBytes();
             byte[] actualMAC = Base64.decode(chunks[1]);
-            SecretKey secretKey = ks.createKeyFor(userName);
-            byte[] expectedMAC = ks.createHashMAC(secretKey, data);
+            byte[] expectedMAC = ks.createHashMAC(data);
 
             return ks.verifyHashMAC(expectedMAC, actualMAC);
         } catch (Exception e) {
             if (listener != null)
                 listener.displayReply(e.getMessage());
         }
-         return false;
+        return false;
     }
 
 	public void close() throws IOException {
