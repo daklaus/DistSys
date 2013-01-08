@@ -3,7 +3,7 @@ package at.ac.tuwien.dslab2.service.net;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 
-public class AESTCPServerDecorator implements TCPServerNetworkService {
+class AESTCPServerDecorator implements TCPServerNetworkService {
 
     private final TCPServerNetworkService tcpServerNetworkService;
     private final SecretKey secretKey;

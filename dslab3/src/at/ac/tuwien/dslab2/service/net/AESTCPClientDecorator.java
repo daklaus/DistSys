@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 
-public class AESTCPClientDecorator implements TCPClientNetworkService {
+class AESTCPClientDecorator implements TCPClientNetworkService {
 
     private final TCPClientNetworkService tcpClientNetworkService;
     private final SecretKey secretKey;
