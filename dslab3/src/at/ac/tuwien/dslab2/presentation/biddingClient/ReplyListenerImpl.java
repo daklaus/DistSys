@@ -7,8 +7,10 @@ class ReplyListenerImpl implements ReplyListener {
 	@Override
 	public void displayReply(String reply) {
 		System.out.println("\n" + reply);
-		System.out.print(BiddingClient.getPrompt());
-		System.out.flush();
+		// Don't display prompt after reply messages because of ugly output at
+		// login
+		// System.out.print(BiddingClient.getPrompt());
+		// System.out.flush();
 	}
 
 }

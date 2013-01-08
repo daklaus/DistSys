@@ -8,6 +8,9 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 import org.bouncycastle.util.encoders.Base64;
 
@@ -32,7 +35,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
-	private ReplyListener replyListener;
+	private FilterReplyListener replyListener;
+	private final BlockingQueue<String> replyQueue;
 	private ReplyThread replyThread;
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
@@ -61,6 +65,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.udpPort = udpPort;
 		this.serverPublicKeyFileLocation = serverPublicKeyFileLocation;
 		this.clientsKeysDirectory = clientsKeysDirectory;
+
+		// LinkedBlockingQueue for one reply at a time
+		this.replyQueue = new LinkedBlockingQueue<String>(1);
 	}
 
 	@Override
@@ -73,7 +80,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	@Override
 	public void setReplyListener(ReplyListener listener,
 			UncaughtExceptionHandler exHandler) {
-		this.replyListener = listener;
+		this.replyListener = new FilterReplyListener(listener, replyQueue);
 		this.replyExHandler = exHandler;
 	}
 
@@ -83,7 +90,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			throw new IllegalStateException("Service not connected!");
 
 		if (!ns.isConnected()) {
-			if (!command.matches("^!bid")) {
+			if (!command.matches("^!bid.*")) {
 				throw new IllegalStateException(
 						"The server is down! Wait for it being online again.");
 			} else {
@@ -97,6 +104,38 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		// Send the command to the server
 		ns.send(command);
+
+		postSendAction(command);
+	}
+
+	private void postSendAction(String command) throws IOException {
+		if (command.matches("^!login.*")) {
+			try {
+				/*
+				 * Get client list after login
+				 */
+				// Wait for reply of login command
+				String loginReply = this.replyQueue.take();
+				// Turn off output to the presentation layer
+				this.replyListener.setForwardToListener(false);
+				// Get clients list
+				ns.send("!getClientList");
+				saveClientList(this.replyQueue.take());
+
+				// Turn off pasting in the synchronization queue again
+				this.replyListener.setForwardToQueue(false);
+				// Turn on displaying to the presentation layer again
+				this.replyListener.setForwardToListener(true);
+
+			} catch (InterruptedException e) {
+				throw new IOException("Interrupted login procedure", e);
+			}
+		}
+	}
+
+	private void saveClientList(String clientList) {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
@@ -144,6 +183,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			String clientChallenge = generateClientChallenge(Charset
 					.forName("UTF-16"));
 			command = command + " " + serverPort + " " + clientChallenge;
+
+			// Clean queue if it has another reply of a previous command
+			this.replyQueue.clear();
+			// Begin synchronization with queue
+			this.replyListener.setForwardToQueue(true);
 
 		} else if (tmp.equalsIgnoreCase("!logout")) {
 			setUserName(null);
