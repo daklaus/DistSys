@@ -102,7 +102,7 @@ public class BiddingClient {
 
 			cmd = sc.nextLine().trim();
 
-			end = cmd.matches("!end");
+			end = cmd.matches("^!end");
 
 			if (!end) {
 				try {

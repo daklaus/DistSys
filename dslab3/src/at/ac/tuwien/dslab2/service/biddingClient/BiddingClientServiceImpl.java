@@ -83,7 +83,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			throw new IllegalStateException("Service not connected!");
 
 		if (!ns.isConnected()) {
-			if (!command.matches("^!bid.*")) {
+			if (!command.matches("^!bid")) {
 				throw new IllegalStateException(
 						"The server is down! Wait for it being online again.");
 			} else {
