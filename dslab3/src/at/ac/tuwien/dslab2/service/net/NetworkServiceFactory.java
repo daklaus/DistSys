@@ -8,12 +8,12 @@ import java.security.PublicKey;
 
 public abstract class NetworkServiceFactory {
 
-    public static TCPClientNetworkService newBase64TCPClientNetworkService(
+    public static TCPClientNetworkService newRSATCPClientNetworkService(
             TCPClientNetworkService tcpClientNetworkService, PublicKey publicKey, PrivateKey privateKey) {
         return new RSATCPClientDecorator(tcpClientNetworkService, publicKey, privateKey);
     }
 
-    public static TCPServerNetworkService newBase64TCPServerNetworkService(
+    public static TCPServerNetworkService newRSATCPServerNetworkService(
             TCPServerNetworkService tcpServerNetworkService, PublicKey publicKey, PrivateKey privateKey) {
         return new RSATCPServerDecorator(tcpServerNetworkService, publicKey, privateKey);
     }
