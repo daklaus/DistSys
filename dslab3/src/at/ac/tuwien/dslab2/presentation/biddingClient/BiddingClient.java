@@ -22,9 +22,8 @@ public class BiddingClient {
 	private static BiddingClientService acs;
 	private static int udpPort;
 	private static int tcpPort;
-    private static String serverPublicKeyFileLocation;
-    private static String clientsKeysDirectory;
-
+	private static String serverPublicKeyFileLocation;
+	private static String clientsKeysDirectory;
 
 	/**
 	 * @param args
@@ -63,13 +62,13 @@ public class BiddingClient {
 		serverPublicKeyFileLocation = args[3];
 		clientsKeysDirectory = args[4];
 
-
-		acs = BiddingClientServiceFactory.newBiddingClientService();
+		acs = BiddingClientServiceFactory.newBiddingClientService(host,
+				tcpPort, udpPort);
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
 		try {
-			acs.connect(host, tcpPort, udpPort);
+			acs.connect();
 		} catch (IOException e) {
 			System.err.println("Error while connecting:");
 			e.printStackTrace();
@@ -117,45 +116,47 @@ public class BiddingClient {
 					end = true;
 					break;
 				case Login:
-                    //Changed here LoginCommand for Lab3!
-//					cmd = cmd + " " + udpPort;
-                    String clientChallenge = generateClientChallenge(Charset.forName("UTF-16"));
-                    cmd = cmd + " " + tcpPort + " " + clientChallenge;
-                    break;
-                }
+					// Changed here LoginCommand for Lab3!
+					// cmd = cmd + " " + udpPort;
+					String clientChallenge = generateClientChallenge(Charset
+							.forName("UTF-16"));
+					cmd = cmd + " " + tcpPort + " " + clientChallenge;
+					break;
+				}
 			}
 
-            if (!end && r != ParseResult.Fail) {
-                try {
-                    if (!cmd.trim().isEmpty()) {
-                        acs.submitCommand(cmd);
-                    }
+			if (!end && r != ParseResult.Fail) {
+				try {
+					if (!cmd.trim().isEmpty()) {
+						acs.submitCommand(cmd);
+					}
 
-                    System.out.print(getPrompt());
-                    System.out.flush();
-                } catch (Exception e) {
-                    System.err.println("Error while submitting command:");
-                    e.printStackTrace();
-                }
-            }
-        }
+					System.out.print(getPrompt());
+					System.out.flush();
+				} catch (Exception e) {
+					System.err.println("Error while submitting command: "
+							+ e.getMessage());
+				}
+			}
+		}
 	}
 
-    /**
-     *  This method generates a 32 byte secure random number
-     *  and encodes it with Base64 encoding
-     *
-     * @param charset the charset which will be used for translating
-     *                the encoded byte array to a string
-     * @return the generated 32 byte secure random number Base64 encoded
-     */
-    static String generateClientChallenge(Charset charset) {
-        SecureRandom secureRandom = new SecureRandom();
-        final byte[] number = new byte[32];
-        secureRandom.nextBytes(number);
-        byte[] encodedRandom = Base64.encode(number);
-        return new String(encodedRandom, charset);
-    }
+	/**
+	 * This method generates a 32 byte secure random number and encodes it with
+	 * Base64 encoding
+	 * 
+	 * @param charset
+	 *            the charset which will be used for translating the encoded
+	 *            byte array to a string
+	 * @return the generated 32 byte secure random number Base64 encoded
+	 */
+	static String generateClientChallenge(Charset charset) {
+		SecureRandom secureRandom = new SecureRandom();
+		final byte[] number = new byte[32];
+		secureRandom.nextBytes(number);
+		byte[] encodedRandom = Base64.encode(number);
+		return new String(encodedRandom, charset);
+	}
 
 	synchronized static void close() {
 		if (acs != null) {
@@ -212,16 +213,16 @@ public class BiddingClient {
 
 		tmp = sc.next(cmdRegex);
 		if (tmp.equalsIgnoreCase("!login")) {
-            if (!sc.hasNext()) {
-                return null;
-            }
-            String username = sc.next();
-            acs.setUserName(username);
+			if (!sc.hasNext()) {
+				return null;
+			}
+			String username = sc.next();
+			acs.setUserName(username);
 
-            return initLoginServices(username);
-        } else if (tmp.equalsIgnoreCase("!logout")) {
+			return initLoginServices(username);
+		} else if (tmp.equalsIgnoreCase("!logout")) {
 			acs.setUserName(null);
-            acs.setHashMACService(null);
+			acs.setHashMACService(null);
 		} else if (tmp.equalsIgnoreCase("!end")) {
 			return ParseResult.End;
 		}
@@ -229,16 +230,19 @@ public class BiddingClient {
 		return null;
 	}
 
-    private static ParseResult initLoginServices(String username) {
-        try {
-            HashMACService hashMACService = HashMACServiceFactory.getService(clientsKeysDirectory, username);
-            acs.setHashMACService(hashMACService);
-        } catch (IOException e) {
-            System.out.println("Could not log in because keys for user " + username + " not found in directory " + clientsKeysDirectory);
-            System.out.flush();
-            return ParseResult.Fail;
-        }
-        return ParseResult.Login;
-    }
+	private static ParseResult initLoginServices(String username) {
+		try {
+			HashMACService hashMACService = HashMACServiceFactory.getService(
+					clientsKeysDirectory, username);
+			acs.setHashMACService(hashMACService);
+		} catch (IOException e) {
+			System.out.println("Could not log in because keys for user "
+					+ username + " not found in directory "
+					+ clientsKeysDirectory);
+			System.out.flush();
+			return ParseResult.Fail;
+		}
+		return ParseResult.Login;
+	}
 
 }

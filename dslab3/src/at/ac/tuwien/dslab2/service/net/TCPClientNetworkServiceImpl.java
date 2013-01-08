@@ -95,6 +95,11 @@ class TCPClientNetworkServiceImpl implements TCPClientNetworkService {
 	}
 
 	@Override
+	public boolean isConnected() {
+		return socket.isBound() && socket.isConnected() && !socket.isClosed();
+	}
+
+	@Override
 	public void close() throws IOException {
 		if (socket != null)
 			socket.close();

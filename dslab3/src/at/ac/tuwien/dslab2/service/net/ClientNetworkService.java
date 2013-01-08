@@ -57,4 +57,11 @@ interface ClientNetworkService extends Closeable {
 	 * @return the server port
 	 */
 	int getPort();
+
+	/**
+	 * Checks whether the service is connected
+	 * 
+	 * @return true if and only if there is a stable connection; false otherwise
+	 */
+	boolean isConnected();
 }

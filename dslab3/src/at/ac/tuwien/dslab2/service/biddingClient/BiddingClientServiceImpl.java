@@ -15,7 +15,10 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-    private TCPClientNetworkService ns;
+	private final String server;
+	private final int serverPort;
+	private final int udpPort;
+	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
@@ -23,10 +26,29 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private ReplyThread replyThread;
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
-    private HashMACService hashMACService;
+	private HashMACService hashMACService;
 
-    public BiddingClientServiceImpl() {
-    }
+	/**
+	 * Sets the server, server port and own UDP port for the networking
+	 * 
+	 * @param server
+	 *            the host name or IP address of the auction server
+	 * @param serverPort
+	 *            the TCP port of the auction server
+	 * @param udpPort
+	 *            the UDP port on which to listen for notifications from the
+	 *            server
+	 */
+	public BiddingClientServiceImpl(String server, int serverPort, int udpPort) {
+		if (server == null || server.isEmpty() || serverPort <= 0
+				|| udpPort <= 0)
+			throw new IllegalArgumentException(
+					"The server or the server port are not set properly");
+
+		this.server = server;
+		this.serverPort = serverPort;
+		this.udpPort = udpPort;
+	}
 
 	@Override
 	public void setNotificationListener(NotificationListener listener,
@@ -47,20 +69,28 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		if (!isConnected())
 			throw new IllegalStateException("Service not connected!");
 
+		if (!ns.isConnected()) {
+			if (!command.matches("^!bid.*")) {
+				throw new IllegalStateException(
+						"The server is down! Wait for it being online again.");
+			} else {
+				// If it was a !bid command
+				// TODO: Get random clients' signed timestamps
+				// TODO: Retry sending with !signedBid
+			}
+		}
+
 		// Send the command to the server
 		ns.send(command);
 	}
 
+	private void reconnect() {
+
+	}
+
 	@Override
-	public void connect(String server, int serverPort, int udpPort)
-			throws IOException {
-
+	public void connect() throws IOException {
 		if (ns == null) {
-			if (server == null || server.isEmpty() || serverPort <= 0
-					|| udpPort <= 0)
-				throw new IllegalArgumentException(
-						"The server or the server port are not set properly");
-
 			ns = NetworkServiceFactory.newTCPClientNetworkService(server,
 					serverPort);
 		}
@@ -120,17 +150,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return this.userName;
 	}
 
-    @Override
-    public void setHashMACService(HashMACService hashMACService) {
-        this.hashMACService = hashMACService;
-    }
+	@Override
+	public void setHashMACService(HashMACService hashMACService) {
+		this.hashMACService = hashMACService;
+	}
 
-    @Override
-    public HashMACService getHashMACService() {
-        return this.hashMACService;
-    }
+	@Override
+	public HashMACService getHashMACService() {
+		return this.hashMACService;
+	}
 
-    @Override
+	@Override
 	public void close() throws IOException {
 		if (notificationThread != null)
 			notificationThread.close();
