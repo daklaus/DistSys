@@ -9,13 +9,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import at.ac.tuwien.dslab2.service.security.KeyService;
-import at.ac.tuwien.dslab2.service.security.KeyServiceFactory;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPServerNetworkService;
 
 class ServerThread extends Thread {
-    private final KeyService ks;
+    private final HashMACService ks;
     private volatile boolean stop;
 	private final TCPServerNetworkService ns;
 	private final AuctionService as;
@@ -36,7 +36,7 @@ class ServerThread extends Thread {
 
 		ns = NetworkServiceFactory.newTCPServerNetworkService(tcpPort);
 		as = AuctionServerServiceFactory.newAuctionService(analyticsServerRef, billingServerRef);
-        ks = KeyServiceFactory.getService(keyDirectory);
+        ks = HashMACServiceFactory.getService(keyDirectory);
         clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
 	}

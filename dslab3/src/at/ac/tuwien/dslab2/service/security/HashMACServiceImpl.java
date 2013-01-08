@@ -9,11 +9,11 @@ import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
-class KeyServiceImpl implements KeyService {
+class HashMACServiceImpl implements HashMACService {
 
     private final File keyDirectory;
 
-    public KeyServiceImpl(String directory) {
+    public HashMACServiceImpl(String directory) {
         this.keyDirectory = new File(directory);
     }
 

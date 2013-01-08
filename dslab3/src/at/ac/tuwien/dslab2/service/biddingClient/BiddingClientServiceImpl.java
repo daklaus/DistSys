@@ -6,7 +6,7 @@ package at.ac.tuwien.dslab2.service.biddingClient;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import at.ac.tuwien.dslab2.service.security.KeyService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 
@@ -15,7 +15,7 @@ import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-    private final KeyService ks;
+    private final HashMACService ks;
     private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -25,7 +25,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 
-    public BiddingClientServiceImpl(KeyService ks) {
+    public BiddingClientServiceImpl(HashMACService ks) {
         this.ks = ks;
     }
 

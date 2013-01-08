@@ -6,8 +6,8 @@ package at.ac.tuwien.dslab2.presentation.biddingClient;
 import java.io.IOException;
 import java.util.Scanner;
 
-import at.ac.tuwien.dslab2.service.security.KeyService;
-import at.ac.tuwien.dslab2.service.security.KeyServiceFactory;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 
@@ -56,9 +56,9 @@ public class BiddingClient {
 		String serverPublicKeyFileLocation = args[3];
 		String clientsKeysDirectory = args[4];
 
-		KeyService keyService = KeyServiceFactory
+		HashMACService hashMACService = HashMACServiceFactory
 				.getService(clientsKeysDirectory);
-		acs = BiddingClientServiceFactory.newBiddingClientService(keyService);
+		acs = BiddingClientServiceFactory.newBiddingClientService(hashMACService);
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());

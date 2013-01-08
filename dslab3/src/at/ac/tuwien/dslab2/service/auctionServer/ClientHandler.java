@@ -3,7 +3,7 @@ package at.ac.tuwien.dslab2.service.auctionServer;
 import at.ac.tuwien.dslab2.domain.*;
 import at.ac.tuwien.dslab2.service.analyticsServer.AnalyticsServer;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
-import at.ac.tuwien.dslab2.service.security.KeyService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
 import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.SecretKey;
@@ -15,14 +15,14 @@ import java.util.Scanner;
 
 class ClientHandler implements Runnable {
     private volatile boolean stop;
-    private final KeyService ks;
+    private final HashMACService ks;
     private final TCPClientNetworkService ns;
 	private final AuctionService as;
 	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
 
-    public ClientHandler(TCPClientNetworkService ns, AuctionService as, KeyService ks)
+    public ClientHandler(TCPClientNetworkService ns, AuctionService as, HashMACService ks)
 			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(

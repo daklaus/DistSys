@@ -8,7 +8,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public interface KeyService {
+public interface HashMACService {
 
     /**
      * This method creates a key for the specified username.

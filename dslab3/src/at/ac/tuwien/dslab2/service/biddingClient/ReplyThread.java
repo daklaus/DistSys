@@ -1,6 +1,6 @@
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import at.ac.tuwien.dslab2.service.security.KeyService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -11,12 +11,12 @@ import java.util.regex.Pattern;
 
 class ReplyThread extends Thread {
     private final BiddingClientService bcs;
-    private final KeyService ks;
+    private final HashMACService ks;
     private volatile boolean stop;
 	private final TCPClientNetworkService ns;
 	private final ReplyListener listener;
 
-    public ReplyThread(TCPClientNetworkService ns, ReplyListener listener, BiddingClientService bcs, KeyService ks)
+    public ReplyThread(TCPClientNetworkService ns, ReplyListener listener, BiddingClientService bcs, HashMACService ks)
 			throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
