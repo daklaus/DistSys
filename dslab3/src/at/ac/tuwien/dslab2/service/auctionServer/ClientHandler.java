@@ -7,6 +7,7 @@ import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 import org.bouncycastle.util.encoders.Base64;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.SocketException;
@@ -20,7 +21,7 @@ class ClientHandler implements Runnable {
 	private final AnalyticsServer ans;
 	private User user;
 	private NotificationThread notificationThread;
-	private final String keyDirectory;
+	private final File keyDirectory;
 
 	public ClientHandler(TCPClientNetworkService ns, AuctionService as,
 			String keyDirectory) throws IOException {
@@ -32,8 +33,8 @@ class ClientHandler implements Runnable {
 
 		this.ns = ns;
 		this.as = as;
-		this.keyDirectory = keyDirectory;
-		this.ans = as.getAnalysticsServerRef();
+        this.keyDirectory = new File(keyDirectory);
+        this.ans = as.getAnalysticsServerRef();
 		user = null;
 	}
 
@@ -209,7 +210,7 @@ class ClientHandler implements Runnable {
 					HashMACService hashMACService = HashMACServiceFactory
 							.getService(this.keyDirectory, userName);
 					byte[] hashMAC = hashMACService.createHashMAC(auctions
-							.getBytes());
+                            .getBytes());
 					byte[] encodedMAC = Base64.encode(hashMAC);
 					builder.append(new String(encodedMAC));
 

@@ -3,21 +3,24 @@
  */
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
-import java.util.Scanner;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-
-import org.bouncycastle.util.encoders.Base64;
-
 import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
 import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+import org.bouncycastle.util.encoders.Base64;
+
+import java.io.*;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.nio.charset.Charset;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author klaus
@@ -30,7 +33,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private final int serverPort;
 	private final int udpPort;
 	private final String serverPublicKeyFileLocation;
-	private final String clientsKeysDirectory;
+	private final File clientsKeysDirectory;
 	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -41,6 +44,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 	private HashMACService hashMACService;
+    private TCPClientNetworkService RSAns;
+    private TCPClientNetworkService AESns;
 
 	/**
 	 * Sets the server, server port and own UDP port for the networking
@@ -64,7 +69,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.serverPort = serverPort;
 		this.udpPort = udpPort;
 		this.serverPublicKeyFileLocation = serverPublicKeyFileLocation;
-		this.clientsKeysDirectory = clientsKeysDirectory;
+        this.clientsKeysDirectory = new File(clientsKeysDirectory);
 
 		// LinkedBlockingQueue for one reply at a time
 		this.replyQueue = new LinkedBlockingQueue<String>(1);
@@ -102,26 +107,15 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		command = parseCommand(command);
 
-		// Send the command to the server
-		ns.send(command);
-
-		postSendAction(command);
+        if(command != null) {
+            // Send the command to the server
+            ns.send(command);
+            postSendAction(command);
+        }
 	}
 
 	private void postSendAction(String command) throws IOException {
-		if (command.matches("^!login.*")) {
-			try {
-
-				// Wait for reply of login command (and ignore it)
-				this.replyQueue.take();
-
-				// Get client list after login
-				getClientList();
-
-			} catch (InterruptedException e) {
-				throw new IOException("Interrupted login procedure", e);
-			}
-		} else if (command.matches("^!getClientList.*")) {
+		if (command.matches("^!getClientList.*")) {
 			try {
 
 				// Parse and store the client list
@@ -156,7 +150,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 	/**
 	 * Parses the command to see if the client should do something.
-	 * 
+	 *
 	 * @param command
 	 * @return the modified command
 	 * @throws IOException
@@ -189,22 +183,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			if (!sc.hasNext())
 				return command;
 
-			String username = sc.next();
-			setUserName(username);
 
-			initLoginServices(username);
+            setUserName(sc.next());
 
-			// Changed here LoginCommand for Lab3!
-			// cmd = cmd + " " + udpPort;
-			String clientChallenge = generateClientChallenge(Charset
-					.forName("UTF-16"));
-			command = command + " " + udpPort + " " + clientChallenge;
-
-			// Clean queue if it has another reply of a previous command
-			this.replyQueue.clear();
-			// Begin synchronization with queue
-			this.replyListener.setForwardToQueue(true);
-
+            try {
+                LoginAction();
+                //after successful login procedure
+                postLoginAction();
+            } catch (RuntimeException e) {
+                System.err.println(e.getCause().getMessage());
+                System.err.flush();
+            }
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			// Clean queue if it has another reply of a previous command
 			this.replyQueue.clear();
@@ -219,6 +208,46 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		return command;
 	}
+
+    private void LoginAction() {
+        // Clean queue if it has another reply of a previous command
+        this.replyQueue.clear();
+        // Begin synchronization with queue
+        this.replyListener.setForwardToQueue(true);
+
+        // Changed here LoginCommand for Lab3!
+        // command = command + " " + udpPort;
+        String clientChallenge = generateClientChallenge(Charset
+                .forName("UTF-16"));
+        String command =  "!login " + serverPort + " " + clientChallenge;
+
+        initLoginServices(new PasswordFinder() {
+            @Override
+            public char[] getPassword() {
+                // reads the password from standard input for decrypting the private key
+                System.out.println("Enter pass phrase:");
+                try {
+                    return new BufferedReader(new InputStreamReader(System.in)).readLine().toCharArray();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    private void postLoginAction() throws IOException {
+        try {
+
+            // Wait for reply of login command (and ignore it)
+            this.replyQueue.take();
+
+            // Get client list after login
+            getClientList();
+
+        } catch (InterruptedException e) {
+            throw new IOException("Interrupted login procedure", e);
+        }
+    }
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
@@ -237,16 +266,37 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return new String(encodedRandom, charset);
 	}
 
-	private void initLoginServices(String username) throws IOException {
+	private void initLoginServices(PasswordFinder passwordFinder) {
 		try {
 			this.hashMACService = HashMACServiceFactory.getService(
-					clientsKeysDirectory, username);
-		} catch (IOException e) {
-			throw new IOException("Could not log in because keys for user "
-					+ username + " not found in directory "
+					clientsKeysDirectory, userName);
+            PrivateKey privateKey = readPrivateKey(clientsKeysDirectory.getPath() + "/" + userName + ".pem", passwordFinder);
+            PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
+            this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(this.ns, publicKey, privateKey);
+        } catch (IOException e) {
+			throw new RuntimeException("Could not log in because keys for user '"
+					+ userName + " not found in directory "
 					+ clientsKeysDirectory, e);
 		}
 	}
+
+    private PublicKey readPublicKey(String path) throws IOException {
+        PEMReader in = new PEMReader(new FileReader(path));
+        Object o = in.readObject();
+        if (o instanceof PublicKey) {
+            return (PublicKey) o;
+        }
+        throw new IOException("Read Object isn not of type 'PublicKey'.\nType is:" + o.getClass().getSimpleName());
+    }
+
+    private PrivateKey readPrivateKey(String path, PasswordFinder passwordFinder) throws IOException {
+        PEMReader in = new PEMReader(new FileReader(path), passwordFinder);
+        Object o = in.readObject();
+        if (o instanceof KeyPair) {
+            return ((KeyPair) o).getPrivate();
+        }
+        throw new IOException("Read Object isn not of type 'KeyPair'.\nType is:" + o.getClass().getSimpleName());
+    }
 
 	private boolean tryConnect() {
 		try {
