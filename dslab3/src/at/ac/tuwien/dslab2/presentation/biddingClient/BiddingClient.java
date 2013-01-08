@@ -22,8 +22,8 @@ public class BiddingClient {
 	private static BiddingClientService acs;
 	private static int udpPort;
 	private static int tcpPort;
-    private static String serverPublicKeyFileLocation;
-    private static String clientsKeysDirectory;
+	private static String serverPublicKeyFileLocation;
+	private static String clientsKeysDirectory;
 
 	/**
 	 * @param args
@@ -62,12 +62,13 @@ public class BiddingClient {
 		serverPublicKeyFileLocation = args[3];
 		clientsKeysDirectory = args[4];
 
-		acs = BiddingClientServiceFactory.newBiddingClientService();
+		acs = BiddingClientServiceFactory.newBiddingClientService(host,
+				tcpPort, udpPort);
 		acs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		acs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
 		try {
-			acs.connect(host, tcpPort, udpPort);
+			acs.connect();
 		} catch (IOException e) {
 			System.err.println("Error while connecting:");
 			e.printStackTrace();
@@ -115,12 +116,13 @@ public class BiddingClient {
 					end = true;
 					break;
 				case Login:
-                    //Changed here LoginCommand for Lab3!
-//					cmd = cmd + " " + udpPort;
-                    String clientChallenge = generateClientChallenge(Charset.forName("UTF-16"));
-                    cmd = cmd + " " + tcpPort + " " + clientChallenge;
-                    break;
-                }
+					// Changed here LoginCommand for Lab3!
+					// cmd = cmd + " " + udpPort;
+					String clientChallenge = generateClientChallenge(Charset
+							.forName("UTF-16"));
+					cmd = cmd + " " + tcpPort + " " + clientChallenge;
+					break;
+				}
 			}
 
 			if (!end && r != ParseResult.Fail) {
@@ -139,21 +141,22 @@ public class BiddingClient {
 		}
 	}
 
-    /**
-     *  This method generates a 32 byte secure random number
-     *  and encodes it with Base64 encoding
-     *
-     * @param charset the charset which will be used for translating
-     *                the encoded byte array to a string
-     * @return the generated 32 byte secure random number Base64 encoded
-     */
-    static String generateClientChallenge(Charset charset) {
-        SecureRandom secureRandom = new SecureRandom();
-        final byte[] number = new byte[32];
-        secureRandom.nextBytes(number);
-        byte[] encodedRandom = Base64.encode(number);
-        return new String(encodedRandom, charset);
-    }
+	/**
+	 * This method generates a 32 byte secure random number and encodes it with
+	 * Base64 encoding
+	 * 
+	 * @param charset
+	 *            the charset which will be used for translating the encoded
+	 *            byte array to a string
+	 * @return the generated 32 byte secure random number Base64 encoded
+	 */
+	static String generateClientChallenge(Charset charset) {
+		SecureRandom secureRandom = new SecureRandom();
+		final byte[] number = new byte[32];
+		secureRandom.nextBytes(number);
+		byte[] encodedRandom = Base64.encode(number);
+		return new String(encodedRandom, charset);
+	}
 
 	synchronized static void close() {
 		if (acs != null) {

@@ -150,12 +150,12 @@ class LoadTestServiceImpl implements LoadTestService {
 	private void startBiddingClients() throws IOException {
 		for (int i = 0; i < this.clientCount; i++) {
 			BiddingClientService biddingClientService = BiddingClientServiceFactory
-					.newBiddingClientService();
+					.newBiddingClientService(auctionServerHostName,
+							auctionServerTcpPort, 1);
 			biddingClientService.setReplyListener(new LoadTestReplyListener(
 					auctionListQueue, auctionBiddingQueue, auctionCreateQueue),
 					null);
-			biddingClientService.connect(auctionServerHostName,
-					auctionServerTcpPort, 1);
+			biddingClientService.connect();
 			biddingClientService.submitCommand("!login user" + i + " 1");
 			this.biddingClientServices.add(biddingClientService);
 		}

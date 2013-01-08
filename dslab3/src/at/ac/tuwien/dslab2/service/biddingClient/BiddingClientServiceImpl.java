@@ -15,6 +15,9 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
+	private final String server;
+	private final int serverPort;
+	private final int udpPort;
 	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -25,7 +28,26 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private String userName;
 	private HashMACService hashMACService;
 
-	public BiddingClientServiceImpl() {
+	/**
+	 * Sets the server, server port and own UDP port for the networking
+	 * 
+	 * @param server
+	 *            the host name or IP address of the auction server
+	 * @param serverPort
+	 *            the TCP port of the auction server
+	 * @param udpPort
+	 *            the UDP port on which to listen for notifications from the
+	 *            server
+	 */
+	public BiddingClientServiceImpl(String server, int serverPort, int udpPort) {
+		if (server == null || server.isEmpty() || serverPort <= 0
+				|| udpPort <= 0)
+			throw new IllegalArgumentException(
+					"The server or the server port are not set properly");
+
+		this.server = server;
+		this.serverPort = serverPort;
+		this.udpPort = udpPort;
 	}
 
 	@Override
@@ -62,16 +84,13 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		ns.send(command);
 	}
 
+	private void reconnect() {
+
+	}
+
 	@Override
-	public void connect(String server, int serverPort, int udpPort)
-			throws IOException {
-
+	public void connect() throws IOException {
 		if (ns == null) {
-			if (server == null || server.isEmpty() || serverPort <= 0
-					|| udpPort <= 0)
-				throw new IllegalArgumentException(
-						"The server or the server port are not set properly");
-
 			ns = NetworkServiceFactory.newTCPClientNetworkService(server,
 					serverPort);
 		}

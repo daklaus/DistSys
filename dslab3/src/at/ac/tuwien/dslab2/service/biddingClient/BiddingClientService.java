@@ -47,19 +47,12 @@ public interface BiddingClientService extends Closeable {
 	void submitCommand(String command) throws IOException;
 
 	/**
-	 * Sets the server, server port and own UDP port for the networking. This
-	 * has to be done before any command can be submitted.
+	 * Connects the service to the server. This has to be done before any
+	 * command can be submitted.
 	 * 
-	 * @param server
-	 *            the host name or IP address of the auction server
-	 * @param serverPort
-	 *            the TCP port of the auction server
-	 * @param udpPort
-	 *            the UDP port on which to listen for notifications from the
-	 *            server
 	 * @throws IOException
 	 */
-	void connect(String server, int serverPort, int udpPort) throws IOException;
+	void connect() throws IOException;
 
 	/**
 	 * Determines whether the service is connected or not
@@ -82,18 +75,17 @@ public interface BiddingClientService extends Closeable {
 	 */
 	String getUserName();
 
-    /**
-     * Sets the hashMACService
-     *
-     * @param hashMACService
-     */
-    void setHashMACService(HashMACService hashMACService);
+	/**
+	 * Sets the hashMACService
+	 * 
+	 * @param hashMACService
+	 */
+	void setHashMACService(HashMACService hashMACService);
 
-
-    /**
-     * Gets the HashMACService if logged in
-     *
-     * @return the HashMACService if logged in; null otherwise
-     */
-    HashMACService getHashMACService();
+	/**
+	 * Gets the HashMACService if logged in
+	 * 
+	 * @return the HashMACService if logged in; null otherwise
+	 */
+	HashMACService getHashMACService();
 }
