@@ -7,8 +7,11 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 import at.ac.tuwien.dslab2.service.security.HashMACService;
 import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
+import org.bouncycastle.util.encoders.Base64;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
 /**
@@ -18,6 +21,7 @@ import java.util.Scanner;
 public class BiddingClient {
 	private static BiddingClientService acs;
 	private static int udpPort;
+	private static int tcpPort;
     private static String serverPublicKeyFileLocation;
     private static String clientsKeysDirectory;
 
@@ -49,7 +53,7 @@ public class BiddingClient {
 		sc = new Scanner(args[1]);
 		if (!sc.hasNextInt())
 			usage();
-		int tcpPort = sc.nextInt();
+		tcpPort = sc.nextInt();
 
 		sc = new Scanner(args[2]);
 		if (!sc.hasNextInt())
@@ -113,8 +117,11 @@ public class BiddingClient {
 					end = true;
 					break;
 				case Login:
-					cmd = cmd + " " + udpPort;
-					break;
+                    //Changed here LoginCommand for Lab3!
+//					cmd = cmd + " " + udpPort;
+                    String clientChallenge = generateClientChallenge(Charset.forName("UTF-16"));
+                    cmd = cmd + " " + tcpPort + " " + clientChallenge;
+                    break;
                 }
 			}
 
@@ -133,6 +140,22 @@ public class BiddingClient {
             }
         }
 	}
+
+    /**
+     *  This method generates a 32 byte secure random number
+     *  and encodes it with Base64 encoding
+     *
+     * @param charset the charset which will be used for translating
+     *                the encoded byte array to a string
+     * @return the generated 32 byte secure random number Base64 encoded
+     */
+    static String generateClientChallenge(Charset charset) {
+        SecureRandom secureRandom = new SecureRandom();
+        final byte[] number = new byte[32];
+        secureRandom.nextBytes(number);
+        byte[] encodedRandom = Base64.encode(number);
+        return new String(encodedRandom, charset);
+    }
 
 	synchronized static void close() {
 		if (acs != null) {
