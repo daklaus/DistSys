@@ -86,4 +86,9 @@ class UDPClientNetworkServiceImpl implements UDPClientNetworkService {
 		return socket.getPort();
 	}
 
+	@Override
+	public boolean isConnected() {
+		return socket.isBound() && socket.isConnected() && !socket.isClosed();
+	}
+
 }

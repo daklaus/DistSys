@@ -25,7 +25,6 @@ public class BiddingClient {
     private static String serverPublicKeyFileLocation;
     private static String clientsKeysDirectory;
 
-
 	/**
 	 * @param args
 	 */
@@ -62,7 +61,6 @@ public class BiddingClient {
 
 		serverPublicKeyFileLocation = args[3];
 		clientsKeysDirectory = args[4];
-
 
 		acs = BiddingClientServiceFactory.newBiddingClientService();
 		acs.setNotificationListener(new NotificationListenerImpl(),
@@ -125,20 +123,20 @@ public class BiddingClient {
                 }
 			}
 
-            if (!end && r != ParseResult.Fail) {
-                try {
-                    if (!cmd.trim().isEmpty()) {
-                        acs.submitCommand(cmd);
-                    }
+			if (!end && r != ParseResult.Fail) {
+				try {
+					if (!cmd.trim().isEmpty()) {
+						acs.submitCommand(cmd);
+					}
 
-                    System.out.print(getPrompt());
-                    System.out.flush();
-                } catch (Exception e) {
-                    System.err.println("Error while submitting command:");
-                    e.printStackTrace();
-                }
-            }
-        }
+					System.out.print(getPrompt());
+					System.out.flush();
+				} catch (Exception e) {
+					System.err.println("Error while submitting command: "
+							+ e.getMessage());
+				}
+			}
+		}
 	}
 
     /**
@@ -212,16 +210,16 @@ public class BiddingClient {
 
 		tmp = sc.next(cmdRegex);
 		if (tmp.equalsIgnoreCase("!login")) {
-            if (!sc.hasNext()) {
-                return null;
-            }
-            String username = sc.next();
-            acs.setUserName(username);
+			if (!sc.hasNext()) {
+				return null;
+			}
+			String username = sc.next();
+			acs.setUserName(username);
 
-            return initLoginServices(username);
-        } else if (tmp.equalsIgnoreCase("!logout")) {
+			return initLoginServices(username);
+		} else if (tmp.equalsIgnoreCase("!logout")) {
 			acs.setUserName(null);
-            acs.setHashMACService(null);
+			acs.setHashMACService(null);
 		} else if (tmp.equalsIgnoreCase("!end")) {
 			return ParseResult.End;
 		}
@@ -229,16 +227,19 @@ public class BiddingClient {
 		return null;
 	}
 
-    private static ParseResult initLoginServices(String username) {
-        try {
-            HashMACService hashMACService = HashMACServiceFactory.getService(clientsKeysDirectory, username);
-            acs.setHashMACService(hashMACService);
-        } catch (IOException e) {
-            System.out.println("Could not log in because keys for user " + username + " not found in directory " + clientsKeysDirectory);
-            System.out.flush();
-            return ParseResult.Fail;
-        }
-        return ParseResult.Login;
-    }
+	private static ParseResult initLoginServices(String username) {
+		try {
+			HashMACService hashMACService = HashMACServiceFactory.getService(
+					clientsKeysDirectory, username);
+			acs.setHashMACService(hashMACService);
+		} catch (IOException e) {
+			System.out.println("Could not log in because keys for user "
+					+ username + " not found in directory "
+					+ clientsKeysDirectory);
+			System.out.flush();
+			return ParseResult.Fail;
+		}
+		return ParseResult.Login;
+	}
 
 }

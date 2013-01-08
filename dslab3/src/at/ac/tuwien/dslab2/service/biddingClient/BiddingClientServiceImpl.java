@@ -15,7 +15,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-    private TCPClientNetworkService ns;
+	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
@@ -23,10 +23,10 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private ReplyThread replyThread;
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
-    private HashMACService hashMACService;
+	private HashMACService hashMACService;
 
-    public BiddingClientServiceImpl() {
-    }
+	public BiddingClientServiceImpl() {
+	}
 
 	@Override
 	public void setNotificationListener(NotificationListener listener,
@@ -46,6 +46,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	public void submitCommand(String command) throws IOException {
 		if (!isConnected())
 			throw new IllegalStateException("Service not connected!");
+
+		if (!ns.isConnected()) {
+			if (!command.matches("^!bid.*")) {
+				throw new IllegalStateException(
+						"The server is down! Wait for it being online again.");
+			} else {
+				// If it was a !bid command
+				// TODO: Get random clients' signed timestamps
+				// TODO: Retry sending with !signedBid
+			}
+		}
 
 		// Send the command to the server
 		ns.send(command);
@@ -120,17 +131,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return this.userName;
 	}
 
-    @Override
-    public void setHashMACService(HashMACService hashMACService) {
-        this.hashMACService = hashMACService;
-    }
+	@Override
+	public void setHashMACService(HashMACService hashMACService) {
+		this.hashMACService = hashMACService;
+	}
 
-    @Override
-    public HashMACService getHashMACService() {
-        return this.hashMACService;
-    }
+	@Override
+	public HashMACService getHashMACService() {
+		return this.hashMACService;
+	}
 
-    @Override
+	@Override
 	public void close() throws IOException {
 		if (notificationThread != null)
 			notificationThread.close();
