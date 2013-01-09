@@ -164,7 +164,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 	/**
 	 * Parses the command to see if the client should do something.
-	 *
+	 * 
 	 * @param command
 	 * @return the modified command
 	 * @throws IOException
@@ -198,7 +198,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 				return command;
 
 			setUserName(sc.next());
-			//command += " " + udpPort;
+			command += " " + udpPort;
 
 			command = preLoginAction(command);
 
@@ -236,10 +236,10 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return command;
 	}
 
-    private void postLoginAction() throws IOException {
-        // @stefan: Hier kannst deine sachen machen die nach dem login command
-        // und vor meinen sachen passieren sollen
-    }
+	private void postLoginAction() throws IOException {
+		// @stefan: Hier kannst deine sachen machen die nach dem login command
+		// und vor meinen sachen passieren sollen
+	}
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
@@ -279,7 +279,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void changeNS(TCPClientNetworkService newNS) {
 		// Exchange the NS
 		this.ns = newNS;
-		
+
 		// Stop the reply thread
 		if (replyThread != null) {
 			try {
@@ -287,7 +287,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			} catch (IOException ignored) {
 			}
 		}
-		
+
 		// Restart the reply thread
 		try {
 			startReplying();
