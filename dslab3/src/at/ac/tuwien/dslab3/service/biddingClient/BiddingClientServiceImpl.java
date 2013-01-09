@@ -290,7 +290,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
             String serverReply = this.replyQueue.take();
 
             String B64 = "a-zA-Z0-9/+";
-            Pattern pattern = Pattern.compile("!ok ([\"+B64+\"]{43}=) ([\"+B64+\"]{43}=) ([\"+B64+\"]{43}=) ([\"+B64+\"]{22}==)");
+            Pattern pattern = Pattern.compile("!ok ([" + B64 + "]{43}=) ([" + B64 + "]{43}=) ([" + B64 + "]{43}=) ([" + B64 + "]{22}==)");
             Matcher matcher = pattern.matcher(serverReply);
             if (!matcher.matches() || matcher.groupCount() != 4) {
                 throw new IOException("Server responses 'Login denied' ");
