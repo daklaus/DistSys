@@ -1,21 +1,22 @@
 package at.ac.tuwien.dslab3.service.net;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 
 class AESTCPServerDecorator implements TCPServerNetworkService {
 
     private final TCPServerNetworkService tcpServerNetworkService;
-    private final SecretKey secretKey;
+    private final byte[] secretKey;
+    private final byte[] iv;
 
-    public AESTCPServerDecorator(TCPServerNetworkService tcpServerNetworkService, SecretKey secretKey) {
+    public AESTCPServerDecorator(TCPServerNetworkService tcpServerNetworkService, byte[] secretKey, byte[] iv) {
         this.tcpServerNetworkService = tcpServerNetworkService;
         this.secretKey = secretKey;
+        this.iv = iv;
     }
 
     @Override
     public TCPClientNetworkService accept() throws IOException {
-        return new AESTCPClientDecorator(this.tcpServerNetworkService.accept(), this.secretKey);
+        return new AESTCPClientDecorator(this.tcpServerNetworkService.accept(), secretKey, iv);
     }
 
     @Override

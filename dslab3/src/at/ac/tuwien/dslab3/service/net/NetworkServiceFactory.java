@@ -18,6 +18,16 @@ public abstract class NetworkServiceFactory {
         return new RSATCPServerDecorator(tcpServerNetworkService, publicKey, privateKey);
     }
 
+    public static TCPClientNetworkService newAESTCPClientNetworkService(
+            TCPClientNetworkService tcpClientNetworkService, byte[] secretKey, byte[] iv) {
+        return new AESTCPClientDecorator(tcpClientNetworkService, secretKey, iv);
+    }
+
+    public static TCPServerNetworkService newAESTCPServerNetworkService(
+            TCPServerNetworkService tcpServerNetworkService,  byte[] secretKey, byte[] iv) {
+        return new AESTCPServerDecorator(tcpServerNetworkService, secretKey, iv);
+    }
+
 	public static TCPClientNetworkService newTCPClientNetworkService(
 			Socket socket) throws IOException {
 		return new TCPClientNetworkServiceImpl(socket);
