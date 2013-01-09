@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
+	private static final String SERVER_DOWN_MSG = "The server is down! Wait for it being online again.";
+
 	private static final double RECONNECT_TIMEOUT = 5; // in seconds
 
 	private final String server;
@@ -110,13 +112,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			throw new IllegalStateException("Service not connected!");
 
 		if (!ns.isConnected()) {
-			if (!command.matches("^!bid.*")) {
-				throw new IllegalStateException(
-						"The server is down! Wait for it being online again.");
-			} else {
-				// If it was a !bid command
-				// TODO: Get random clients' signed timestamps
-				// TODO: Retry sending with !signedBid
+			// If server is down, only bid commands are allowed
+			if (!command.matches("^\\s*!bid.*")) {
+				throw new IllegalStateException(SERVER_DOWN_MSG);
 			}
 		}
 
@@ -252,19 +250,34 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			if (!sc.hasNext())
 				return command;
 
-            beginSynchronousReplying();
+			beginSynchronousReplying();
 
 			turnOffReplyDisplaying();
 
-            setUserName(sc.next());
+			setUserName(sc.next());
 
-            command += " " + udpPort;
+			command += " " + udpPort;
 
-            command = preLoginAction(command);
+			command = preLoginAction(command);
 
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			beginSynchronousReplying();
 
+		} else if (tmp.equalsIgnoreCase("!bid")) {
+			// Only do special things if the server is down
+			if (ns.isConnected())
+				return command;
+
+			if (!sc.hasNextLong())
+				throw new IllegalStateException(SERVER_DOWN_MSG);
+			long auctionId = sc.nextLong();
+			if (!sc.hasNextDouble())
+				throw new IllegalStateException(SERVER_DOWN_MSG);
+			double amount = sc.nextDouble();
+
+			// If it was a !bid command
+			// TODO: Get random clients' signed timestamps
+			// TODO: Retry sending with !signedBid
 		} else if (tmp.equalsIgnoreCase("!logout")) {
 			setUserName(null);
 			this.hashMACService = null;
