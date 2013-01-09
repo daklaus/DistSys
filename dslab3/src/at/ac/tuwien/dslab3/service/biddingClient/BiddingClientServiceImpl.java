@@ -132,41 +132,42 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void postSendAction(String command) throws IOException {
 		if (command.matches("^!login.*")) {
 			try {
-				// Wait for reply of login command (and ignore it)
-				this.replyQueue.take();
-
 				postLoginAction();
 
-				// After successful login
-
-				// Get client list after login
+				// Get client list after successful login
 				getClientList();
+
+				turnOnReplyDisplaying();
+
+				endSynchronousReplying();
 			} catch (InterruptedException e) {
 				throw new IOException("Interrupted login procedure", e);
 			}
 		} else if (command.matches("^!getClientList.*")) {
 
 			try {
-				parseClientList(this.replyQueue.take());
+				parseClientList(getSynchronousReply());
 			} catch (InterruptedException ignored) {
 			}
-			// Turn off pasting in the synchronization queue again
-			this.replyListener.setForwardToQueue(false);
+			endSynchronousReplying();
 		}
 	}
 
 	private void getClientList() throws IOException, InterruptedException {
-		// Turn off output to the presentation layer
-		this.replyListener.setForwardToListener(false);
 		// Get clients list
 		ns.send("!getClientList");
 		// Parse and store the client list
-		parseClientList(this.replyQueue.take());
+		parseClientList(getSynchronousReply());
+	}
 
+	private void turnOffReplyDisplaying() {
+		// Turn off output to the presentation layer
+		this.replyListener.setForwardToListener(false);
+	}
+
+	private void turnOnReplyDisplaying() {
 		// Turn on displaying to the presentation layer again
 		this.replyListener.setForwardToListener(true);
-		// Turn off pasting in the synchronization queue again
-		this.replyListener.setForwardToQueue(false);
 	}
 
 	private void parseClientList(String clientList) {
@@ -192,6 +193,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			try {
 				ipAddress = InetAddress.getByName(mr.group(1));
 			} catch (UnknownHostException ignored) {
+				continue;
 			}
 			// port
 			port = Integer.parseInt(mr.group(2));
@@ -244,21 +246,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 			setUserName(sc.next());
 
-            //TODO: Change this to tcpPort!
+			// TODO: Change this to tcpPort!
 			command += " " + udpPort;
 
 			command = preLoginAction(command);
 
-			// Clean queue if it has another reply of a previous command
-			this.replyQueue.clear();
-			// Begin synchronization with queue
-			this.replyListener.setForwardToQueue(true);
+			beginSynchronousReplying();
+
+			turnOffReplyDisplaying();
 
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
-			// Clean queue if it has another reply of a previous command
-			this.replyQueue.clear();
-			// Begin synchronization with queue
-			this.replyListener.setForwardToQueue(true);
+			beginSynchronousReplying();
 
 		} else if (tmp.equalsIgnoreCase("!logout")) {
 			setUserName(null);
@@ -267,6 +265,22 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		}
 
 		return command;
+	}
+
+	private void beginSynchronousReplying() {
+		// Clean queue if it has another reply of a previous command
+		this.replyQueue.clear();
+		// Begin synchronization with queue
+		this.replyListener.setForwardToQueue(true);
+	}
+
+	private void endSynchronousReplying() {
+		// Turn off pasting in the synchronization queue again
+		this.replyListener.setForwardToQueue(false);
+	}
+
+	private String getSynchronousReply() throws InterruptedException {
+		return this.replyQueue.take();
 	}
 
 	private String preLoginAction(String command) throws IOException {
@@ -284,26 +298,27 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void postLoginAction() throws IOException {
-        // @stefan: Hier kannst deine sachen machen die nach dem login command
-        // und vor meinen sachen passieren sollen
-        try {
-            String serverReply = this.replyQueue.take();
+		// @stefan: Hier kannst deine sachen machen die nach dem login command
+		// und vor meinen sachen passieren sollen
+		try {
+			String serverReply = getSynchronousReply();
 
-            Pattern pattern = Pattern.compile("\\s*!ok\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s*");
-            Matcher matcher = pattern.matcher(serverReply);
-            if (!matcher.matches() || matcher.groupCount() != 4) {
-                throw new IOException("Server responses 'Login denied' ");
-            }
+			Pattern pattern = Pattern
+					.compile("\\s*!ok\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s*");
+			Matcher matcher = pattern.matcher(serverReply);
+			if (!matcher.matches() || matcher.groupCount() != 4) {
+				throw new IOException("Server responses 'Login denied' ");
+			}
 
-            byte[] clientChallenge = Base64.decode(matcher.group(1));
-            byte[] serverChallenge = Base64.decode(matcher.group(2));
-            byte[] secretKey = Base64.decode(matcher.group(3));
-            byte[] ivParameter = Base64.decode(matcher.group(4));
+			byte[] clientChallenge = Base64.decode(matcher.group(1));
+			byte[] serverChallenge = Base64.decode(matcher.group(2));
+			byte[] secretKey = Base64.decode(matcher.group(3));
+			byte[] ivParameter = Base64.decode(matcher.group(4));
 
-        } catch (InterruptedException e) {
-            throw new IOException("Interrupted login procedure", e);
-        }
-    }
+		} catch (InterruptedException e) {
+			throw new IOException("Interrupted login procedure", e);
+		}
+	}
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
@@ -331,9 +346,10 @@ class BiddingClientServiceImpl implements BiddingClientService {
 					clientsKeysDirectory.getPath() + "/" + userName + ".pem",
 					passwordFinder);
 			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
-            TCPClientNetworkService RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
-                    this.ns, publicKey, privateKey);
-            changeNS(RSAns);
+			TCPClientNetworkService RSAns = NetworkServiceFactory
+					.newRSATCPClientNetworkService(this.ns, publicKey,
+							privateKey);
+			changeNS(RSAns);
 
 		} catch (IOException e) {
 			Throwable cause = e.getCause();
