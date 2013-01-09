@@ -11,7 +11,9 @@ import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PasswordFinder;
 import org.bouncycastle.util.encoders.Base64;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
@@ -259,24 +261,28 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 
-	private void initLoginServices(PasswordFinder passwordFinder)
-			throws IOException {
-		try {
-			this.hashMACService = HashMACServiceFactory.getService(
-					clientsKeysDirectory, userName);
-			PrivateKey privateKey = readPrivateKey(
-					"dslab3/" + clientsKeysDirectory.getPath() + "/" + userName + ".pem",
+    private void initLoginServices(PasswordFinder passwordFinder)
+            throws IOException {
+        try {
+            this.hashMACService = HashMACServiceFactory.getService(
+                    clientsKeysDirectory, userName);
+            PrivateKey privateKey = readPrivateKey(
+                    "dslab3/" + clientsKeysDirectory.getPath() + "/" + userName + ".pem",
                     passwordFinder);
-			PublicKey publicKey = readPublicKey("dslab3/" + serverPublicKeyFileLocation);
-			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
-					this.ns, publicKey, privateKey);
-		} catch (IOException e) {
-			throw new IOException(
-					"Could not log in because keys for user '" + userName
-							+ " not found in directory " + clientsKeysDirectory,
-					e);
+            PublicKey publicKey = readPublicKey("dslab3/" + serverPublicKeyFileLocation);
+            this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
+                    this.ns, publicKey, privateKey);
+        } catch (IOException e) {
+            if (e.getCause().getClass() == IOException.class) {
+                throw new IOException(
+                        "Could not log in because keys for user '" + userName
+                                + " not found in directory " + clientsKeysDirectory,
+                        e);
+            } else {
+                throw e;
+            }
         }
-	}
+    }
 
 	private void changeNS(TCPClientNetworkService newNS) {
 		// Exchange the NS
