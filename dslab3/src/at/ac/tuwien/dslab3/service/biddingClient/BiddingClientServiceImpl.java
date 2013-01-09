@@ -141,21 +141,24 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void postSendAction(String command) throws IOException {
 		if (command.matches("^!login.*")) {
 			try {
-				try {
-					postLoginAction();
+                try {
+                    postLoginAction();
 
-					// Get client list after successful login
-					getClientList();
+                    // Get client list after successful login
+                    getClientList();
 
-				} finally {
-					turnOnReplyDisplaying();
+                } catch (IOException e) {
+                    changeNS(this.rawNS);
+                    throw new IOException(e);
+                } finally {
+                    turnOnReplyDisplaying();
 
-					endSynchronousReplying();
-				}
+                    endSynchronousReplying();
+                }
 
-				this.replyListener.displayReply("Successfully logged in as "
-						+ userName);
-			} catch (InterruptedException e) {
+                this.replyListener.displayReply("Successfully logged in as "
+                        + userName);
+            } catch (InterruptedException e) {
 				throw new IOException("Interrupted login procedure", e);
 			}
 		} else if (command.matches("^!getClientList.*")) {
@@ -465,6 +468,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			changeNS(RSAns);
 
 		} catch (IOException e) {
+            changeNS(this.rawNS);
 			Throwable cause = e.getCause();
 			if (cause != null && cause.getClass() == IOException.class) {
 				throw new IOException("Could not log in because keys for user "
