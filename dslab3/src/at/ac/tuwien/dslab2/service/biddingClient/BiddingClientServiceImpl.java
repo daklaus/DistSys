@@ -171,13 +171,12 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void parseClientList(String clientList) {
+		List<User> list = new LinkedList<User>();
 		InetAddress ipAddress;
 		int port;
 		String username;
 		Client c;
 		User u;
-
-		this.currentClientList.clear();
 
 		Scanner sc = new Scanner(clientList);
 		// Skip the header line
@@ -202,8 +201,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 			c = new Client(ipAddress, 0, port);
 			u = new User(username, c);
-			this.currentClientList.add(u);
+			list.add(u);
 		}
+
+		this.currentClientList.clear();
+		this.currentClientList.addAll(list);
 	}
 
 	/**
@@ -302,29 +304,28 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return new String(encodedRandom, charset);
 	}
 
-
-    private void initLoginServices(PasswordFinder passwordFinder)
-            throws IOException {
-        try {
-            this.hashMACService = HashMACServiceFactory.getService(
-                    clientsKeysDirectory, userName);
-            PrivateKey privateKey = readPrivateKey(
-                    "dslab3/" + clientsKeysDirectory.getPath() + "/" + userName + ".pem",
-                    passwordFinder);
-            PublicKey publicKey = readPublicKey("dslab3/" + serverPublicKeyFileLocation);
-            this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
-                    this.ns, publicKey, privateKey);
-        } catch (IOException e) {
-            if (e.getCause().getClass() == IOException.class) {
-                throw new IOException(
-                        "Could not log in because keys for user '" + userName
-                                + " not found in directory " + clientsKeysDirectory,
-                        e);
-            } else {
-                throw e;
-            }
-        }
-    }
+	private void initLoginServices(PasswordFinder passwordFinder)
+			throws IOException {
+		try {
+			this.hashMACService = HashMACServiceFactory.getService(
+					clientsKeysDirectory, userName);
+			PrivateKey privateKey = readPrivateKey(clientsKeysDirectory.getPath() + "/" + userName + ".pem",
+					passwordFinder);
+			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
+			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
+					this.ns, publicKey, privateKey);
+		} catch (IOException e) {
+			Throwable cause = e.getCause();
+			if (cause != null && cause.getClass() == IOException.class) {
+				throw new IOException(
+						"Could not log in because keys for user '" + userName
+								+ " not found in directory "
+								+ clientsKeysDirectory, e);
+			} else {
+				throw e;
+			}
+		}
+	}
 
 	private void changeNS(TCPClientNetworkService newNS) {
 		// Exchange the NS
