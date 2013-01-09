@@ -12,6 +12,7 @@ import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServer;
 import at.ac.tuwien.dslab2.service.billingServer.BillingServerFactory;
 import at.ac.tuwien.dslab2.service.managementClient.*;
+import org.bouncycastle.openssl.PasswordFinder;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -149,20 +150,26 @@ class LoadTestServiceImpl implements LoadTestService {
 
 	private void startBiddingClients() throws IOException {
 		for (int i = 0; i < this.clientCount; i++) {
-			// TODO: Remove static definition of server's public key file
-			// location and client keys directory
-			BiddingClientService biddingClientService = BiddingClientServiceFactory
-					.newBiddingClientService(auctionServerHostName,
-							auctionServerTcpPort, 1,
-							"keys/auction-server.pub.pem", "keys/");
-			biddingClientService.setReplyListener(new LoadTestReplyListener(
-					auctionListQueue, auctionBiddingQueue, auctionCreateQueue),
-					null);
-			biddingClientService.connect();
-			biddingClientService.submitCommand("!login user" + i + " 1");
-			this.biddingClientServices.add(biddingClientService);
-		}
-	}
+            // TODO: Remove static definition of server's public key file
+            // TODO: Define appropriate PasswordFinder!
+            // location and client keys directory
+            BiddingClientService biddingClientService = BiddingClientServiceFactory
+                    .newBiddingClientService(auctionServerHostName,
+                            auctionServerTcpPort, 1,
+                            "keys/auction-server.pub.pem", "keys/", new PasswordFinder() {
+                        @Override
+                        public char[] getPassword() {
+                            return "23456".toCharArray();
+                        }
+                    });
+            biddingClientService.setReplyListener(new LoadTestReplyListener(
+                    auctionListQueue, auctionBiddingQueue, auctionCreateQueue),
+                    null);
+            biddingClientService.connect();
+            biddingClientService.submitCommand("!login user" + i + " 1");
+            this.biddingClientServices.add(biddingClientService);
+        }
+    }
 
 	private void startTimerTasks() throws IOException {
 		for (BiddingClientService biddingClientService : this.biddingClientServices) {

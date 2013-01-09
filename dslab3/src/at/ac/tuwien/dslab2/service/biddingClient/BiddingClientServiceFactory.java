@@ -1,5 +1,7 @@
 package at.ac.tuwien.dslab2.service.biddingClient;
 
+import org.bouncycastle.openssl.PasswordFinder;
+
 public abstract class BiddingClientServiceFactory {
 
 	/**
@@ -15,8 +17,8 @@ public abstract class BiddingClientServiceFactory {
 	 */
 	public static BiddingClientService newBiddingClientService(String server,
 			int serverPort, int udpPort, String serverPublicKeyFileLocation,
-			String clientsKeysDirectory) {
+			String clientsKeysDirectory, PasswordFinder passwordFinder) {
 		return new BiddingClientServiceImpl(server, serverPort, udpPort,
-				serverPublicKeyFileLocation, clientsKeysDirectory);
+				serverPublicKeyFileLocation, clientsKeysDirectory, passwordFinder);
 	}
 }

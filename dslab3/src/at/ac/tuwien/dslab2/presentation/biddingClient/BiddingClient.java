@@ -3,11 +3,12 @@
  */
 package at.ac.tuwien.dslab2.presentation.biddingClient;
 
-import java.io.IOException;
-import java.util.Scanner;
-
+import at.ac.tuwien.dslab2.presentation.PasswordFinderImpl;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientService;
 import at.ac.tuwien.dslab2.service.biddingClient.BiddingClientServiceFactory;
+
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * @author klaus
@@ -59,7 +60,8 @@ public class BiddingClient {
 
 		bcs = BiddingClientServiceFactory.newBiddingClientService(host,
 				tcpPort, udpPort, serverPublicKeyFileLocation,
-				clientsKeysDirectory);
+				clientsKeysDirectory, new
+                PasswordFinderImpl());
 		bcs.setNotificationListener(new NotificationListenerImpl(),
 				new NotificationExHandlerImpl());
 		bcs.setReplyListener(new ReplyListenerImpl(), new ReplyExHandlerImpl());
