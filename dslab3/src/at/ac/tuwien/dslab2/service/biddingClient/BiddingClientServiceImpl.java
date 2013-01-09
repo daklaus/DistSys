@@ -44,8 +44,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 	private HashMACService hashMACService;
-    private TCPClientNetworkService RSAns;
-    private TCPClientNetworkService AESns;
+	private TCPClientNetworkService RSAns;
+	private TCPClientNetworkService AESns;
 
 	/**
 	 * Sets the server, server port and own UDP port for the networking
@@ -69,7 +69,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.serverPort = serverPort;
 		this.udpPort = udpPort;
 		this.serverPublicKeyFileLocation = serverPublicKeyFileLocation;
-        this.clientsKeysDirectory = new File(clientsKeysDirectory);
+		this.clientsKeysDirectory = new File(clientsKeysDirectory);
 
 		// LinkedBlockingQueue for one reply at a time
 		this.replyQueue = new LinkedBlockingQueue<String>(1);
@@ -107,15 +107,29 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		command = parseCommand(command);
 
-        if(command != null) {
-            // Send the command to the server
-            ns.send(command);
-            postSendAction(command);
-        }
+		if (command != null) {
+			// Send the command to the server
+			ns.send(command);
+			postSendAction(command);
+		}
 	}
 
 	private void postSendAction(String command) throws IOException {
-		if (command.matches("^!getClientList.*")) {
+		if (command.matches("^!login.*")) {
+			try {
+				// Wait for reply of login command (and ignore it)
+				this.replyQueue.take();
+
+				postLoginAction();
+
+				// After successful login
+
+				// Get client list after login
+				getClientList();
+			} catch (InterruptedException e) {
+				throw new IOException("Interrupted login procedure", e);
+			}
+		} else if (command.matches("^!getClientList.*")) {
 
 			try {
 				parseClientList(this.replyQueue.take());
@@ -124,6 +138,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			// Turn off pasting in the synchronization queue again
 			this.replyListener.setForwardToQueue(false);
 		}
+	}
+
+	private void postLoginAction() throws IOException {
+		// @stefan: Hier kannst deine sachen machen die nach dem login command
+		// und vor meinen sachen passieren sollen
 	}
 
 	private void getClientList() throws IOException, InterruptedException {
@@ -136,6 +155,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		// Turn on displaying to the presentation layer again
 		this.replyListener.setForwardToListener(true);
+		// Turn off pasting in the synchronization queue again
+		this.replyListener.setForwardToQueue(false);
 	}
 
 	private void parseClientList(String clientList) {
@@ -145,7 +166,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 	/**
 	 * Parses the command to see if the client should do something.
-	 *
+	 * 
 	 * @param command
 	 * @return the modified command
 	 * @throws IOException
@@ -178,17 +199,16 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			if (!sc.hasNext())
 				return command;
 
+			setUserName(sc.next());
+			command += " " + udpPort;
 
-            setUserName(sc.next());
+			command = preLoginAction(command);
 
-            try {
-                LoginAction();
-                //after successful login procedure
-                postLoginAction();
-            } catch (RuntimeException e) {
-                System.err.println(e.getCause().getMessage());
-                System.err.flush();
-            }
+			// Clean queue if it has another reply of a previous command
+			this.replyQueue.clear();
+			// Begin synchronization with queue
+			this.replyListener.setForwardToQueue(true);
+
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			// Clean queue if it has another reply of a previous command
 			this.replyQueue.clear();
@@ -204,45 +224,32 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return command;
 	}
 
-    private void LoginAction() {
-        // Clean queue if it has another reply of a previous command
-        this.replyQueue.clear();
-        // Begin synchronization with queue
-        this.replyListener.setForwardToQueue(true);
+	private String preLoginAction(String command) {
+		// @stefan: Hier gehören die sachen rein, die vor dem login command
+		// passieren (den command verändern, das NS austauschen durch die RSA
+		// gschicht, etc)
 
-        // Changed here LoginCommand for Lab3!
-        // command = command + " " + udpPort;
-        String clientChallenge = generateClientChallenge(Charset
-                .forName("UTF-16"));
-        String command =  "!login " + serverPort + " " + clientChallenge;
+		String clientChallenge = generateClientChallenge(Charset
+				.forName("UTF-16"));
+		command += " " + clientChallenge;
 
-        initLoginServices(new PasswordFinder() {
-            @Override
-            public char[] getPassword() {
-                // reads the password from standard input for decrypting the private key
-                System.out.println("Enter pass phrase:");
-                try {
-                    return new BufferedReader(new InputStreamReader(System.in)).readLine().toCharArray();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-    }
+		initLoginServices(new PasswordFinder() {
+			@Override
+			public char[] getPassword() {
+				// reads the password from standard input for decrypting the
+				// private key
+				System.out.println("Enter pass phrase:");
+				try {
+					return new BufferedReader(new InputStreamReader(System.in))
+							.readLine().toCharArray();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
 
-    private void postLoginAction() throws IOException {
-        try {
-
-            // Wait for reply of login command (and ignore it)
-            this.replyQueue.take();
-
-            // Get client list after login
-            getClientList();
-
-        } catch (InterruptedException e) {
-            throw new IOException("Interrupted login procedure", e);
-        }
-    }
+		return command;
+	}
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
@@ -265,33 +272,42 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		try {
 			this.hashMACService = HashMACServiceFactory.getService(
 					clientsKeysDirectory, userName);
-            PrivateKey privateKey = readPrivateKey(clientsKeysDirectory.getPath() + "/" + userName + ".pem", passwordFinder);
-            PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
-            this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(this.ns, publicKey, privateKey);
-        } catch (IOException e) {
-			throw new RuntimeException("Could not log in because keys for user '"
-					+ userName + " not found in directory "
-					+ clientsKeysDirectory, e);
+			PrivateKey privateKey = readPrivateKey(
+					clientsKeysDirectory.getPath() + "/" + userName + ".pem",
+					passwordFinder);
+			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
+			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
+					this.ns, publicKey, privateKey);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Could not log in because keys for user '" + userName
+							+ " not found in directory " + clientsKeysDirectory,
+					e);
 		}
 	}
 
-    private PublicKey readPublicKey(String path) throws IOException {
-        PEMReader in = new PEMReader(new FileReader(path));
-        Object o = in.readObject();
-        if (o instanceof PublicKey) {
-            return (PublicKey) o;
-        }
-        throw new IOException("Read Object isn not of type 'PublicKey'.\nType is:" + o.getClass().getSimpleName());
-    }
+	private PublicKey readPublicKey(String path) throws IOException {
+		PEMReader in = new PEMReader(new FileReader(path));
+		Object o = in.readObject();
+		if (o instanceof PublicKey) {
+			return (PublicKey) o;
+		}
+		throw new IOException(
+				"Read Object isn not of type 'PublicKey'.\nType is:"
+						+ o.getClass().getSimpleName());
+	}
 
-    private PrivateKey readPrivateKey(String path, PasswordFinder passwordFinder) throws IOException {
-        PEMReader in = new PEMReader(new FileReader(path), passwordFinder);
-        Object o = in.readObject();
-        if (o instanceof KeyPair) {
-            return ((KeyPair) o).getPrivate();
-        }
-        throw new IOException("Read Object isn not of type 'KeyPair'.\nType is:" + o.getClass().getSimpleName());
-    }
+	private PrivateKey readPrivateKey(String path, PasswordFinder passwordFinder)
+			throws IOException {
+		PEMReader in = new PEMReader(new FileReader(path), passwordFinder);
+		Object o = in.readObject();
+		if (o instanceof KeyPair) {
+			return ((KeyPair) o).getPrivate();
+		}
+		throw new IOException(
+				"Read Object isn not of type 'KeyPair'.\nType is:"
+						+ o.getClass().getSimpleName());
+	}
 
 	private boolean tryConnect() {
 		try {
