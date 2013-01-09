@@ -6,12 +6,12 @@
     <property name="lib.dir" value="lib"/>
 
     <!-- You need to update these properties!-->
-    <property name="server.name" value="at.ac.tuwien.dslab2.presentation.auctionServer.AuctionServer"/><!-- Server's full class name (including the package) -->
+    <property name="server.name" value="at.ac.tuwien.dslab3.presentation.auctionServer.AuctionServer"/><!-- Server's full class name (including the package) -->
     <property name="server.host" value="localhost"/><!-- Auction Server's host -->
-    <property name="client.name" value="at.ac.tuwien.dslab2.presentation.biddingClient.BiddingClient"/><!-- Bidding Client's full class name (including the package) -->
-    <property name="mgmtclient.name" value="at.ac.tuwien.dslab2.presentation.managementClient.ManagementClient"/><!-- Management Client's full class name (including the package) -->
-    <property name="analytics.name" value="at.ac.tuwien.dslab2.presentation.analyticsServer.AnalyticsServer"/><!-- Analytics Server's full class name (including the package) -->
-    <property name="billing.name" value="at.ac.tuwien.dslab2.presentation.billingServer.BillingServer"/><!-- Billing Server's full class name (including the package) -->
+    <property name="client.name" value="at.ac.tuwien.dslab3.presentation.biddingClient.BiddingClient"/><!-- Bidding Client's full class name (including the package) -->
+    <property name="mgmtclient.name" value="at.ac.tuwien.dslab3.presentation.managementClient.ManagementClient"/><!-- Management Client's full class name (including the package) -->
+    <property name="analytics.name" value="at.ac.tuwien.dslab3.presentation.analyticsServer.AnalyticsServer"/><!-- Analytics Server's full class name (including the package) -->
+    <property name="billing.name" value="at.ac.tuwien.dslab3.presentation.billingServer.BillingServer"/><!-- Billing Server's full class name (including the package) -->
     <property name="analytics.bindingName" value="AnalyticsServerRef"/><!-- RMI Binding Name of the Analytics Server -->
     <property name="billing.bindingName" value="BillingServerRef"/><!-- RMI Binding Name of the Billing Server -->
     <property name="server.port" value="12890"/><!-- TCP port -->
