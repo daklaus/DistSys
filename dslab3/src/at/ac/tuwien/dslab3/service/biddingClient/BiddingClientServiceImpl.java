@@ -26,6 +26,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -275,9 +276,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 				throw new IllegalStateException(SERVER_DOWN_MSG);
 			double amount = sc.nextDouble();
 
-			// If it was a !bid command
-			// TODO: Get random clients' signed timestamps
-			// TODO: Retry sending with !signedBid
+			// TODO: If finished, comment it in again
+			// signedBid(auctionId, amount);
+
 		} else if (tmp.equalsIgnoreCase("!logout")) {
 			setUserName(null);
 			this.hashMACService = null;
@@ -285,6 +286,45 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		}
 
 		return command;
+	}
+
+	private void signedBid(long auctionId, double price) throws IOException {
+		String reply;
+		TCPClientNetworkService ns;
+
+		/*
+		 * Get random clients' signed timestamps
+		 */
+		// Get two random clients
+		if (this.currentClientList.size() <= 0)
+			return;
+		Random rand = new Random();
+		User u1 = this.currentClientList.get(rand
+				.nextInt(this.currentClientList.size()));
+		User u2 = this.currentClientList.get(rand
+				.nextInt(this.currentClientList.size()));
+
+		// Create NS to the clients
+		try {
+			// Client 1
+			assert u1.getClient() != null;
+			ns = NetworkServiceFactory.newTCPClientNetworkService(u1
+					.getClient().getIp().getHostAddress(), u1.getClient()
+					.getUdpPort());
+			ns.send("!getTimestamp " + auctionId + " " + price);
+			reply = ns.receive();
+			// TODO: finish this!
+
+			// Client 2
+			// TODO: Do same for second client
+		} catch (IOException e) {
+			throw new IOException("Failed to get timestamps from clients", e);
+		}
+
+		/*
+		 * Retry sending with !signedBid
+		 */
+		// TODO: Implement this!
 	}
 
 	private void beginSynchronousReplying() {
