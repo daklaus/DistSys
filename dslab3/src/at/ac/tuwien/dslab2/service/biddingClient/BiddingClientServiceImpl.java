@@ -142,6 +142,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		}
 	}
 
+	private void postLoginAction() throws IOException {
+		// @stefan: Hier kannst deine sachen machen die nach dem login command
+		// und vor meinen sachen passieren sollen
+	}
+
 	private void getClientList() throws IOException, InterruptedException {
 		// Turn off output to the presentation layer
 		this.replyListener.setForwardToListener(false);
@@ -197,7 +202,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 				return command;
 
 			setUserName(sc.next());
-			//command += " " + udpPort;
+			command += " " + udpPort;
 
 			command = preLoginAction(command);
 
@@ -221,7 +226,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return command;
 	}
 
-	private String preLoginAction(String command) throws IOException {
+	private String preLoginAction(String command) {
 		// @stefan: Hier gehören die sachen rein, die vor dem login command
 		// passieren (den command verändern, das NS austauschen durch die RSA
 		// gschicht, etc)
@@ -234,11 +239,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		return command;
 	}
-
-    private void postLoginAction() throws IOException {
-        // @stefan: Hier kannst deine sachen machen die nach dem login command
-        // und vor meinen sachen passieren sollen
-    }
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
@@ -257,18 +257,18 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return new String(encodedRandom, charset);
 	}
 
-	private void initLoginServices(PasswordFinder passwordFinder) throws IOException {
+	private void initLoginServices(PasswordFinder passwordFinder) {
 		try {
 			this.hashMACService = HashMACServiceFactory.getService(
 					clientsKeysDirectory, userName);
 			PrivateKey privateKey = readPrivateKey(
-					clientsKeysDirectory.getPath() + "/" + userName + ".pem",
+					"dslab3/" + clientsKeysDirectory.getPath() + "/" + userName + ".pem",
                     passwordFinder);
-			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
+			PublicKey publicKey = readPublicKey("dslab3/" + serverPublicKeyFileLocation);
 			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
 					this.ns, publicKey, privateKey);
 		} catch (IOException e) {
-			throw new IOException (
+			throw new RuntimeException(
 					"Could not log in because keys for user '" + userName
 							+ " not found in directory " + clientsKeysDirectory,
 					e);

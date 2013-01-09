@@ -16,7 +16,7 @@ class HashMACServiceImpl implements HashMACService {
     private final SecretKeySpec secretKey;
 
     public HashMACServiceImpl(File keyDirectory, String username) throws IOException {
-        File file = new File(keyDirectory.getPath() + "/" + username + ".key");
+        File file = new File("dslab3/" + keyDirectory.getPath() + "/" + username + ".key");
         byte[] bytesDecoded = Hex.decode(readBytes(file));
         this.secretKey = new SecretKeySpec(bytesDecoded, "HmacSHA256");
     }
