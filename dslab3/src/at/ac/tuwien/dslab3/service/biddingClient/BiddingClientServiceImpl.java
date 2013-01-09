@@ -132,16 +132,19 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void postSendAction(String command) throws IOException {
 		if (command.matches("^!login.*")) {
 			try {
-				postLoginAction();
+				try {
+					postLoginAction();
 
-				// Get client list after successful login
-				getClientList();
+					// Get client list after successful login
+					getClientList();
 
+				} catch (InterruptedException e) {
+					throw new IOException("Interrupted login procedure", e);
+				}
+			} finally {
 				turnOnReplyDisplaying();
 
 				endSynchronousReplying();
-			} catch (InterruptedException e) {
-				throw new IOException("Interrupted login procedure", e);
 			}
 		} else if (command.matches("^!getClientList.*")) {
 
@@ -246,7 +249,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 			setUserName(sc.next());
 
-			// TODO: Change this to tcpPort!
 			command += " " + udpPort;
 
 			command = preLoginAction(command);
