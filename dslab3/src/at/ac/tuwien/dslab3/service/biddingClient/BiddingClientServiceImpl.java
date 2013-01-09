@@ -30,6 +30,8 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author klaus
@@ -282,9 +284,26 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void postLoginAction() throws IOException {
-		// @stefan: Hier kannst deine sachen machen die nach dem login command
-		// und vor meinen sachen passieren sollen
-	}
+        // @stefan: Hier kannst deine sachen machen die nach dem login command
+        // und vor meinen sachen passieren sollen
+        try {
+            String serverReply = this.replyQueue.take();
+
+            Pattern pattern = Pattern.compile("\\s*!ok\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s(\\w+)\\s*");
+            Matcher matcher = pattern.matcher(serverReply);
+            if (!matcher.matches() || matcher.groupCount() != 4) {
+                throw new IOException("Server responses 'Login denied' ");
+            }
+
+            byte[] clientChallenge = Base64.decode(matcher.group(1));
+            byte[] serverChallenge = Base64.decode(matcher.group(2));
+            byte[] secretKey = Base64.decode(matcher.group(3));
+            byte[] ivParameter = Base64.decode(matcher.group(4));
+
+        } catch (InterruptedException e) {
+            throw new IOException("Interrupted login procedure", e);
+        }
+    }
 
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
