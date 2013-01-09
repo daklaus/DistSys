@@ -3,26 +3,34 @@
  */
 package at.ac.tuwien.dslab2.service.biddingClient;
 
-import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
-import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
-import at.ac.tuwien.dslab2.service.security.HashMACService;
-import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PasswordFinder;
-import org.bouncycastle.util.encoders.Base64;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.MatchResult;
+
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+import org.bouncycastle.util.encoders.Base64;
+
+import at.ac.tuwien.dslab2.domain.Client;
+import at.ac.tuwien.dslab2.domain.User;
+import at.ac.tuwien.dslab2.service.net.NetworkServiceFactory;
+import at.ac.tuwien.dslab2.service.net.TCPClientNetworkService;
+import at.ac.tuwien.dslab2.service.security.HashMACService;
+import at.ac.tuwien.dslab2.service.security.HashMACServiceFactory;
 
 /**
  * @author klaus
@@ -37,6 +45,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private final String serverPublicKeyFileLocation;
 	private final File clientsKeysDirectory;
 	private final PasswordFinder passwordFinder;
+	private final List<User> currentClientList;
 	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
@@ -78,6 +87,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		// LinkedBlockingQueue for one reply at a time
 		this.replyQueue = new LinkedBlockingQueue<String>(1);
+
+		this.currentClientList = new LinkedList<User>();
 	}
 
 	@Override
@@ -160,8 +171,39 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void parseClientList(String clientList) {
-		// TODO Auto-generated method stub
+		InetAddress ipAddress;
+		int port;
+		String username;
+		Client c;
+		User u;
 
+		this.currentClientList.clear();
+
+		Scanner sc = new Scanner(clientList);
+		// Skip the header line
+		if (!sc.hasNext())
+			return;
+		sc.next();
+		// Parse the rest
+		while (sc.hasNext()) {
+			if (sc.findInLine("\\s*(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)\\s*-\\s*(\\w+)") == null)
+				return;
+			MatchResult mr = sc.match();
+			// IP Address
+			ipAddress = null;
+			try {
+				ipAddress = InetAddress.getByName(mr.group(1));
+			} catch (UnknownHostException ignored) {
+			}
+			// port
+			port = Integer.parseInt(mr.group(2));
+			// username
+			username = mr.group(3);
+
+			c = new Client(ipAddress, 0, port);
+			u = new User(username, c);
+			this.currentClientList.add(u);
+		}
 	}
 
 	/**
