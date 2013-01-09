@@ -120,8 +120,6 @@ class ReplyThread extends Thread {
 	public void close() throws IOException {
 		stop = true;
 		this.interrupt();
-		if (ns != null)
-			ns.close();
 	}
 
 }
