@@ -180,13 +180,13 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		Scanner sc = new Scanner(clientList);
 		// Skip the header line
-		if (!sc.hasNext())
+		if (!sc.hasNextLine())
 			return;
-		sc.next();
+		sc.nextLine();
 		// Parse the rest
 		while (sc.hasNext()) {
-			if (sc.findInLine("\\s*(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)\\s*-\\s*(\\w+)") == null)
-				return;
+			if (sc.findInLine("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+) - (\\w+)") == null)
+				continue;
 			MatchResult mr = sc.match();
 			// IP Address
 			ipAddress = null;
@@ -309,7 +309,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		try {
 			this.hashMACService = HashMACServiceFactory.getService(
 					clientsKeysDirectory, userName);
-			PrivateKey privateKey = readPrivateKey(clientsKeysDirectory.getPath() + "/" + userName + ".pem",
+			PrivateKey privateKey = readPrivateKey(
+					clientsKeysDirectory.getPath() + "/" + userName + ".pem",
 					passwordFinder);
 			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
 			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
@@ -317,10 +318,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		} catch (IOException e) {
 			Throwable cause = e.getCause();
 			if (cause != null && cause.getClass() == IOException.class) {
-				throw new IOException(
-						"Could not log in because keys for user '" + userName
-								+ " not found in directory "
-								+ clientsKeysDirectory, e);
+				throw new IOException("Could not log in because keys for user "
+						+ userName + " not found in directory "
+						+ clientsKeysDirectory, e);
 			} else {
 				throw e;
 			}
