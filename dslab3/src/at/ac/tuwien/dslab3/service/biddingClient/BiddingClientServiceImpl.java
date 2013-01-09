@@ -3,6 +3,16 @@
  */
 package at.ac.tuwien.dslab3.service.biddingClient;
 
+import at.ac.tuwien.dslab3.domain.Client;
+import at.ac.tuwien.dslab3.domain.User;
+import at.ac.tuwien.dslab3.service.net.NetworkServiceFactory;
+import at.ac.tuwien.dslab3.service.net.TCPClientNetworkService;
+import at.ac.tuwien.dslab3.service.security.HashMACService;
+import at.ac.tuwien.dslab3.service.security.HashMACServiceFactory;
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+import org.bouncycastle.util.encoders.Base64;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,17 +30,6 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.MatchResult;
-
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PasswordFinder;
-import org.bouncycastle.util.encoders.Base64;
-
-import at.ac.tuwien.dslab3.domain.Client;
-import at.ac.tuwien.dslab3.domain.User;
-import at.ac.tuwien.dslab3.service.net.NetworkServiceFactory;
-import at.ac.tuwien.dslab3.service.net.TCPClientNetworkService;
-import at.ac.tuwien.dslab3.service.security.HashMACService;
-import at.ac.tuwien.dslab3.service.security.HashMACServiceFactory;
 
 /**
  * @author klaus
@@ -56,8 +55,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private UncaughtExceptionHandler replyExHandler;
 	private String userName;
 	private HashMACService hashMACService;
-	private TCPClientNetworkService RSAns;
-	private TCPClientNetworkService AESns;
 
 	/**
 	 * Sets the server, server port and own UDP port for the networking
@@ -244,6 +241,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 				return command;
 
 			setUserName(sc.next());
+
+            //TODO: Change this to tcpPort!
 			command += " " + udpPort;
 
 			command = preLoginAction(command);
@@ -313,8 +312,10 @@ class BiddingClientServiceImpl implements BiddingClientService {
 					clientsKeysDirectory.getPath() + "/" + userName + ".pem",
 					passwordFinder);
 			PublicKey publicKey = readPublicKey(serverPublicKeyFileLocation);
-			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
-					this.ns, publicKey, privateKey);
+            TCPClientNetworkService RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
+                    this.ns, publicKey, privateKey);
+            changeNS(RSAns);
+
 		} catch (IOException e) {
 			Throwable cause = e.getCause();
 			if (cause != null && cause.getClass() == IOException.class) {
