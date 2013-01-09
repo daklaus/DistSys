@@ -34,8 +34,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private final int udpPort;
 	private final String serverPublicKeyFileLocation;
 	private final File clientsKeysDirectory;
-    private final PasswordFinder passwordFinder;
-    private TCPClientNetworkService ns;
+	private final PasswordFinder passwordFinder;
+	private TCPClientNetworkService ns;
 	private NotificationListener notificationListener;
 	private NotificationThread notificationThread;
 	private UncaughtExceptionHandler notificationExHandler;
@@ -48,7 +48,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private TCPClientNetworkService RSAns;
 	private TCPClientNetworkService AESns;
 
-    /**
+	/**
 	 * Sets the server, server port and own UDP port for the networking
 	 * 
 	 * @param server
@@ -60,7 +60,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	 *            server
 	 */
 	public BiddingClientServiceImpl(String server, int serverPort, int udpPort,
-			String serverPublicKeyFileLocation, String clientsKeysDirectory, PasswordFinder passwordFinder) {
+			String serverPublicKeyFileLocation, String clientsKeysDirectory,
+			PasswordFinder passwordFinder) {
 		if (server == null || server.isEmpty() || serverPort <= 0
 				|| udpPort <= 0)
 			throw new IllegalArgumentException(
@@ -71,9 +72,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.udpPort = udpPort;
 		this.serverPublicKeyFileLocation = serverPublicKeyFileLocation;
 		this.clientsKeysDirectory = new File(clientsKeysDirectory);
-        this.passwordFinder = passwordFinder;
+		this.passwordFinder = passwordFinder;
 
-        // LinkedBlockingQueue for one reply at a time
+		// LinkedBlockingQueue for one reply at a time
 		this.replyQueue = new LinkedBlockingQueue<String>(1);
 	}
 
@@ -142,11 +143,6 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		}
 	}
 
-	private void postLoginAction() throws IOException {
-		// @stefan: Hier kannst deine sachen machen die nach dem login command
-		// und vor meinen sachen passieren sollen
-	}
-
 	private void getClientList() throws IOException, InterruptedException {
 		// Turn off output to the presentation layer
 		this.replyListener.setForwardToListener(false);
@@ -168,7 +164,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 	/**
 	 * Parses the command to see if the client should do something.
-	 *
+	 * 
 	 * @param command
 	 * @return the modified command
 	 * @throws IOException
@@ -226,7 +222,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return command;
 	}
 
-	private String preLoginAction(String command) {
+	private String preLoginAction(String command) throws IOException {
 		// @stefan: Hier gehören die sachen rein, die vor dem login command
 		// passieren (den command verändern, das NS austauschen durch die RSA
 		// gschicht, etc)
@@ -238,6 +234,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		initLoginServices(passwordFinder);
 
 		return command;
+	}
+
+	private void postLoginAction() throws IOException {
+		// @stefan: Hier kannst deine sachen machen die nach dem login command
+		// und vor meinen sachen passieren sollen
 	}
 
 	/**
@@ -257,7 +258,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		return new String(encodedRandom, charset);
 	}
 
-	private void initLoginServices(PasswordFinder passwordFinder) {
+
+	private void initLoginServices(PasswordFinder passwordFinder)
+			throws IOException {
 		try {
 			this.hashMACService = HashMACServiceFactory.getService(
 					clientsKeysDirectory, userName);
@@ -268,10 +271,29 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			this.RSAns = NetworkServiceFactory.newRSATCPClientNetworkService(
 					this.ns, publicKey, privateKey);
 		} catch (IOException e) {
-			throw new RuntimeException(
+			throw new IOException(
 					"Could not log in because keys for user '" + userName
 							+ " not found in directory " + clientsKeysDirectory,
 					e);
+        }
+	}
+
+	private void changeNS(TCPClientNetworkService newNS) {
+		// Exchange the NS
+		this.ns = newNS;
+
+		// Stop the reply thread
+		if (replyThread != null) {
+			try {
+				replyThread.close();
+			} catch (IOException ignored) {
+			}
+		}
+
+		// Restart the reply thread
+		try {
+			startReplying();
+		} catch (IOException ignored) {
 		}
 	}
 
