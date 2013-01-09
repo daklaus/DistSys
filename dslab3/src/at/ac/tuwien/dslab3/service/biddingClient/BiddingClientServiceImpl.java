@@ -138,13 +138,16 @@ class BiddingClientServiceImpl implements BiddingClientService {
 					// Get client list after successful login
 					getClientList();
 
-				} catch (InterruptedException e) {
-					throw new IOException("Interrupted login procedure", e);
-				}
-			} finally {
-				turnOnReplyDisplaying();
+				} finally {
+					turnOnReplyDisplaying();
 
-				endSynchronousReplying();
+					endSynchronousReplying();
+				}
+
+				this.replyListener.displayReply("Successfully logged in as "
+						+ userName);
+			} catch (InterruptedException e) {
+				throw new IOException("Interrupted login procedure", e);
 			}
 		} else if (command.matches("^!getClientList.*")) {
 
@@ -158,6 +161,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void getClientList() throws IOException, InterruptedException {
+		this.replyQueue.clear();
 		// Get clients list
 		ns.send("!getClientList");
 		// Parse and store the client list
@@ -248,17 +252,15 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			if (!sc.hasNext())
 				return command;
 
-
             beginSynchronousReplying();
+
+			turnOffReplyDisplaying();
 
             setUserName(sc.next());
 
-            // TODO: Change this to tcpPort!
             command += " " + udpPort;
 
             command = preLoginAction(command);
-
-			turnOffReplyDisplaying();
 
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			beginSynchronousReplying();
