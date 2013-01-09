@@ -151,8 +151,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			try {
 				parseClientList(getSynchronousReply());
 			} catch (InterruptedException ignored) {
+			} finally {
+				endSynchronousReplying();
 			}
-			endSynchronousReplying();
 		}
 	}
 
