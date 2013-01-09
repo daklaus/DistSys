@@ -244,14 +244,15 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			if (!sc.hasNext())
 				return command;
 
-			setUserName(sc.next());
 
-			// TODO: Change this to tcpPort!
-			command += " " + udpPort;
+            beginSynchronousReplying();
 
-			command = preLoginAction(command);
+            setUserName(sc.next());
 
-			beginSynchronousReplying();
+            // TODO: Change this to tcpPort!
+            command += " " + udpPort;
+
+            command = preLoginAction(command);
 
 			turnOffReplyDisplaying();
 
