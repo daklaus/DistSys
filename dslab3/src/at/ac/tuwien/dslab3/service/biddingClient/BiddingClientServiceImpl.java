@@ -424,7 +424,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			}
 
 			// Now send the 3rd message
-			sendServerChallenge(serverChallenge, new SecretKeySpec(secretKey, 0, secretKey.length, "DES"), ivParameter);
+			sendServerChallenge(serverChallenge, new SecretKeySpec(secretKey, 0, secretKey.length, "AES"), ivParameter);
 
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted login procedure", e);
