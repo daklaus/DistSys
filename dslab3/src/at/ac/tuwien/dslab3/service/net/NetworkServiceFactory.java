@@ -1,5 +1,6 @@
 package at.ac.tuwien.dslab3.service.net;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -19,12 +20,12 @@ public abstract class NetworkServiceFactory {
     }
 
     public static TCPClientNetworkService newAESTCPClientNetworkService(
-            TCPClientNetworkService tcpClientNetworkService, byte[] secretKey, byte[] iv) {
+            TCPClientNetworkService tcpClientNetworkService, SecretKey secretKey, byte[] iv) {
         return new AESTCPClientDecorator(tcpClientNetworkService, secretKey, iv);
     }
 
     public static TCPServerNetworkService newAESTCPServerNetworkService(
-            TCPServerNetworkService tcpServerNetworkService,  byte[] secretKey, byte[] iv) {
+            TCPServerNetworkService tcpServerNetworkService,  SecretKey secretKey, byte[] iv) {
         return new AESTCPServerDecorator(tcpServerNetworkService, secretKey, iv);
     }
 

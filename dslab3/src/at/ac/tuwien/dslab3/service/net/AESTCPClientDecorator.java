@@ -15,9 +15,9 @@ class AESTCPClientDecorator extends AbstractTCPClientDecorator {
     private final SecretKey secretKey;
     private final IvParameterSpec ivSpec;
 
-    public AESTCPClientDecorator(TCPClientNetworkService tcpClientNetworkService, byte[] secretKey, byte[] iv) {
+    public AESTCPClientDecorator(TCPClientNetworkService tcpClientNetworkService, SecretKey secretKey, byte[] iv) {
         super(tcpClientNetworkService);
-        this.secretKey = new SecretKeySpec(secretKey, "AES");
+        this.secretKey = secretKey;
         this.ivSpec = new IvParameterSpec(iv);
     }
 

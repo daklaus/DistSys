@@ -13,6 +13,7 @@ import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PasswordFinder;
 import org.bouncycastle.util.encoders.Base64;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -412,7 +413,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			}
 
 			// Now send the 3rd message
-			sendServerChallenge(serverChallenge, secretKey, ivParameter);
+			sendServerChallenge(serverChallenge, new SecretKeySpec(secretKey, 0, secretKey.length, "DES"), ivParameter);
 
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted login procedure", e);
@@ -422,15 +423,14 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	/**
 	 * This method actually sends the third part of the 3-way-handshake. The 3rd
 	 * part just consists of the server challenge recieved from the server.
-	 * 
+	 *
 	 * @param serverChallenge
 	 *            the received server challenge from the 2nd message
 	 * @param secretKey
 	 *            the secretKey needed for AES encryption
 	 * @param ivParameter
-	 *            the iv-Parameter needed for AES encryption as well
 	 */
-	private void sendServerChallenge(byte[] serverChallenge, byte[] secretKey,
+	private void sendServerChallenge(byte[] serverChallenge, SecretKeySpec secretKey,
 			byte[] ivParameter) throws IOException {
 		TCPClientNetworkService aesClientNetworkService = NetworkServiceFactory
 				.newAESTCPClientNetworkService(this.rawNS, secretKey,

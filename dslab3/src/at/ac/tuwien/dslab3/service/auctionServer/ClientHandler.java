@@ -2,21 +2,24 @@ package at.ac.tuwien.dslab3.service.auctionServer;
 
 import at.ac.tuwien.dslab3.domain.*;
 import at.ac.tuwien.dslab3.service.analyticsServer.AnalyticsServer;
+import at.ac.tuwien.dslab3.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab3.service.net.TCPClientNetworkService;
 import at.ac.tuwien.dslab3.service.security.HashMACService;
 import at.ac.tuwien.dslab3.service.security.HashMACServiceFactory;
 import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class ClientHandler implements Runnable {
 	private final PrivateKey privateKeyServer;
@@ -103,13 +106,6 @@ class ClientHandler implements Runnable {
 	}
 
 	private String tryExecuteEncryptedCommand(String command) throws IOException, GeneralSecurityException {
-		//Regardless of what happens, when client sends !logout
-		//switch back to unencrypted mode
-		if (command.trim().equals("!logout")) {
-			this.currentNS = this.rawNS;
-		}
-
-
 		try {
 			String decryptedMessage = decryptMessageUsingRSA(command);
 			return executeEncryptedCommand(decryptedMessage);
@@ -117,7 +113,7 @@ class ClientHandler implements Runnable {
 			//ignore because can't decrypt message
 		}
 
-		return executeUnencryptedCommand(command);
+		return executeCommand(command);
 	}
 
 	private String decryptMessageUsingRSA(String message) throws GeneralSecurityException{
@@ -128,7 +124,7 @@ class ClientHandler implements Runnable {
 			return new String(decryptedMessage, Charset.forName("UTF-16"));
 	}
 
-	private String executeEncryptedCommand(String command) throws IOException {
+	private String executeEncryptedCommand(String command) throws IOException, GeneralSecurityException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
 		if (currentNS == null)
@@ -161,7 +157,7 @@ class ClientHandler implements Runnable {
 			int tcpPort = sc.nextInt();
 			if (!sc.hasNext("["+B64+"]{43}="))
 				return invalidCommand;
-			byte[] clientChallenge = Base64.decode(sc.next());
+			String encodedClientChallenge = sc.next();
 
 
 			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), tcpPort);
@@ -192,10 +188,50 @@ class ClientHandler implements Runnable {
 				}
 			}
 
-			return "Successfully logged in as " + userName + "!";
+			SecretKey secretKey = generateSecretKey();
+			byte[] iv = null;
 
+
+			this.currentNS = NetworkServiceFactory.newAESTCPClientNetworkService(this.rawNS, secretKey, iv);
+
+			StringBuilder stringBuilder = new StringBuilder();
+
+			stringBuilder.append("!ok");
+			stringBuilder.append(" ");
+			stringBuilder.append(encodedClientChallenge);
+			stringBuilder.append(" ");
+			stringBuilder.append(generateServerChallenge(Charset.forName("UTF-16")));
+			stringBuilder.append(" ");
+			stringBuilder.append(new String(Base64.encode(secretKey.getEncoded()), Charset.forName("UTF-16")));
+			stringBuilder.append(" ");
+			stringBuilder.append(new String(Base64.encode(iv), Charset.forName("UTF-16")));
+
+			return stringBuilder.toString();
 		}
 		return invalidCommand;
+	}
+
+	private SecretKey generateSecretKey() throws NoSuchAlgorithmException {
+		KeyGenerator generator = KeyGenerator.getInstance("AES");
+		generator.init(256);
+		return generator.generateKey();
+	}
+
+	/**
+	 * This method generates a 32 byte secure random number and encodes it with
+	 * Base64 encoding
+	 *
+	 * @param charset
+	 *            the charset which will be used for translating the encoded
+	 *            byte array to a string
+	 * @return the generated 32 byte secure random number Base64 encoded
+	 */
+	private String generateServerChallenge(Charset charset) {
+		SecureRandom secureRandom = new SecureRandom();
+		final byte[] number = new byte[32];
+		secureRandom.nextBytes(number);
+		byte[] encodedRandom = Base64.encode(number);
+		return new String(encodedRandom, charset);
 	}
 
 	/**
@@ -207,7 +243,7 @@ class ClientHandler implements Runnable {
 	 *         be closed
 	 * @throws IOException
 	 */
-	private String executeUnencryptedCommand(String command) throws IOException,
+	private String executeCommand(String command) throws IOException,
 			GeneralSecurityException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
@@ -312,6 +348,8 @@ class ClientHandler implements Runnable {
 					// Maybe add logging later
 				}
 			}
+
+			this.currentNS = this.rawNS;
 
 			return "Successfully logged out as " + userName + "!";
 
