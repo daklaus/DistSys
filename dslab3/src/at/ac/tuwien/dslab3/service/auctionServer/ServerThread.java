@@ -60,7 +60,7 @@ class ServerThread extends Thread {
 		try {
 			try {
 				while (!stop) {
-					c = new ClientHandler(ns.accept(), as, this.keyDirectory);
+					c = new ClientHandler(ns.accept(), as, this.keyDirectory, this.privateKeyServer);
 					clientHandlerList.add(c);
 					pool.execute(c);
 				}

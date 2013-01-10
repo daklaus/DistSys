@@ -2,6 +2,7 @@ package at.ac.tuwien.dslab3.service.auctionServer;
 
 import at.ac.tuwien.dslab3.domain.*;
 import at.ac.tuwien.dslab3.service.analyticsServer.AnalyticsServer;
+import at.ac.tuwien.dslab3.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab3.service.net.TCPClientNetworkService;
 import at.ac.tuwien.dslab3.service.security.HashMACService;
 import at.ac.tuwien.dslab3.service.security.HashMACServiceFactory;
@@ -10,13 +11,23 @@ import org.bouncycastle.util.encoders.Base64;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.SocketException;
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
 import java.util.Scanner;
 
 class ClientHandler implements Runnable {
+	private final PrivateKey privateKeyServer;
 	private volatile boolean stop;
-	private final TCPClientNetworkService ns;
+
+	// The current used service for sending data
+	// to the server. Includes Decorators as well!
+	private TCPClientNetworkService currentNS;
+
+	// This is the underlying service used for
+	// sending unencrypted data to the client
+	// WARNING: It should not be used for decorators!
+	private TCPClientNetworkService rawNS;
+
 	private final AuctionService as;
 	private final AnalyticsServer ans;
 	private User user;
@@ -24,22 +35,24 @@ class ClientHandler implements Runnable {
 	private final File keyDirectory;
 
 	public ClientHandler(TCPClientNetworkService ns, AuctionService as,
-			String keyDirectory) throws IOException {
+	                     String keyDirectory, PrivateKey privateKeyServer) throws IOException {
 		if (ns == null)
 			throw new IllegalArgumentException(
 					"The TCPClientNetworkService is null");
 		if (as == null)
 			throw new IllegalArgumentException("The AuctionService is null");
 
-		this.ns = ns;
+		this.currentNS = ns;
+		this.rawNS = this.currentNS;
 		this.as = as;
         this.keyDirectory = new File(keyDirectory);
         this.ans = as.getAnalysticsServerRef();
 		user = null;
+		this.privateKeyServer = privateKeyServer;
 	}
 
 	public boolean isConnected() {
-		return ns != null;
+		return currentNS != null;
 	}
 
 	@Override
@@ -55,13 +68,13 @@ class ClientHandler implements Runnable {
 			try {
 				while (!stop) {
 					// Receive command from the client
-					command = ns.receive();
+					command = currentNS.receive();
 
-					reply = executeCommand(command);
+					reply = tryExecuteEncryptedCommand(command);
 
 					if (reply != null) {
 						// Reply to the client
-						ns.send(reply);
+						currentNS.send(reply);
 					} else {
 						stop = true;
 					}
@@ -86,6 +99,17 @@ class ClientHandler implements Runnable {
 		}
 	}
 
+	private String tryExecuteEncryptedCommand(String command) throws IOException, GeneralSecurityException {
+		//Regardless of what happens, when client sends !logout
+		//switch back to unencrypted mode
+		if (command.trim().equals("!logout")) {
+			this.currentNS = this.rawNS;
+		}
+
+
+		return executeUnencryptedCommand(command);
+	}
+
 	/**
 	 * Parse command, execute the methods of the AuctionService and return the
 	 * reply
@@ -95,11 +119,11 @@ class ClientHandler implements Runnable {
 	 *         be closed
 	 * @throws IOException
 	 */
-	private String executeCommand(String command) throws IOException,
+	private String executeUnencryptedCommand(String command) throws IOException,
 			GeneralSecurityException {
 		if (as == null)
 			throw new IllegalStateException("The AuctionService is null");
-		if (ns == null)
+		if (currentNS == null)
 			throw new IllegalStateException(
 					"The TCPClientNetworkService is null");
 
@@ -139,7 +163,7 @@ class ClientHandler implements Runnable {
 				return invalidCommand;
 			int udpPort = sc.nextInt();
 
-			Client c = new Client(ns.getAddress(), ns.getPort(), udpPort);
+			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), udpPort);
 
 			user = as.login(userName, c);
 
@@ -304,8 +328,8 @@ class ClientHandler implements Runnable {
 		if (notificationThread != null)
 			notificationThread.close();
 
-		if (ns != null)
-			ns.close();
+		if (currentNS != null)
+			currentNS.close();
 	}
 
 	/**
