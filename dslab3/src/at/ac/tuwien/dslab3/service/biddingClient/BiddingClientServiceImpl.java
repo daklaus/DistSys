@@ -469,7 +469,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		} catch (IOException e) {
             changeNS(this.rawNS);
-			Throwable cause = e.getCause();
+            endSynchronousReplying();
+            turnOnReplyDisplaying();
+            Throwable cause = e.getCause();
 			if (cause != null && cause.getClass() == IOException.class) {
 				throw new IOException("Could not log in because keys for user "
 						+ userName + " not found in directory "
