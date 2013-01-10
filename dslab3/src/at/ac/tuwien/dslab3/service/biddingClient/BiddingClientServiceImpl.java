@@ -156,13 +156,14 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		if (command.matches("^!login.*")) {
 			try {
 				try {
-					postLoginAction();
+					// postLoginAction();
+					getSynchronousReply();
 
 					// Get client list after successful login
 					getClientList();
 
 				} catch (IOException e) {
-					changeNS(rawNS);
+					// changeNS(rawNS);
 					throw e;
 				} finally {
 					turnOnReplyDisplaying();
@@ -286,13 +287,13 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 			command += " " + udpPort;
 
-			try {
-				command = preLoginAction(command);
-			} catch (IOException e) {
-				endSynchronousReplying();
-				turnOnReplyDisplaying();
-				throw e;
-			}
+			// try {
+			// command = preLoginAction(command);
+			// } catch (IOException e) {
+			// endSynchronousReplying();
+			// turnOnReplyDisplaying();
+			// throw e;
+			// }
 
 		} else if (tmp.equalsIgnoreCase("!getClientList")) {
 			beginSynchronousReplying();
@@ -317,7 +318,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			this.hashMACService = null;
 
 			// send all future data unencrypted
-			changeNS(rawNS);
+			// changeNS(rawNS);
 		}
 
 		return command;
@@ -424,7 +425,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			}
 
 			// Now send the 3rd message
-			sendServerChallenge(serverChallenge, new SecretKeySpec(secretKey, 0, secretKey.length, "AES"), ivParameter);
+			sendServerChallenge(serverChallenge, new SecretKeySpec(secretKey,
+					0, secretKey.length, "AES"), ivParameter);
 
 		} catch (InterruptedException e) {
 			throw new IOException("Interrupted login procedure", e);
@@ -434,15 +436,15 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	/**
 	 * This method actually sends the third part of the 3-way-handshake. The 3rd
 	 * part just consists of the server challenge recieved from the server.
-	 *
+	 * 
 	 * @param serverChallenge
 	 *            the received server challenge from the 2nd message
 	 * @param secretKey
 	 *            the secretKey needed for AES encryption
 	 * @param ivParameter
 	 */
-	private void sendServerChallenge(byte[] serverChallenge, SecretKeySpec secretKey,
-			byte[] ivParameter) throws IOException {
+	private void sendServerChallenge(byte[] serverChallenge,
+			SecretKeySpec secretKey, byte[] ivParameter) throws IOException {
 		TCPClientNetworkService aesClientNetworkService = NetworkServiceFactory
 				.newAESTCPClientNetworkService(this.rawNS, secretKey,
 						ivParameter);
