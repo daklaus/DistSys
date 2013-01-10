@@ -76,7 +76,8 @@ class ClientHandler implements Runnable {
 					// Receive command from the client
 					command = currentNS.receive();
 
-					reply = tryExecuteEncryptedCommand(command);
+					//reply = tryExecuteEncryptedCommand(command);
+					reply = executeCommand(command);
 
 					if (reply != null) {
 						// Reply to the client
@@ -284,7 +285,7 @@ class ClientHandler implements Runnable {
 			return invalidCommand;
 
 		tmp = sc.next();
-		/*
+
 		if (tmp.equalsIgnoreCase("!login")) {
 			if (user != null)
 				return "You first have to log out!";
@@ -295,9 +296,6 @@ class ClientHandler implements Runnable {
 			if (!sc.hasNextInt())
 				return invalidCommand;
 			int tcpPort = sc.nextInt();
-			if (!sc.hasNext("["+B64+"]{43}="))
-				return invalidCommand;
-			byte[] clientChallenge = Base64.decode(sc.next());
 
 
 			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), tcpPort);
@@ -331,7 +329,7 @@ class ClientHandler implements Runnable {
 			return "Successfully logged in as " + userName + "!";
 
 		}
-		*/
+
 		if (tmp.equalsIgnoreCase("!logout")) {
 			if (user == null)
 				return "You have to log in first!";
