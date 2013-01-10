@@ -32,8 +32,12 @@ public class FilterReplyListener implements ReplyListener {
 				this.forwardReplyListener.displayReply(reply);
 		}
 		if (forwardToQueue) {
-			if (this.forwardQueue != null)
-				this.forwardQueue.offer(reply);
+			if (this.forwardQueue != null) {
+				try {
+					this.forwardQueue.put(reply);
+				} catch (InterruptedException ignored) {
+				}
+			}
 		}
 	}
 

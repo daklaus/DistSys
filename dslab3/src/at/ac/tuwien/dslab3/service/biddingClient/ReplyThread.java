@@ -111,6 +111,13 @@ class ReplyThread extends Thread {
 		return false;
 	}
 
+	/**
+	 * Close the thread if it is ready but don't interrupt it if it is blocked.
+	 */
+	public void closeSoft() {
+		stop = true;
+	}
+
 	public void close() throws IOException {
 		stop = true;
 		this.interrupt();

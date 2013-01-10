@@ -30,6 +30,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,7 +99,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.clientChallenge = null;
 
 		// LinkedBlockingQueue for one reply at a time
-		this.replyQueue = new LinkedBlockingQueue<String>(1);
+		// this.replyQueue = new LinkedBlockingQueue<String>(1);
+		this.replyQueue = new SynchronousQueue<String>();
 
 		this.currentClientList = new LinkedList<User>();
 	}
@@ -348,6 +350,11 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		// TODO: Implement this!
 	}
 
+	/**
+	 * Be very carefully with that method. If you execute this method and the
+	 * reply thread gets a reply, it will block until you get the reply with
+	 * getSynchronousReply!
+	 */
 	private void beginSynchronousReplying() {
 		// Clean queue if it has another reply of a previous command
 		this.replyQueue.clear();
@@ -484,7 +491,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 			changeNS(RSAns);
 
 		} catch (IOException e) {
-			changeNS(this.rawNS);
+			changeNS(rawNS);
 			Throwable cause = e.getCause();
 			if (cause != null && cause.getClass() == IOException.class) {
 				throw new IOException("Could not log in because keys for user "
