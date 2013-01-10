@@ -38,6 +38,9 @@ class ReplyThread extends Thread {
 			throw new IllegalStateException("Service not connected!");
 
 		try {
+			synchronized (this) {
+				this.wait();
+			}
 			while (!stop) {
 				reply = ns.receive().trim();
 
@@ -64,6 +67,9 @@ class ReplyThread extends Thread {
 					}
 					listener.displayReply(reply);
 				}
+				synchronized (this) {
+					this.wait();
+				}
 			}
 		} catch (IOException e) {
 			// The if-clause down here is because of what is described in
@@ -73,6 +79,13 @@ class ReplyThread extends Thread {
 			// So the socket is closed when the ClientNetworkService is
 			// closed and in that special case no error should be
 			// propagated.
+			if (!stop) {
+				UncaughtExceptionHandler eh = this
+						.getUncaughtExceptionHandler();
+				if (eh != null)
+					eh.uncaughtException(this, e);
+			}
+		} catch (InterruptedException e) {
 			if (!stop) {
 				UncaughtExceptionHandler eh = this
 						.getUncaughtExceptionHandler();
@@ -116,6 +129,11 @@ class ReplyThread extends Thread {
 	 */
 	public void closeSoft() {
 		stop = true;
+		if (this.getState() == Thread.State.WAITING) {
+			synchronized (this) {
+				this.notifyAll();
+			}
+		}
 	}
 
 	public void close() throws IOException {
