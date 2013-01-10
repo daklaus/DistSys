@@ -2,18 +2,21 @@ package at.ac.tuwien.dslab3.service.auctionServer;
 
 import at.ac.tuwien.dslab3.domain.*;
 import at.ac.tuwien.dslab3.service.analyticsServer.AnalyticsServer;
-import at.ac.tuwien.dslab3.service.net.NetworkServiceFactory;
 import at.ac.tuwien.dslab3.service.net.TCPClientNetworkService;
 import at.ac.tuwien.dslab3.service.security.HashMACService;
 import at.ac.tuwien.dslab3.service.security.HashMACServiceFactory;
 import org.bouncycastle.util.encoders.Base64;
 
+import javax.crypto.Cipher;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class ClientHandler implements Runnable {
 	private final PrivateKey privateKeyServer;
@@ -107,7 +110,92 @@ class ClientHandler implements Runnable {
 		}
 
 
+		try {
+			String decryptedMessage = decryptMessageUsingRSA(command);
+			return executeEncryptedCommand(decryptedMessage);
+		} catch (GeneralSecurityException ignored) {
+			//ignore because can't decrypt message
+		}
+
 		return executeUnencryptedCommand(command);
+	}
+
+	private String decryptMessageUsingRSA(String message) throws GeneralSecurityException{
+			byte[] decodedMessage = Base64.decode(message);
+			Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+			cipher.init(Cipher.DECRYPT_MODE, this.privateKeyServer);
+			byte[] decryptedMessage = cipher.doFinal(decodedMessage);
+			return new String(decryptedMessage, Charset.forName("UTF-16"));
+	}
+
+	private String executeEncryptedCommand(String command) throws IOException {
+		if (as == null)
+			throw new IllegalStateException("The AuctionService is null");
+		if (currentNS == null)
+			throw new IllegalStateException(
+					"The TCPClientNetworkService is null");
+
+		final String invalidCommand = "Invalid command '" + command
+				+ "'\n\nCommand is:\n!login" ;
+		String B64 = "a-zA-Z0-9/+";
+
+		String tmp;
+
+
+		Scanner sc = new Scanner(command);
+		sc.useDelimiter("\\s+");
+		sc.skip("\\s*");
+
+		tmp = sc.next();
+
+
+		if (tmp.equalsIgnoreCase("!login")) {
+			if (user != null)
+				return "You first have to log out!";
+
+			if (!sc.hasNext())
+				return invalidCommand;
+			String userName = sc.next();
+			if (!sc.hasNextInt())
+				return invalidCommand;
+			int tcpPort = sc.nextInt();
+			if (!sc.hasNext("["+B64+"]{43}="))
+				return invalidCommand;
+			byte[] clientChallenge = Base64.decode(sc.next());
+
+
+			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), tcpPort);
+
+			user = as.login(userName, c);
+
+			synchronized (user) {
+				if (user.isLoggedIn()) {
+					user = null;
+					return "You are already logged in on another client, you first have to log out!";
+				}
+				user.setLoggedIn(true);
+			}
+			user.setClient(c);
+
+			// Start notification thread
+			// startNotification(user); <- disabled for dslab2
+
+			// Report event
+			if (ans != null) {
+				try {
+					ans.processEvent(new UserEvent(EventType.USER_LOGIN, user
+							.getName()));
+				} catch (Exception e) {
+					// Don't propagate the exception, because we don't care for
+					// RMI exceptions
+					// Maybe add logging later
+				}
+			}
+
+			return "Successfully logged in as " + userName + "!";
+
+		}
+		return invalidCommand;
 	}
 
 	/**
@@ -144,6 +232,7 @@ class ClientHandler implements Runnable {
 		final String cmdRegex = "![a-zA-Z-]+";
 		String tmp;
 
+
 		Scanner sc = new Scanner(command);
 		sc.useDelimiter("\\s+");
 		sc.skip("\\s*");
@@ -152,6 +241,7 @@ class ClientHandler implements Runnable {
 			return invalidCommand;
 
 		tmp = sc.next();
+		/*
 		if (tmp.equalsIgnoreCase("!login")) {
 			if (user != null)
 				return "You first have to log out!";
@@ -161,9 +251,13 @@ class ClientHandler implements Runnable {
 			String userName = sc.next();
 			if (!sc.hasNextInt())
 				return invalidCommand;
-			int udpPort = sc.nextInt();
+			int tcpPort = sc.nextInt();
+			if (!sc.hasNext("["+B64+"]{43}="))
+				return invalidCommand;
+			byte[] clientChallenge = Base64.decode(sc.next());
 
-			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), udpPort);
+
+			Client c = new Client(currentNS.getAddress(), currentNS.getPort(), tcpPort);
 
 			user = as.login(userName, c);
 
@@ -193,7 +287,9 @@ class ClientHandler implements Runnable {
 
 			return "Successfully logged in as " + userName + "!";
 
-		} else if (tmp.equalsIgnoreCase("!logout")) {
+		}
+		*/
+		if (tmp.equalsIgnoreCase("!logout")) {
 			if (user == null)
 				return "You have to log in first!";
 
