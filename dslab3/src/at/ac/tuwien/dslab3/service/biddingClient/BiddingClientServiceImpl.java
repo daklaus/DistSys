@@ -148,8 +148,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 					getClientList();
 
 				} catch (IOException e) {
-					changeNS(this.rawNS);
-					throw new IOException(e);
+					changeNS(rawNS);
+					throw e;
 				} finally {
 					turnOnReplyDisplaying();
 
