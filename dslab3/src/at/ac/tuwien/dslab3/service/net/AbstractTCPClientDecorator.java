@@ -42,8 +42,8 @@ abstract class AbstractTCPClientDecorator implements TCPClientNetworkService {
 	}
 
 	@Override
-	public boolean isConnected() {
-		return this.tcpClientNetworkService.isConnected();
+	public boolean isOpen() {
+		return this.tcpClientNetworkService.isOpen();
 	}
 
 	@Override

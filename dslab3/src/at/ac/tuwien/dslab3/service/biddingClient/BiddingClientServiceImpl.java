@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * 
  */
 class BiddingClientServiceImpl implements BiddingClientService {
-	private static final String SERVER_DOWN_MSG = "The server is down! Wait for it being online again.";
+	private static final String SERVER_DOWN_MSG = "No connection to the server";
 
 	private static final double RECONNECT_TIMEOUT = 5; // in seconds
 
@@ -122,7 +122,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		if (!isConnected())
 			throw new IllegalStateException("Service not connected!");
 
-		if (!currentNS.isConnected()) {
+		if (!currentNS.isOpen()) {
 			// If server is down, only bid commands are allowed
 			if (!command.matches("^\\s*!bid.*")) {
 				throw new IllegalStateException(SERVER_DOWN_MSG);
@@ -285,7 +285,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 		} else if (tmp.equalsIgnoreCase("!bid")) {
 			// Only do special things if the server is down
-			if (currentNS.isConnected())
+			if (currentNS.isOpen())
 				return command;
 
 			if (!sc.hasNextLong())
@@ -497,6 +497,10 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void changeNS(TCPClientNetworkService newNS) throws IOException {
+		if (newNS == null || !newNS.isOpen())
+			throw new IllegalArgumentException(
+					"The new NetworkService to change to is null or closed");
+
 		// Exchange the NS
 		this.currentNS = newNS;
 
@@ -545,7 +549,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 
 	@Override
 	public void connect() throws IOException {
-		if (currentNS == null || !currentNS.isConnected()) {
+		if (currentNS == null || !currentNS.isOpen()) {
 			currentNS = NetworkServiceFactory.newTCPClientNetworkService(
 					server, serverPort);
 			this.rawNS = currentNS;
@@ -615,10 +619,13 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	public void close() throws IOException {
 		if (notificationThread != null)
 			notificationThread.close();
-		if (replyThread != null)
-			replyThread.close();
-		if (currentNS != null)
-			currentNS.close();
+		try {
+			if (replyThread != null)
+				replyThread.close();
+		} finally {
+			if (currentNS != null)
+				currentNS.close();
+		}
 	}
 
 	@Override

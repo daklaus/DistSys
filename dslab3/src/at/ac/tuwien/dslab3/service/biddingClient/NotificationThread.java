@@ -53,7 +53,7 @@ class NotificationThread extends Thread {
 			// So the socket is closed when the ClientNetworkService is
 			// closed and in that special case no error should be
 			// propagated.
-			if (!(stop && e.getClass() == SocketException.class)) {
+			if (!stop) {
 				UncaughtExceptionHandler eh = this
 						.getUncaughtExceptionHandler();
 				if (eh != null)

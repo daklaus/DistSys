@@ -3,15 +3,15 @@
  */
 package at.ac.tuwien.dslab3.service.net;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.channels.InterruptibleChannel;
 
 /**
  * @author klaus
  * 
  */
-interface ClientNetworkService extends Closeable {
+interface ClientNetworkService extends InterruptibleChannel {
 
 	/**
 	 * Sends a message to the other machine.
@@ -57,11 +57,4 @@ interface ClientNetworkService extends Closeable {
 	 * @return the server port
 	 */
 	int getPort();
-
-	/**
-	 * Checks whether the service is connected
-	 * 
-	 * @return true if and only if there is a stable connection; false otherwise
-	 */
-	boolean isConnected();
 }

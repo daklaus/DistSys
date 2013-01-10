@@ -38,38 +38,32 @@ class ReplyThread extends Thread {
 			throw new IllegalStateException("Service not connected!");
 
 		try {
-			try {
-				while (!stop) {
-					reply = ns.receive().trim();
+			while (!stop) {
+				reply = ns.receive().trim();
 
-					if (listener != null) {
-						String userName = bcs.getUserName();
-						HashMACService hashMACService = bcs.getHashMACService();
-						// if it's a list command
-						if (userName != null && hashMACService != null
-								&& isListResponse(reply)) {
+				if (listener != null) {
+					String userName = bcs.getUserName();
+					HashMACService hashMACService = bcs.getHashMACService();
+					// if it's a list command
+					if (userName != null && hashMACService != null
+							&& isListResponse(reply)) {
+						if (!hasCorrectMAC(reply, userName, hashMACService)) {
+							listener.displayReply("The provided Message Authentication Code is incorrect!\n"
+									+ "The command will be retransmitted!");
+							bcs.submitCommand("!list");
+							reply = ns.receive();
 							if (!hasCorrectMAC(reply, userName, hashMACService)) {
-								listener.displayReply("The provided Message Authentication Code is incorrect!\n"
-										+ "The command will be retransmitted!");
-								bcs.submitCommand("!list");
-								reply = ns.receive();
-								if (!hasCorrectMAC(reply, userName,
-										hashMACService)) {
-									listener.displayReply("The provided Message Authentication Code is incorrect again!\n"
-											+ "No further retransmission");
-									continue;
-								}
+								listener.displayReply("The provided Message Authentication Code is incorrect again!\n"
+										+ "No further retransmission");
+								continue;
 							}
-							String[] chunks = reply.split("\u001f");
-							assert (chunks.length == 2);
-							reply = chunks[0];
 						}
-						listener.displayReply(reply);
+						String[] chunks = reply.split("\u001f");
+						assert (chunks.length == 2);
+						reply = chunks[0];
 					}
+					listener.displayReply(reply);
 				}
-			} finally {
-				if (ns != null)
-					ns.close();
 			}
 		} catch (IOException e) {
 			// The if-clause down here is because of what is described in
@@ -79,7 +73,7 @@ class ReplyThread extends Thread {
 			// So the socket is closed when the ClientNetworkService is
 			// closed and in that special case no error should be
 			// propagated.
-			if (!(stop && e.getClass() == SocketException.class)) {
+			if (!stop) {
 				UncaughtExceptionHandler eh = this
 						.getUncaughtExceptionHandler();
 				if (eh != null)

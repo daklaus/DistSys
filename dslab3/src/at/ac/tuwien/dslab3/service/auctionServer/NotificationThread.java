@@ -51,7 +51,7 @@ class NotificationThread extends Thread {
 					ns.close();
 			}
 		} catch (IOException e) {
-			if (!(stop && e.getClass() == SocketException.class)) {
+			if (!stop) {
 				UncaughtExceptionHandler eh = this
 						.getUncaughtExceptionHandler();
 				if (eh != null)
