@@ -189,7 +189,7 @@ class ClientHandler implements Runnable {
 			}
 
 			SecretKey secretKey = generateSecretKey();
-			byte[] iv = null;
+			byte[] iv = generateIVParameter();
 
 
 			this.currentNS = NetworkServiceFactory.newAESTCPClientNetworkService(this.rawNS, secretKey, iv);
@@ -200,7 +200,7 @@ class ClientHandler implements Runnable {
 			stringBuilder.append(" ");
 			stringBuilder.append(encodedClientChallenge);
 			stringBuilder.append(" ");
-			stringBuilder.append(generateServerChallenge(Charset.forName("UTF-16")));
+			stringBuilder.append(generateRandomNumber(Charset.forName("UTF-16")));
 			stringBuilder.append(" ");
 			stringBuilder.append(new String(Base64.encode(secretKey.getEncoded()), Charset.forName("UTF-16")));
 			stringBuilder.append(" ");
@@ -217,6 +217,13 @@ class ClientHandler implements Runnable {
 		return generator.generateKey();
 	}
 
+	private byte[] generateIVParameter() {
+		SecureRandom secureRandom = new SecureRandom();
+		final byte[] number = new byte[16];
+		secureRandom.nextBytes(number);
+		return number;
+	}
+
 	/**
 	 * This method generates a 32 byte secure random number and encodes it with
 	 * Base64 encoding
@@ -226,7 +233,7 @@ class ClientHandler implements Runnable {
 	 *            byte array to a string
 	 * @return the generated 32 byte secure random number Base64 encoded
 	 */
-	private String generateServerChallenge(Charset charset) {
+	private String generateRandomNumber(Charset charset) {
 		SecureRandom secureRandom = new SecureRandom();
 		final byte[] number = new byte[32];
 		secureRandom.nextBytes(number);
