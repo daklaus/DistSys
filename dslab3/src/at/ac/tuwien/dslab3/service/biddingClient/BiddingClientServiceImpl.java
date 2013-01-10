@@ -99,8 +99,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		this.clientChallenge = null;
 
 		// LinkedBlockingQueue for one reply at a time
-		// this.replyQueue = new LinkedBlockingQueue<String>(1);
-		this.replyQueue = new SynchronousQueue<String>();
+		this.replyQueue = new LinkedBlockingQueue<String>(1);
+		// this.replyQueue = new SynchronousQueue<String>();
 
 		this.currentClientList = new LinkedList<User>();
 	}
@@ -134,9 +134,20 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		command = parseCommand(command);
 
 		if (command != null) {
-			// Send the command to the server
-			currentNS.send(command);
+			sendCommand(command);
 			postSendAction(command);
+		}
+	}
+
+	/**
+	 * @param command
+	 * @throws IOException
+	 */
+	private void sendCommand(String command) throws IOException {
+		// Send the command to the server
+		currentNS.send(command);
+		synchronized (replyThread) {
+			replyThread.notifyAll();
 		}
 	}
 
@@ -177,7 +188,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	private void getClientList() throws IOException, InterruptedException {
 		this.replyQueue.clear();
 		// Get clients list
-		currentNS.send("!getClientList");
+		sendCommand("!getClientList");
 		// Parse and store the client list
 		parseClientList(getSynchronousReply());
 	}
@@ -438,7 +449,7 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		String encodedServerChallenge = new String(
 				Base64.encode(serverChallenge), Charset.forName("UTF-16"));
 		changeNS(aesClientNetworkService);
-		this.currentNS.send(encodedServerChallenge);
+		sendCommand(encodedServerChallenge);
 	}
 
 	/**
@@ -504,6 +515,9 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	}
 
 	private void changeNS(TCPClientNetworkService newNS) throws IOException {
+		if (this.currentNS == newNS)
+			return;
+
 		if (newNS == null || !newNS.isOpen())
 			throw new IllegalArgumentException(
 					"The new NetworkService to change to is null or closed");
@@ -511,14 +525,17 @@ class BiddingClientServiceImpl implements BiddingClientService {
 		// Exchange the NS
 		this.currentNS = newNS;
 
-		try {
-			// Stop the reply thread
-			if (replyThread != null)
-				replyThread.close();
-		} finally {
-			// Restart the reply thread
-			startReplying();
+		assert replyThread.getState() == Thread.State.WAITING : "Reply thread is not in waiting state";
+		if (replyThread != null && replyThread.isAlive()) {
+			replyThread.closeSoft();
+			try {
+				replyThread.join();
+			} catch (InterruptedException ignored) {
+			}
 		}
+
+		// Restart the reply thread
+		startReplying();
 	}
 
 	private PublicKey readPublicKey(String path) throws IOException {
@@ -595,8 +612,8 @@ class BiddingClientServiceImpl implements BiddingClientService {
 	 * @throws IOException
 	 */
 	private void startReplying() throws IOException {
-		if (replyThread != null && replyThread.isAlive())
-			return;
+		// if (replyThread != null && replyThread.isAlive())
+		// return;
 		if (!isConnected())
 			throw new IllegalStateException("Service not connected!");
 
