@@ -1,5 +1,6 @@
 package at.ac.tuwien.dslab3.service.loadTest;
 
+import at.ac.tuwien.dslab3.presentation.PasswordFinderImpl;
 import at.ac.tuwien.dslab3.presentation.auctionServer.ServerExceptionHandlerImpl;
 import at.ac.tuwien.dslab3.service.PropertiesService;
 import at.ac.tuwien.dslab3.service.PropertiesServiceFactory;
@@ -138,8 +139,9 @@ class LoadTestServiceImpl implements LoadTestService {
 				.getAuctionServerService();
 		this.auctionServerService
 				.setExceptionHandler(new ServerExceptionHandlerImpl());
+		//TODO:
 		this.auctionServerService.start(auctionServerTcpPort,
-				analyticsServerBindingName, billingServerBindingName, null);
+				analyticsServerBindingName, billingServerBindingName, "keys/", "keys/auction-server.pem", new PasswordFinderImpl());
 
 	}
 

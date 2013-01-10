@@ -5,6 +5,7 @@ import at.ac.tuwien.dslab3.service.net.TCPServerNetworkService;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.security.PrivateKey;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,15 +14,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 class ServerThread extends Thread {
-    private volatile boolean stop;
+	private final PrivateKey privateKeyServer;
+	private volatile boolean stop;
 	private final TCPServerNetworkService ns;
 	private final AuctionService as;
 	private final List<ClientHandler> clientHandlerList;
     private final String keyDirectory;
 	private ExecutorService pool;
 
-    public ServerThread(int tcpPort, String analyticsServerRef,
-                        String billingServerRef, String keyDirectory) throws IOException {
+	public ServerThread(int tcpPort, String analyticsServerRef,
+                        String billingServerRef, String keyDirectory, PrivateKey privateKeyServer) throws IOException {
 		if (tcpPort <= 0)
 			throw new IllegalArgumentException(
 					"The TCP port is not set properly");
@@ -37,6 +39,7 @@ class ServerThread extends Thread {
         this.keyDirectory = keyDirectory;
         clientHandlerList = Collections
 				.synchronizedList(new LinkedList<ClientHandler>());
+		this.privateKeyServer = privateKeyServer;
 	}
 
 	public boolean isConnected() {

@@ -1,7 +1,13 @@
 package at.ac.tuwien.dslab3.service.auctionServer;
 
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.security.KeyPair;
+import java.security.PrivateKey;
 
 class AuctionServerServiceImpl implements AuctionServerService {
 
@@ -22,7 +28,7 @@ class AuctionServerServiceImpl implements AuctionServerService {
 
 	@Override
 	public void start(int tcpPort, String analyticsServerRef,
-                      String billingServerRef, String keyDirectory) throws IOException {
+	                  String billingServerRef, String keyDirectory, String serverPrivateKeyFileLocation, PasswordFinder passwordFinder) throws IOException {
 		if (serverThread != null && serverThread.isAlive())
 			return;
 		if (tcpPort <= 0)
@@ -35,12 +41,26 @@ class AuctionServerServiceImpl implements AuctionServerService {
         if (keyDirectory == null)
 			throw new IllegalArgumentException("key directory is null");
 
+		PrivateKey privateKeyServer = readPrivateKey(serverPrivateKeyFileLocation, passwordFinder);
+
 		// Start server thread
 		serverThread = new ServerThread(tcpPort, analyticsServerRef,
-				billingServerRef, keyDirectory);
+				billingServerRef, keyDirectory, privateKeyServer);
 		serverThread.setName("AuctionServer thread");
 		serverThread.setUncaughtExceptionHandler(serverExHandler);
 		serverThread.start();
+	}
+
+	private PrivateKey readPrivateKey(String path, PasswordFinder passwordFinder)
+			throws IOException {
+		PEMReader in = new PEMReader(new FileReader(path), passwordFinder);
+		Object o = in.readObject();
+		if (o instanceof KeyPair) {
+			return ((KeyPair) o).getPrivate();
+		}
+		throw new IOException(
+				"Read Object isn not of type 'KeyPair'.\nType is:"
+						+ o.getClass().getSimpleName());
 	}
 
 	@Override

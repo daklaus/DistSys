@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
+import at.ac.tuwien.dslab3.presentation.PasswordFinderImpl;
 import at.ac.tuwien.dslab3.service.auctionServer.AuctionServerService;
 import at.ac.tuwien.dslab3.service.auctionServer.AuctionServerServiceFactory;
 
@@ -53,7 +54,7 @@ public class AuctionServer {
 		ass.setExceptionHandler(new ServerExceptionHandlerImpl());
 
 		try {
-			ass.start(tcpPort, analyticsServerRef, billingServerRef, clientsKeysDirectory);
+			ass.start(tcpPort, analyticsServerRef, billingServerRef, clientsKeysDirectory, serverPrivateKeyFileLocation, new PasswordFinderImpl());
 		} catch (IOException e) {
 			error("Error while connecting:", e);
 		}
@@ -104,7 +105,7 @@ public class AuctionServer {
 	private static void error(String msg, Throwable e) {
 		System.err.println(msg);
 		if (e != null)
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		close();
 		System.exit(1);
 	}
